@@ -25,5 +25,18 @@ export const db = getFirestore(app);
 export const rtdb = getDatabase(app);
 export const storage = getStorage(app);
 
+// Prevent uncaught securetoken rejection loops in the browser
+if (typeof window !== "undefined") {
+  window.addEventListener("unhandledrejection", (event) => {
+    if (
+      event?.reason?.message?.includes("securetoken") ||
+      event?.reason?.message?.includes("blocked")
+    ) {
+      console.warn("Silenced blocked securetoken token-refresh rejection.");
+      event.preventDefault();
+    }
+  });
+}
+
 export default app;
 

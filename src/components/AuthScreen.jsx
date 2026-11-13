@@ -188,9 +188,34 @@ export default function AuthScreen() {
 
             {/* Error Message */}
             {error && (
-              <div className="mb-5 p-3 rounded-[3px] bg-rose-50 border border-rose-200 text-[#FF0046] text-xs font-bold flex items-center gap-2">
-                <span>⚠️</span>
-                <span>{error}</span>
+              <div className="mb-5 p-3 rounded-[3px] bg-rose-50 border border-rose-200 text-[#FF0046] text-xs font-medium space-y-2">
+                <div className="flex items-start gap-2 font-bold">
+                  <span className="shrink-0 mt-0.5">⚠️</span>
+                  <span>
+                    {error.includes('securetoken') || error.includes('blocked')
+                      ? "Google Cloud API Restriction: 'securetoken.googleapis.com' is blocked by your API key in Google Cloud Console."
+                      : error}
+                  </span>
+                </div>
+                {(error.includes('securetoken') || error.includes('blocked')) && (
+                  <div className="text-[11px] text-stone-700 bg-white p-2.5 rounded-[2px] border border-stone-200 space-y-1.5 font-normal">
+                    <p>
+                      <strong>How to fix:</strong> In Google Cloud Console &gt; APIs &amp; Services &gt; Credentials, edit your key (<code className="bg-stone-100 px-1 py-0.5 font-mono text-[10px]">AIzaSyCT...</code>) and set API restrictions to <strong>"Don't restrict key"</strong> (or allow <em>Token Service API</em> &amp; <em>Identity Toolkit API</em>).
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (typeof window !== 'undefined' && window.indexedDB) {
+                          try { window.indexedDB.deleteDatabase('firebaseLocalStorageDb'); } catch {}
+                        }
+                        window.location.reload();
+                      }}
+                      className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white bg-[#0A011C] hover:bg-[#FF0046] px-2.5 py-1 rounded-[2px] transition-colors"
+                    >
+                      Clear Stale Session Cache
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
