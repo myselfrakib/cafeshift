@@ -138,9 +138,10 @@ export const AppProvider = ({ children }) => {
     }
   }, [currentUserId]);
 
-  // REALTIME FIREBASE SUBSCRIPTION FOR SHIFTS
+  // REALTIME FIREBASE SUBSCRIPTION FOR SHIFTS & CAFES
   useEffect(() => {
     let unsubscribeFirestore = null;
+    let unsubscribeCafes = null;
 
     try {
       const shiftsCol = collection(db, 'shifts');
@@ -163,6 +164,27 @@ export const AppProvider = ({ children }) => {
       }, (error) => {
         console.warn('Firestore onSnapshot notice:', error.message);
         subscribeToRTDB();
+      });
+
+      // Cafes subscription
+      const cafesCol = collection(db, 'cafes');
+      unsubscribeCafes = onSnapshot(cafesCol, (snapshot) => {
+        if (!snapshot.empty) {
+          const remoteCafes = [];
+          snapshot.forEach((docSnap) => {
+            remoteCafes.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          if (remoteCafes.length > 0) {
+            setCafes(prev => {
+              const mergedMap = new Map();
+              prev.forEach(c => mergedMap.set(c.id, c));
+              remoteCafes.forEach(c => mergedMap.set(c.id, c));
+              return Array.from(mergedMap.values());
+            });
+          }
+        }
+      }, (error) => {
+        console.warn('Firestore cafes notice:', error.message);
       });
     } catch (err) {
       console.warn('Firestore setup notice:', err);
@@ -219,6 +241,7 @@ export const AppProvider = ({ children }) => {
 
     return () => {
       if (unsubscribeFirestore) unsubscribeFirestore();
+      if (unsubscribeCafes) unsubscribeCafes();
       if (unsubscribeAuth) unsubscribeAuth();
     };
   }, []);
@@ -503,7 +526,11 @@ export const AppProvider = ({ children }) => {
       createdAt: new Date().toISOString()
     };
 
-    publishShiftToFirebase(newShift).catch(() => {});
+    try {
+      await publishShiftToFirebase(newShift);
+    } catch (e) {
+      console.warn('Firebase publish notice:', e);
+    }
 
     setShifts(prev => [newShift, ...prev]);
     setCreateShiftModalOpen(false);
@@ -530,7 +557,11 @@ export const AppProvider = ({ children }) => {
       photoUrl: currentUser.photoUrl || ''
     };
 
-    bookShiftInFirebase(shiftId, applicantInfo).catch(() => {});
+    try {
+      await bookShiftInFirebase(shiftId, applicantInfo);
+    } catch (e) {
+      console.warn('Firebase booking notice:', e);
+    }
 
     setShifts(prev => prev.map(shift => {
       if (shift.id === shiftId) {
@@ -550,7 +581,11 @@ export const AppProvider = ({ children }) => {
 
   // Cancel shift application
   const cancelShiftApplication = async (shiftId) => {
-    cancelShiftInFirebase(shiftId).catch(() => {});
+    try {
+      await cancelShiftInFirebase(shiftId);
+    } catch (e) {
+      console.warn('Firebase cancel notice:', e);
+    }
 
     setShifts(prev => prev.map(shift => {
       if (shift.id === shiftId) {

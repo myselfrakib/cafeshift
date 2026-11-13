@@ -256,3 +256,4 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
     </div>
   );
 }
+
