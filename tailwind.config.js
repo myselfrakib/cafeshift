@@ -7,26 +7,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        cafe: {
-          50: '#fffbf5',
-          100: '#f7f1e6',
-          200: '#eddcc5',
-          300: '#dec09d',
-          400: '#ca9d70',
-          500: '#b7804c',
-          600: '#9d663b',
-          700: '#7e4f30',
-          800: '#67412b',
-          900: '#543625',
+        dark: {
+          bg: '#0E0D12',
+          surface: '#15141B',
+          card: '#1A1822',
+          border: 'rgba(255, 255, 255, 0.08)',
         },
-        paw: {
-          pink: '#ffd6e0',
-          peach: '#ffe5d9',
-          cream: '#fff8f0',
-          mint: '#d8f3dc',
-          lemon: '#fff3b0',
-          lavender: '#e8dff5',
-          sky: '#d0f4de'
+        brand: {
+          orange: '#FF7A00',
+          amber: '#F59E0B',
+          gold: '#FFB020',
+          glow: 'rgba(255, 122, 0, 0.35)',
         }
       },
       fontFamily: {
@@ -34,26 +25,20 @@ export default {
         bubble: ['"Fredoka"', 'Nunito', 'sans-serif']
       },
       keyframes: {
-        bounceSmall: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-6px)' }
-        },
-        wiggle: {
-          '0%, 100%': { transform: 'rotate(-3deg)' },
-          '50%': { transform: 'rotate(3deg)' }
-        },
         pop: {
           '0%': { transform: 'scale(0.95)', opacity: '0' },
           '100%': { transform: 'scale(1)', opacity: '1' }
+        },
+        pulseGlow: {
+          '0%, 100%': { opacity: '0.4' },
+          '50%': { opacity: '0.8' }
         }
       },
       animation: {
-        'bounce-small': 'bounceSmall 2s infinite ease-in-out',
-        'wiggle': 'wiggle 1s ease-in-out infinite',
-        'pop': 'pop 0.25s ease-out forwards'
+        'pop': 'pop 0.25s ease-out forwards',
+        'pulse-glow': 'pulseGlow 4s ease-in-out infinite'
       }
     },
   },
   plugins: [],
 }
-
