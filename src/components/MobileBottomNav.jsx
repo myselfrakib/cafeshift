@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { PlusCircle, LogOut } from 'lucide-react';
+import { PlusCircle, LogOut, User } from 'lucide-react';
 
 export default function MobileBottomNav() {
   const {
@@ -97,14 +97,37 @@ export default function MobileBottomNav() {
           </button>
         )}
 
-        {/* 4. Sign Out */}
-        <button
-          onClick={handleLogout}
-          className="flex flex-col items-center justify-center py-1 px-3 rounded-[3px] text-stone-500 hover:text-[#FF0046] font-medium"
-        >
-          <LogOut className="w-4 h-4" />
-          <span className="text-[10px] mt-0.5 uppercase tracking-wider font-headline">Logout</span>
-        </button>
+        {/* 4. Student: Profile Button (redirecting to Profile page to manage profile) */}
+        {isAttendant && (
+          <button
+            onClick={() => setActiveTab('profile')}
+            className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-[3px] transition-colors ${
+              activeTab === 'profile'
+                ? 'text-[#FF0046] font-bold'
+                : 'text-stone-500 hover:text-[#0A011C] font-medium'
+            }`}
+          >
+            <div className="w-5 h-5 rounded-[2px] overflow-hidden border border-stone-200 flex items-center justify-center bg-stone-100">
+              {currentUser?.photoUrl ? (
+                <img src={currentUser.photoUrl} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-3.5 h-3.5 text-stone-600" />
+              )}
+            </div>
+            <span className="text-[10px] mt-0.5 uppercase tracking-wider font-headline">Profile</span>
+          </button>
+        )}
+
+        {/* 5. Owner: Sign Out */}
+        {isOwner && (
+          <button
+            onClick={handleLogout}
+            className="flex flex-col items-center justify-center py-1 px-3 rounded-[3px] text-stone-500 hover:text-[#FF0046] font-medium"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="text-[10px] mt-0.5 uppercase tracking-wider font-headline">Logout</span>
+          </button>
+        )}
       </div>
     </nav>
   );

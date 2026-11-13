@@ -201,3 +201,19 @@ export async function cancelShiftInFirebase(shiftId) {
   }
 }
 
+/**
+ * Save / Update user profile in Firestore & RTDB
+ */
+export async function saveUserToFirebase(userData) {
+  const userId = userData.id || userData.uid;
+  if (!userId) return;
+
+  try {
+    await setDoc(doc(db, 'users', userId), userData, { merge: true });
+  } catch (e) {
+    console.warn('Firestore user save failed, saving to RTDB:', e);
+    await rtdbSet(rtdbRef(rtdb, `users/${userId}`), userData);
+  }
+}
+
+

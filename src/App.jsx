@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import StudentShiftFeed from './components/StudentShiftFeed';
 import OwnerCafeView from './components/OwnerCafeView';
 import StudentApplicationsView from './components/StudentApplicationsView';
+import StudentProfileView from './components/StudentProfileView';
 import MobileBottomNav from './components/MobileBottomNav';
 import CreateShiftModal from './components/CreateShiftModal';
 import CuteToast from './components/CuteToast';
@@ -43,6 +44,10 @@ function AppContent() {
 
         {activeTab === 'my-applications' && (
           <StudentApplicationsView />
+        )}
+
+        {activeTab === 'profile' && (
+          <StudentProfileView />
         )}
       </main>
 

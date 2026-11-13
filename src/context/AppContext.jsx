@@ -29,7 +29,8 @@ import {
   saveCafeToFirebase,
   publishShiftToFirebase,
   bookShiftInFirebase,
-  cancelShiftInFirebase
+  cancelShiftInFirebase,
+  saveUserToFirebase
 } from '../services/firebaseService';
 import confetti from 'canvas-confetti';
 import { formatDateDDMMYYYY, formatTime12Hour, calculateEndTime12Hour } from '../utils/dateTime';
@@ -609,6 +610,21 @@ export const AppProvider = ({ children }) => {
     showToast('Cafe details updated successfully.', 'success', '✓');
   };
 
+  // Update student / user profile details
+  const updateUserProfile = async (updatedFields) => {
+    if (!currentUser) return;
+    const updatedUser = {
+      ...currentUser,
+      ...updatedFields,
+      updatedAt: new Date().toISOString()
+    };
+
+    setUsers(prev => prev.map(u => (u.id === currentUser.id ? updatedUser : u)));
+    saveUserToFirebase(updatedUser).catch(() => {});
+    showToast('Profile updated successfully!', 'success', '✨');
+    return updatedUser;
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -639,6 +655,7 @@ export const AppProvider = ({ children }) => {
         cancelShiftApplication,
         addOwnerCafe,
         updateOwnerCafe,
+        updateUserProfile,
         uploadImage: uploadImageToStorage,
         firebaseConnected,
         firebaseUser,

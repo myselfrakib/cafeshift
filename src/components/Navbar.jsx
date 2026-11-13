@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Coffee, PlusCircle, ChevronDown, LogOut } from 'lucide-react';
+import { Coffee, PlusCircle, ChevronDown, LogOut, User } from 'lucide-react';
 
 export default function Navbar() {
   const {
@@ -75,19 +75,32 @@ export default function Navbar() {
               </button>
             )}
 
-            {/* STUDENT'S BOOKED SHIFTS TAB */}
+            {/* STUDENT'S BOOKED SHIFTS & PROFILE TABS */}
             {isAttendant && (
-              <button
-                onClick={() => setActiveTab('my-applications')}
-                className={`px-4 py-2 rounded-[3px] transition-all flex items-center gap-1.5 ${
-                  activeTab === 'my-applications'
-                    ? 'bg-[#00DADC] text-black'
-                    : 'text-stone-600 hover:text-[#0A011C]'
-                }`}
-              >
-                <span>🎒</span>
-                <span>My Booked Shifts</span>
-              </button>
+              <>
+                <button
+                  onClick={() => setActiveTab('my-applications')}
+                  className={`px-4 py-2 rounded-[3px] transition-all flex items-center gap-1.5 ${
+                    activeTab === 'my-applications'
+                      ? 'bg-[#00DADC] text-black'
+                      : 'text-stone-600 hover:text-[#0A011C]'
+                  }`}
+                >
+                  <span>🎒</span>
+                  <span>My Booked Shifts</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('profile')}
+                  className={`px-4 py-2 rounded-[3px] transition-all flex items-center gap-1.5 ${
+                    activeTab === 'profile'
+                      ? 'bg-[#FF0046] text-white'
+                      : 'text-stone-600 hover:text-[#0A011C]'
+                  }`}
+                >
+                  <User className="w-3.5 h-3.5" />
+                  <span>My Profile</span>
+                </button>
+              </>
             )}
           </nav>
 
@@ -142,7 +155,19 @@ export default function Navbar() {
                     </p>
                   </div>
 
-                  <div className="p-1.5">
+                  <div className="p-1.5 space-y-1">
+                    {isAttendant && (
+                      <button
+                        onClick={() => {
+                          setActiveTab('profile');
+                          setSwitcherOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-2.5 py-2 rounded-[3px] text-xs font-bold text-stone-700 hover:bg-stone-100 transition-colors uppercase tracking-wider"
+                      >
+                        <User className="w-3.5 h-3.5 text-[#FF0046]" />
+                        <span>Manage Profile</span>
+                      </button>
+                    )}
                     <button
                       onClick={() => {
                         handleLogout();
