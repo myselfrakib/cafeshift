@@ -341,7 +341,7 @@ export const AppProvider = ({ children }) => {
     setIsSyncing(false);
 
     triggerConfetti();
-    showToast(`Welcome ${name}! "${cafeName}" is live on Chai & Paws.`, 'success', '☕');
+    showToast(`Welcome ${name}! "${cafeName}" is live on Calcutta Cafe Club.`, 'success', '☕');
     return uid;
   };
 

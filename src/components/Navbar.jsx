@@ -29,13 +29,13 @@ export default function Navbar() {
             onClick={() => setActiveTab('browse')}
             className="flex items-center gap-3 cursor-pointer select-none group"
           >
-            <div className="w-9 h-9 rounded-[3px] bg-[#FF0046] text-white flex items-center justify-center font-bold text-base shadow-sm group-hover:scale-105 transition-transform">
-              ☕
+            <div className="w-9 h-9 rounded-[3px] bg-[#FF0046] text-white flex items-center justify-center font-bold text-sm tracking-tighter shadow-sm group-hover:scale-105 transition-transform font-headline">
+              CCC
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-headline text-lg sm:text-xl font-bold tracking-tight text-[#0A011C] uppercase">
-                  Chai & Paws
+                  Calcutta Cafe Club
                 </span>
                 <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[3px] bg-[#00DADC] text-black">
                   Kolkata

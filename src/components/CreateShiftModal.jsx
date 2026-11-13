@@ -298,7 +298,7 @@ export default function CreateShiftModal() {
             className="w-full py-3 bg-[#FF0046] hover:bg-[#E6003F] text-white font-bold text-xs uppercase tracking-wider rounded-[3px] transition-colors flex items-center justify-center gap-2 shadow-sm"
           >
             {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            <span>Publish Shift on Chai & Paws</span>
+            <span>Publish Shift on Calcutta Cafe Club</span>
           </button>
         </form>
       </div>

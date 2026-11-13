@@ -105,13 +105,13 @@ export default function AuthScreen() {
       <header className="border-b border-stone-200 bg-white/90 backdrop-blur-md px-6 py-4 sticky top-0 z-20">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-[3px] bg-[#FF0046] text-white flex items-center justify-center font-bold text-base shadow-sm">
-              ☕
+            <div className="w-9 h-9 rounded-[3px] bg-[#FF0046] text-white flex items-center justify-center font-bold text-sm tracking-tighter shadow-sm font-headline">
+              CCC
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-headline text-xl font-bold tracking-tight text-[#0A011C] uppercase">
-                  Chai & Paws
+                  Calcutta Cafe Club
                 </span>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-[3px] bg-[#00DADC] text-black">
                   Kolkata
@@ -631,7 +631,7 @@ export default function AuthScreen() {
 
       {/* Minimal Footer */}
       <footer className="border-t border-stone-200 bg-white px-6 py-4 text-center text-xs text-stone-500">
-        Chai & Paws Calcutta · Verified student cafe staffing network · Minimum ₹100/hr wage guaranteed
+        Calcutta Cafe Club · Verified student cafe staffing network · Minimum ₹100/hr wage guaranteed
       </footer>
     </div>
   );

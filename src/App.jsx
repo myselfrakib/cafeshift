@@ -114,7 +114,7 @@ function AppContent() {
       <footer className="mt-auto border-t border-stone-200 bg-white py-8 px-4 mb-14 md:mb-0 text-xs text-stone-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-headline text-[#0A011C] font-bold text-sm tracking-wider uppercase">Chai & Paws Calcutta</span>
+            <span className="font-headline text-[#0A011C] font-bold text-sm tracking-wider uppercase">Calcutta Cafe Club</span>
             <span>·</span>
             <span>Student Cafe Work Platform</span>
           </div>
