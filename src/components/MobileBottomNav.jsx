@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Coffee, Search, PlusCircle, LogOut } from 'lucide-react';
+import { PlusCircle, LogOut } from 'lucide-react';
 
 export default function MobileBottomNav() {
   const {
@@ -21,68 +21,68 @@ export default function MobileBottomNav() {
     : shifts.filter(s => s.status === 'booked' && (s.applicant?.userId === currentUser?.id || s.applicant?.email === currentUser?.email)).length;
 
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-stone-200/90 z-40 px-3 py-2 shadow-sm">
+    <nav className="md:hidden fixed bottom-0 inset-x-0 bg-[#0A011C]/95 backdrop-blur-md border-t border-[#2A1354] z-40 px-3 py-2 shadow-2xl">
       <div className="flex items-center justify-around">
         {/* 1. Browse Shifts */}
         <button
           onClick={() => setActiveTab('browse')}
-          className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-colors ${
+          className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-[3px] transition-colors ${
             activeTab === 'browse'
-              ? 'text-stone-950 font-bold'
-              : 'text-stone-400 hover:text-stone-700 font-medium'
+              ? 'text-white font-bold'
+              : 'text-[#A399BA] hover:text-white font-medium'
           }`}
         >
           <div className="relative">
             <span className="text-lg">🐾</span>
             {openShiftsCount > 0 && (
-              <span className="absolute -top-1 -right-2 bg-stone-900 text-white text-[9px] font-bold px-1 rounded-full min-w-[14px] text-center">
+              <span className="absolute -top-1 -right-2 bg-[#FF0046] text-white text-[9px] font-bold px-1 rounded-[2px] min-w-[14px] text-center font-headline">
                 {openShiftsCount}
               </span>
             )}
           </div>
-          <span className="text-[10px] mt-0.5">Shifts</span>
+          <span className="text-[10px] mt-0.5 uppercase tracking-wider font-headline">Shifts</span>
         </button>
 
         {/* 2. Owner Cafe OR Student Bookings */}
         {isOwner ? (
           <button
             onClick={() => setActiveTab('my-cafe')}
-            className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-colors ${
+            className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-[3px] transition-colors ${
               activeTab === 'my-cafe'
-                ? 'text-stone-950 font-bold'
-                : 'text-stone-400 hover:text-stone-700 font-medium'
+                ? 'text-[#FF0046] font-bold'
+                : 'text-[#A399BA] hover:text-white font-medium'
             }`}
           >
             <div className="relative">
               <span className="text-lg">{activeCafe?.mascot || '☕'}</span>
               {bookedShiftsCount > 0 && (
-                <span className="absolute -top-1 -right-2 bg-emerald-600 text-white text-[9px] font-bold px-1 rounded-full min-w-[14px] text-center">
+                <span className="absolute -top-1 -right-2 bg-[#00DADC] text-black text-[9px] font-bold px-1 rounded-[2px] min-w-[14px] text-center font-headline">
                   {bookedShiftsCount}
                 </span>
               )}
             </div>
-            <span className="text-[10px] mt-0.5 max-w-[65px] truncate">
+            <span className="text-[10px] mt-0.5 max-w-[65px] truncate uppercase tracking-wider font-headline">
               {activeCafe?.name?.split(' ')[0] || "My Cafe"}
             </span>
           </button>
         ) : (
           <button
             onClick={() => setActiveTab('my-applications')}
-            className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-colors ${
+            className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-[3px] transition-colors ${
               activeTab === 'my-applications'
-                ? 'text-stone-950 font-bold'
-                : 'text-stone-400 hover:text-stone-700 font-medium'
+                ? 'text-[#00DADC] font-bold'
+                : 'text-[#A399BA] hover:text-white font-medium'
             }`}
           >
             <div className="relative">
               <span className="text-lg">🎒</span>
               {bookedShiftsCount > 0 && (
-                <span className="absolute -top-1 -right-2 bg-emerald-600 text-white text-[9px] font-bold px-1 rounded-full min-w-[14px] text-center">
+                <span className="absolute -top-1 -right-2 bg-[#00DADC] text-black text-[9px] font-bold px-1 rounded-[2px] min-w-[14px] text-center font-headline">
                   {bookedShiftsCount}
                 </span>
               )}
             </div>
-            <span className="text-[10px] mt-0.5">My Shifts</span>
+            <span className="text-[10px] mt-0.5 uppercase tracking-wider font-headline">My Shifts</span>
           </button>
         )}
 
@@ -90,20 +90,20 @@ export default function MobileBottomNav() {
         {isOwner && (
           <button
             onClick={() => setCreateShiftModalOpen(true)}
-            className="flex flex-col items-center justify-center py-1 px-3 text-stone-900 font-bold"
+            className="flex flex-col items-center justify-center py-1 px-3 text-[#FF0046] font-bold"
           >
             <PlusCircle className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Post</span>
+            <span className="text-[10px] mt-0.5 uppercase tracking-wider font-headline">Post</span>
           </button>
         )}
 
         {/* 4. Sign Out */}
         <button
           onClick={handleLogout}
-          className="flex flex-col items-center justify-center py-1 px-3 rounded-xl text-stone-400 hover:text-stone-700 font-medium"
+          className="flex flex-col items-center justify-center py-1 px-3 rounded-[3px] text-[#A399BA] hover:text-[#FF0046] font-medium"
         >
           <LogOut className="w-4 h-4" />
-          <span className="text-[10px] mt-0.5">Logout</span>
+          <span className="text-[10px] mt-0.5 uppercase tracking-wider font-headline">Logout</span>
         </button>
       </div>
     </nav>

@@ -7,53 +7,43 @@ export default {
   theme: {
     extend: {
       colors: {
-        cafe: {
-          50: '#fffbf5',
-          100: '#f7f1e6',
-          200: '#eddcc5',
-          300: '#dec09d',
-          400: '#ca9d70',
-          500: '#b7804c',
-          600: '#9d663b',
-          700: '#7e4f30',
-          800: '#67412b',
-          900: '#543625',
-        },
-        paw: {
-          pink: '#ffd6e0',
-          peach: '#ffe5d9',
-          cream: '#fff8f0',
-          mint: '#d8f3dc',
-          lemon: '#fff3b0',
-          lavender: '#e8dff5',
-          sky: '#d0f4de'
+        // IFP Design System Tokens
+        ifp: {
+          bg: '#0A011C', // Deep Violet background
+          surface: '#13052E',
+          card: '#160838',
+          cardHover: '#1E0D48',
+          border: '#2A1354',
+          borderLight: '#3D1C7A',
+          primary: '#FF0046', // Vivid Pink
+          primaryHover: '#E6003F',
+          secondary: '#00DADC', // Vivid Cyan
+          tertiary: '#FE9900', // Vivid Orange
+          dark: '#000000',
+          textMuted: '#A399BA',
+          textSubtle: '#786C94'
         }
+      },
+      borderRadius: {
+        'sm': '3px',
+        DEFAULT: '3px',
+        'md': '10px',
+      },
+      boxShadow: {
+        'ifp-tertiary': 'rgb(255, 81, 0) 0px 4px 0px 0px',
+        'ifp-primary': 'rgb(255, 0, 70) 0px 4px 0px 0px',
+        'ifp-cyan': 'rgb(0, 218, 220) 0px 4px 0px 0px',
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'Nunito', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        bubble: ['"Fredoka"', 'Nunito', 'sans-serif']
+        sans: ['"Titillium Web"', 'Gotham', 'Noir Pro', 'sans-serif'],
+        headline: ['"Titillium Web"', 'Gotham', 'sans-serif'],
+        display: ['"Titillium Web"', 'sans-serif'],
+        body: ['"Titillium Web"', 'Noir Pro', 'sans-serif']
       },
-      keyframes: {
-        bounceSmall: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-6px)' }
-        },
-        wiggle: {
-          '0%, 100%': { transform: 'rotate(-3deg)' },
-          '50%': { transform: 'rotate(3deg)' }
-        },
-        pop: {
-          '0%': { transform: 'scale(0.95)', opacity: '0' },
-          '100%': { transform: 'scale(1)', opacity: '1' }
-        }
-      },
-      animation: {
-        'bounce-small': 'bounceSmall 2s infinite ease-in-out',
-        'wiggle': 'wiggle 1s ease-in-out infinite',
-        'pop': 'pop 0.25s ease-out forwards'
+      transitionDuration: {
+        'default': '300ms',
       }
     },
   },
   plugins: [],
 }
-

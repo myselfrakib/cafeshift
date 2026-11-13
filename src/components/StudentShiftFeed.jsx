@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { CALCUTTA_AREAS } from '../data/seedData';
-import { Search, MapPin, Calendar, Clock, Sparkles, Check, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Search, MapPin, Calendar, Clock, ArrowRight } from 'lucide-react';
 
 const KOLKATA_AREAS_FILTERS = [
   'All',
@@ -13,7 +13,7 @@ const KOLKATA_AREAS_FILTERS = [
 ];
 
 export default function StudentShiftFeed() {
-  const { shifts, applyForShift, isAttendant, currentUser } = useApp();
+  const { shifts, applyForShift, currentUser } = useApp();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedArea, setSelectedArea] = useState('All');
@@ -48,19 +48,19 @@ export default function StudentShiftFeed() {
 
   return (
     <div className="space-y-5">
-      {/* Search & Filter Bar */}
-      <div className="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] space-y-3">
+      {/* Search & Filter Bar (IFP Dark Surface) */}
+      <div className="bg-[#12052E] rounded-[3px] p-4 border border-[#2A1354] space-y-3.5">
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
           
           {/* Search Input */}
           <div className="relative w-full md:w-80">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#786C94]" />
             <input
               type="text"
               placeholder="Search cafe, role, or area..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50/50 text-stone-900 focus:bg-white focus:outline-none focus:border-stone-900 transition-colors"
+              className="w-full pl-9 pr-4 py-2 text-xs rounded-[3px] border border-[#2A1354] bg-[#160838] text-white placeholder-[#786C94] focus:bg-[#1C0D46] focus:outline-none focus:border-[#FF0046] transition-colors"
             />
           </div>
 
@@ -74,15 +74,15 @@ export default function StudentShiftFeed() {
                 <button
                   key={area}
                   onClick={() => setSelectedArea(area)}
-                  className={`px-3 py-1.5 rounded-xl font-medium whitespace-nowrap transition-colors flex items-center gap-1.5 shrink-0 ${
+                  className={`px-3 py-1.5 rounded-[3px] font-bold uppercase tracking-wider whitespace-nowrap transition-colors flex items-center gap-1.5 shrink-0 ${
                     selectedArea === area
-                      ? 'bg-stone-900 text-white font-semibold'
-                      : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                      ? 'bg-[#FF0046] text-white'
+                      : 'bg-[#160838] text-[#A399BA] hover:text-white border border-[#2A1354]'
                   }`}
                 >
                   <span>{area}</span>
-                  <span className={`text-[10px] px-1 rounded-md ${
-                    selectedArea === area ? 'bg-white/20 text-white' : 'bg-stone-200/80 text-stone-700'
+                  <span className={`text-[10px] px-1 rounded-[2px] ${
+                    selectedArea === area ? 'bg-black/30 text-white' : 'bg-[#2A1354] text-[#A399BA]'
                   }`}>
                     {count}
                   </span>
@@ -93,17 +93,17 @@ export default function StudentShiftFeed() {
         </div>
 
         {/* Hourly Pay Filter */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-stone-100 text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#2A1354] text-xs">
           <div className="flex items-center gap-1.5">
-            <span className="font-semibold text-stone-500">Hourly Pay:</span>
+            <span className="font-bold uppercase tracking-wider text-[#A399BA] font-headline">Hourly Pay:</span>
             {[0, 120, 140, 150].map(wage => (
               <button
                 key={wage}
                 onClick={() => setMinWageFilter(wage)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                className={`px-3 py-1 rounded-[3px] text-xs font-bold uppercase tracking-wider transition-colors ${
                   minWageFilter === wage
-                    ? 'bg-stone-900 text-white font-bold'
-                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                    ? 'bg-[#00DADC] text-black font-headline'
+                    : 'bg-[#160838] text-[#A399BA] hover:text-white border border-[#2A1354]'
                 }`}
               >
                 {wage === 0 ? 'All' : `₹${wage}+/hr`}
@@ -111,27 +111,27 @@ export default function StudentShiftFeed() {
             ))}
           </div>
 
-          <div className="text-[11px] text-stone-500">
-            Showing <strong className="text-stone-900">{filteredShifts.length}</strong> available shifts
+          <div className="text-[11px] text-[#A399BA]">
+            Showing <strong className="text-white">{filteredShifts.length}</strong> available shifts
           </div>
         </div>
       </div>
 
       {/* Shifts Grid */}
       {filteredShifts.length === 0 ? (
-        <div className="text-center py-16 px-4 bg-white rounded-2xl border border-dashed border-stone-200">
-          <div className="w-12 h-12 rounded-2xl bg-stone-100 text-stone-700 flex items-center justify-center text-xl mx-auto mb-3">
+        <div className="text-center py-16 px-4 bg-[#12052E] rounded-[3px] border border-dashed border-[#2A1354]">
+          <div className="w-12 h-12 rounded-[3px] bg-[#1E0D48] text-[#FF0046] flex items-center justify-center text-xl mx-auto mb-3 border border-[#3D1C7A]">
             ☕
           </div>
-          <h3 className="text-base font-bold text-stone-950 font-bubble">
+          <h3 className="text-base font-bold text-white font-headline uppercase tracking-wider">
             No Shifts Available in this Selection
           </h3>
-          <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1 mb-4">
+          <p className="text-xs text-[#A399BA] max-w-sm mx-auto mt-1 mb-4">
             Shifts disappear once applied by other students. Try clearing your filters or check back shortly.
           </p>
           <button
             onClick={() => { setSearchTerm(''); setSelectedArea('All'); setMinWageFilter(0); }}
-            className="text-xs font-semibold text-stone-900 bg-stone-100 hover:bg-stone-200 px-3.5 py-2 rounded-xl transition-colors"
+            className="text-xs font-bold uppercase tracking-wider text-black bg-white hover:bg-[#FF0046] hover:text-white px-4 py-2 rounded-[3px] transition-colors"
           >
             Reset Filters
           </button>
@@ -141,49 +141,49 @@ export default function StudentShiftFeed() {
           {filteredShifts.map(shift => (
             <div
               key={shift.id}
-              className="bg-white rounded-2xl p-5 border border-stone-200/80 hover:border-stone-300 shadow-[0_1px_3px_rgba(0,0,0,0.02)] transition-all flex flex-col justify-between"
+              className="bg-[#12052E] rounded-[3px] p-5 border border-[#2A1354] hover:border-[#3D1C7A] transition-all flex flex-col justify-between"
             >
               <div>
                 {/* Header */}
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-stone-100 border border-stone-200 flex items-center justify-center text-xl shrink-0">
+                    <div className="w-10 h-10 rounded-[3px] bg-[#1E0D48] border border-[#3D1C7A] flex items-center justify-center text-xl shrink-0">
                       {shift.cafeMascot || '☕'}
                     </div>
                     <div>
-                      <h4 className="font-bubble font-bold text-sm text-stone-950 leading-tight">
+                      <h4 className="font-headline font-bold text-base text-white uppercase leading-tight tracking-tight">
                         {shift.cafeName}
                       </h4>
-                      <div className="flex items-center gap-1 text-[11px] text-stone-500 mt-0.5">
-                        <MapPin className="w-3 h-3 text-stone-400 shrink-0" />
+                      <div className="flex items-center gap-1 text-[11px] text-[#A399BA] mt-0.5">
+                        <MapPin className="w-3 h-3 text-[#FF0046] shrink-0" />
                         <span>{shift.cafeArea}, Kolkata</span>
                       </div>
                     </div>
                   </div>
 
-                  <span className="text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full shrink-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-[#00DADC]/15 text-[#00DADC] border border-[#00DADC]/30 px-2 py-0.5 rounded-[3px] shrink-0">
                     Open Shift
                   </span>
                 </div>
 
                 {/* Role Title */}
-                <h3 className="font-bubble text-base font-bold text-stone-950 mb-3">
+                <h3 className="font-headline text-lg font-bold text-white mb-3 uppercase tracking-tight">
                   {shift.roleName}
                 </h3>
 
                 {/* Date & Time */}
-                <div className="bg-stone-50 rounded-xl p-3 border border-stone-200/60 mb-3 space-y-1 text-xs">
-                  <div className="flex items-center justify-between text-stone-900 font-semibold">
+                <div className="bg-[#160838] rounded-[3px] p-3 border border-[#2A1354] mb-3 space-y-1 text-xs">
+                  <div className="flex items-center justify-between text-white font-bold font-headline uppercase">
                     <span className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-stone-500" />
+                      <Calendar className="w-3.5 h-3.5 text-[#00DADC]" />
                       <span>{shift.date}</span>
                     </span>
-                    <span className="text-[11px] font-bold bg-white text-stone-700 px-2 py-0.5 rounded border border-stone-200">
+                    <span className="text-[10px] font-bold bg-[#1E0D48] text-[#FE9900] px-2 py-0.5 rounded-[2px] border border-[#3D1C7A]">
                       {shift.durationHours} hrs
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-stone-500">
-                    <Clock className="w-3.5 h-3.5 text-stone-400" />
+                  <div className="flex items-center gap-1.5 text-[#A399BA]">
+                    <Clock className="w-3.5 h-3.5 text-[#FE9900]" />
                     <span>{shift.startTime} – {shift.endTime}</span>
                   </div>
                 </div>
@@ -193,7 +193,7 @@ export default function StudentShiftFeed() {
                   {shift.perks?.slice(0, 3).map((perk, idx) => (
                     <span
                       key={idx}
-                      className="text-[10px] bg-stone-100 text-stone-600 px-2 py-0.5 rounded-md border border-stone-200/60"
+                      className="text-[10px] bg-[#1E0D48] text-[#A399BA] px-2 py-0.5 rounded-[2px] border border-[#2A1354]"
                     >
                       {perk}
                     </span>
@@ -202,14 +202,14 @@ export default function StudentShiftFeed() {
               </div>
 
               {/* Bottom Pay & Apply Action */}
-              <div className="pt-3 border-t border-stone-100 flex items-center justify-between gap-3">
+              <div className="pt-3 border-t border-[#2A1354] flex items-center justify-between gap-3">
                 <div>
-                  <span className="text-[10px] font-semibold text-stone-400 block uppercase tracking-wider">
+                  <span className="text-[10px] font-bold text-[#786C94] block uppercase tracking-wider font-headline">
                     Student Pay
                   </span>
-                  <div className="font-bubble text-base font-bold text-stone-950 flex items-baseline gap-1">
+                  <div className="font-headline text-lg font-bold text-[#00DADC] flex items-baseline gap-1">
                     <span>₹{shift.totalEarnings}</span>
-                    <span className="text-[11px] font-sans font-normal text-stone-500">
+                    <span className="text-xs font-normal text-[#A399BA]">
                       (₹{shift.hourlyWage}/hr)
                     </span>
                   </div>
@@ -217,7 +217,7 @@ export default function StudentShiftFeed() {
 
                 <button
                   onClick={() => handleApplyClick(shift)}
-                  className="bg-stone-900 hover:bg-stone-800 text-white font-semibold text-xs px-4 py-2 rounded-xl transition-colors flex items-center gap-1.5 shadow-xs"
+                  className="bg-white hover:bg-[#FF0046] hover:text-white text-black font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-[3px] transition-colors flex items-center gap-1.5"
                 >
                   <span>Apply Now</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -230,50 +230,50 @@ export default function StudentShiftFeed() {
 
       {/* Confirmation Modal */}
       {confirmShift && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-950/40 backdrop-blur-xs">
-          <div className="bg-white rounded-t-3xl sm:rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-xl border border-stone-200 space-y-4 animate-pop">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-xs">
+          <div className="bg-[#12052E] rounded-[3px] max-w-md w-full p-5 sm:p-6 border border-[#2A1354] space-y-4 animate-pop shadow-2xl">
             <div>
-              <h3 className="text-lg font-bold font-bubble text-stone-950">
+              <h3 className="text-xl font-bold font-headline text-white uppercase tracking-tight">
                 Confirm Shift Application
               </h3>
-              <p className="text-xs text-stone-500 mt-0.5">
-                Apply to work at <strong className="text-stone-900">{confirmShift.cafeName}</strong>
+              <p className="text-xs text-[#A399BA] mt-0.5">
+                Apply to work at <strong className="text-white">{confirmShift.cafeName}</strong>
               </p>
             </div>
 
-            <div className="bg-stone-50 p-3.5 rounded-xl border border-stone-200 text-xs space-y-1.5">
-              <div className="flex justify-between font-semibold text-stone-900">
+            <div className="bg-[#160838] p-3.5 rounded-[3px] border border-[#2A1354] text-xs space-y-1.5">
+              <div className="flex justify-between font-bold text-white uppercase font-headline">
                 <span>Role:</span>
                 <span>{confirmShift.roleName}</span>
               </div>
-              <div className="flex justify-between text-stone-600">
+              <div className="flex justify-between text-[#A399BA]">
                 <span>Date & Time:</span>
                 <span>{confirmShift.date} · {confirmShift.startTime} ({confirmShift.durationHours} hrs)</span>
               </div>
-              <div className="flex justify-between text-stone-600">
+              <div className="flex justify-between text-[#A399BA]">
                 <span>Location:</span>
                 <span>{confirmShift.cafeArea}, Kolkata</span>
               </div>
-              <div className="pt-2 border-t border-stone-200 flex justify-between font-bold text-stone-950 text-sm">
+              <div className="pt-2 border-t border-[#2A1354] flex justify-between font-bold text-[#00DADC] text-sm font-headline">
                 <span>Total Payment:</span>
                 <span>₹{confirmShift.totalEarnings} (₹{confirmShift.hourlyWage}/hr)</span>
               </div>
             </div>
 
-            <p className="text-[11px] text-stone-500 leading-relaxed">
+            <p className="text-[11px] text-[#A399BA] leading-relaxed">
               Upon confirmation, this listing will be <strong>marked booked and removed from public listings</strong>. The cafe owner will contact your registered phone (+91 {currentUser?.phone}) via Call or WhatsApp.
             </p>
 
             <div className="flex gap-2 pt-2">
               <button
                 onClick={() => setConfirmShift(null)}
-                className="flex-1 py-2.5 rounded-xl border border-stone-200 text-xs font-semibold text-stone-700 hover:bg-stone-50"
+                className="flex-1 py-2.5 rounded-[3px] border border-[#2A1354] text-xs font-bold uppercase tracking-wider text-[#A399BA] hover:text-white hover:bg-[#160838]"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmApplication}
-                className="flex-1 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold shadow-xs transition-colors"
+                className="flex-1 py-2.5 rounded-[3px] bg-[#FF0046] hover:bg-[#E6003F] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
               >
                 Confirm & Book
               </button>

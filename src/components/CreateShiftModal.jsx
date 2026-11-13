@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { X, Calendar, Clock, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
+import { X, Calendar, Clock, AlertCircle, Loader2 } from 'lucide-react';
 
 const COMMON_PERKS = [
   'Free Specialty Coffee ☕',
@@ -83,32 +83,32 @@ export default function CreateShiftModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-950/40 backdrop-blur-xs overflow-y-auto">
-      <div className="relative bg-white rounded-t-3xl sm:rounded-2xl max-w-xl w-full p-5 sm:p-7 shadow-xl border border-stone-200 max-h-[92vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-xs overflow-y-auto">
+      <div className="relative bg-[#12052E] rounded-t-[3px] sm:rounded-[3px] max-w-xl w-full p-5 sm:p-7 border border-[#2A1354] max-h-[92vh] overflow-y-auto shadow-2xl">
         
         {/* Mobile Handle */}
-        <div className="sm:hidden w-10 h-1 bg-stone-300 rounded-full mx-auto mb-3"></div>
+        <div className="sm:hidden w-10 h-1 bg-[#2A1354] rounded-full mx-auto mb-3"></div>
 
         {/* Close Button */}
         <button
           onClick={() => setCreateShiftModalOpen(false)}
-          className="absolute top-4 right-4 sm:top-5 sm:right-5 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-700 transition-colors"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 w-8 h-8 rounded-[3px] bg-[#160838] hover:bg-[#1E0D48] flex items-center justify-center text-[#A399BA] hover:text-white transition-colors"
         >
           <X className="w-4 h-4" />
         </button>
 
         {/* Header */}
         <div className="mb-5">
-          <h2 className="text-xl font-bold font-bubble text-stone-950">
+          <h2 className="text-2xl font-bold font-headline text-white uppercase tracking-tight">
             Publish Shift Offer
           </h2>
-          <p className="text-xs text-stone-500 mt-0.5">
-            Post an open shift at <strong className="text-stone-900">{currentCafe?.name}</strong>. Shifts are locked immediately once a student applies.
+          <p className="text-xs text-[#A399BA] mt-0.5">
+            Post an open shift at <strong className="text-white">{currentCafe?.name}</strong>. Shifts are locked immediately once a student applies.
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2">
+          <div className="mb-4 p-3 rounded-[3px] bg-[#FF0046]/10 border border-[#FF0046] text-[#FF0046] text-xs font-bold flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -118,14 +118,14 @@ export default function CreateShiftModal() {
           {/* Cafe selector if multiple */}
           {ownerCafes.length > 1 && (
             <div>
-              <label className="text-xs font-bold text-stone-800 block mb-1">Select Cafe</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-[#A399BA] block mb-1 font-headline">Select Cafe</label>
               <select
                 value={cafeId}
                 onChange={e => setCafeId(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 text-stone-900 font-semibold"
+                className="w-full px-3 py-2 text-xs rounded-[3px] border border-[#2A1354] bg-[#160838] text-white font-bold"
               >
                 {ownerCafes.map(c => (
-                  <option key={c.id} value={c.id}>
+                  <option key={c.id} value={c.id} className="bg-[#12052E] text-white">
                     {c.mascot} {c.name} ({c.area})
                   </option>
                 ))}
@@ -135,7 +135,7 @@ export default function CreateShiftModal() {
 
           {/* Role Name */}
           <div>
-            <label className="text-xs font-bold text-stone-800 block mb-1">
+            <label className="text-xs font-bold uppercase tracking-wider text-[#A399BA] block mb-1 font-headline">
               Shift Title / Work Role
             </label>
             <input
@@ -144,15 +144,15 @@ export default function CreateShiftModal() {
               placeholder="e.g. Evening Rush Attendant & Table Server"
               value={roleName}
               onChange={e => setRoleName(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50/50 text-stone-900 focus:bg-white focus:outline-none focus:border-stone-900 font-medium"
+              className="w-full px-3 py-2 text-xs rounded-[3px] border border-[#2A1354] bg-[#160838] text-white placeholder-[#786C94] focus:outline-none focus:border-[#FF0046]"
             />
           </div>
 
           {/* Date and Starting Time */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold text-stone-800 flex items-center gap-1 mb-1">
-                <Calendar className="w-3.5 h-3.5 text-stone-500" />
+              <label className="text-xs font-bold uppercase tracking-wider text-[#A399BA] flex items-center gap-1 mb-1 font-headline">
+                <Calendar className="w-3.5 h-3.5 text-[#00DADC]" />
                 <span>Date</span>
               </label>
               <input
@@ -160,13 +160,13 @@ export default function CreateShiftModal() {
                 required
                 value={date}
                 onChange={e => setDate(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50/50 focus:bg-white focus:outline-none focus:border-stone-900 font-medium"
+                className="w-full px-3 py-2 text-xs rounded-[3px] border border-[#2A1354] bg-[#160838] text-white focus:outline-none focus:border-[#FF0046]"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-stone-800 flex items-center gap-1 mb-1">
-                <Clock className="w-3.5 h-3.5 text-stone-500" />
+              <label className="text-xs font-bold uppercase tracking-wider text-[#A399BA] flex items-center gap-1 mb-1 font-headline">
+                <Clock className="w-3.5 h-3.5 text-[#00DADC]" />
                 <span>Start Time</span>
               </label>
               <input
@@ -174,18 +174,18 @@ export default function CreateShiftModal() {
                 required
                 value={startTime}
                 onChange={e => setStartTime(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50/50 focus:bg-white focus:outline-none focus:border-stone-900 font-medium"
+                className="w-full px-3 py-2 text-xs rounded-[3px] border border-[#2A1354] bg-[#160838] text-white focus:outline-none focus:border-[#FF0046]"
               />
             </div>
           </div>
 
           {/* DURATION (MIN 3 HOURS) & HOURLY WAGE (MIN ₹100/HR) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 bg-stone-50 rounded-xl border border-stone-200">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 bg-[#160838] rounded-[3px] border border-[#2A1354]">
             {/* Duration */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-bold text-stone-900">Shift Duration</label>
-                <span className="text-[10px] font-bold text-stone-500 bg-stone-200 px-1.5 py-0.2 rounded">
+                <label className="text-xs font-bold uppercase tracking-wider text-white font-headline">Shift Duration</label>
+                <span className="text-[10px] font-bold text-[#00DADC] bg-[#1E0D48] px-1.5 py-0.2 rounded-[2px] border border-[#3D1C7A]">
                   Min 3 hrs
                 </span>
               </div>
@@ -194,17 +194,17 @@ export default function CreateShiftModal() {
                   type="button"
                   disabled={durationHours <= 3}
                   onClick={() => setDurationHours(prev => Math.max(3, prev - 1))}
-                  className="w-9 h-9 rounded-lg bg-white border border-stone-200 font-bold text-stone-800 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-stone-100 flex items-center justify-center text-sm shadow-xs"
+                  className="w-9 h-9 rounded-[3px] bg-[#1E0D48] border border-[#2A1354] font-bold text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#2A1354] flex items-center justify-center text-sm"
                 >
                   -
                 </button>
-                <div className="flex-1 text-center font-bold text-xs text-stone-900 bg-white py-2 rounded-lg border border-stone-200">
+                <div className="flex-1 text-center font-bold text-xs text-white bg-[#0A011C] py-2 rounded-[3px] border border-[#2A1354] font-headline">
                   {durationHours} Hours
                 </div>
                 <button
                   type="button"
                   onClick={() => setDurationHours(prev => prev + 1)}
-                  className="w-9 h-9 rounded-lg bg-white border border-stone-200 font-bold text-stone-800 hover:bg-stone-100 flex items-center justify-center text-sm shadow-xs"
+                  className="w-9 h-9 rounded-[3px] bg-[#1E0D48] border border-[#2A1354] font-bold text-white hover:bg-[#2A1354] flex items-center justify-center text-sm"
                 >
                   +
                 </button>
@@ -214,13 +214,13 @@ export default function CreateShiftModal() {
             {/* Hourly Wage */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-bold text-stone-900">Hourly Wage</label>
-                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded">
+                <label className="text-xs font-bold uppercase tracking-wider text-white font-headline">Hourly Wage</label>
+                <span className="text-[10px] font-bold text-[#FE9900] bg-[#1E0D48] px-1.5 py-0.2 rounded-[2px] border border-[#3D1C7A]">
                   Min ₹100/hr
                 </span>
               </div>
               <div className="flex items-center">
-                <span className="px-3 py-2 text-xs font-bold bg-stone-200 text-stone-800 rounded-l-lg border border-r-0 border-stone-200">
+                <span className="px-3 py-2 text-xs font-bold bg-[#1E0D48] text-[#00DADC] rounded-l-[3px] border border-r-0 border-[#2A1354]">
                   ₹
                 </span>
                 <input
@@ -230,19 +230,19 @@ export default function CreateShiftModal() {
                   required
                   value={hourlyWage}
                   onChange={e => setHourlyWage(Math.max(100, Number(e.target.value) || 100))}
-                  className="w-full px-3 py-2 text-xs rounded-r-lg border border-stone-200 bg-white font-bold text-stone-900 focus:outline-none"
+                  className="w-full px-3 py-2 text-xs rounded-r-[3px] border border-[#2A1354] bg-[#0A011C] font-bold text-white focus:outline-none focus:border-[#FF0046]"
                 />
               </div>
             </div>
           </div>
 
           {/* Student Payout Banner */}
-          <div className="bg-stone-900 text-white p-3.5 rounded-xl flex items-center justify-between shadow-xs">
+          <div className="bg-[#1E0D48] text-white p-3.5 rounded-[3px] border border-[#3D1C7A] flex items-center justify-between">
             <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400 block">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[#A399BA] block font-headline">
                 Total Student Pay for Shift
               </span>
-              <div className="text-base font-bubble font-bold text-amber-200">
+              <div className="text-lg font-headline font-bold text-[#00DADC]">
                 ₹{hourlyWage}/hr × {durationHours} hrs = ₹{totalPay}
               </div>
             </div>
@@ -251,7 +251,7 @@ export default function CreateShiftModal() {
 
           {/* Perks */}
           <div>
-            <label className="text-xs font-bold text-stone-800 block mb-1.5">
+            <label className="text-xs font-bold uppercase tracking-wider text-[#A399BA] block mb-1.5 font-headline">
               Included Perks & Freebies
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -262,10 +262,10 @@ export default function CreateShiftModal() {
                     type="button"
                     key={perk}
                     onClick={() => togglePerk(perk)}
-                    className={`text-xs px-2.5 py-1 rounded-lg transition-colors ${
+                    className={`text-xs px-2.5 py-1 rounded-[3px] font-bold uppercase tracking-wider transition-colors ${
                       isSelected
-                        ? 'bg-stone-900 text-white font-semibold'
-                        : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                        ? 'bg-[#FF0046] text-white'
+                        : 'bg-[#160838] text-[#A399BA] hover:text-white border border-[#2A1354]'
                     }`}
                   >
                     {isSelected ? '✓ ' : '+ '} {perk}
@@ -277,23 +277,23 @@ export default function CreateShiftModal() {
 
           {/* Notes */}
           <div>
-            <label className="text-xs font-bold text-stone-800 block mb-1">
+            <label className="text-xs font-bold uppercase tracking-wider text-[#A399BA] block mb-1 font-headline">
               Instructions for Attendant
             </label>
             <textarea
               rows={2}
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50/50 focus:bg-white focus:outline-none focus:border-stone-900"
+              className="w-full px-3 py-2 text-xs rounded-[3px] border border-[#2A1354] bg-[#160838] text-white placeholder-[#786C94] focus:outline-none focus:border-[#FF0046]"
               placeholder="e.g. Arrive 10 mins early, wear comfortable sneakers!"
             />
           </div>
 
-          {/* Submit */}
+          {/* Submit (IFP Pink Button) */}
           <button
             type="submit"
             disabled={isSyncing}
-            className="w-full py-3 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-xl transition-colors text-xs sm:text-sm flex items-center justify-center gap-2"
+            className="w-full py-3 bg-[#FF0046] hover:bg-[#E6003F] text-white font-bold text-xs uppercase tracking-wider rounded-[3px] transition-colors flex items-center justify-center gap-2 shadow-sm"
           >
             {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             <span>Publish Shift on Chai & Paws</span>

@@ -4,56 +4,97 @@
 
 @layer base {
   body {
-    background-color: #FFFDF9;
-    color: #4A3525;
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #0A011C;
+    color: #FFFFFF;
+    font-family: 'Titillium Web', 'Gotham', 'Noir Pro', sans-serif;
   }
 
-  h1, h2, h3, h4, .font-bubble {
-    font-family: 'Fredoka', cursive, 'Plus Jakarta Sans', sans-serif;
+  h1, h2, h3, h4, .font-headline {
+    font-family: 'Titillium Web', 'Gotham', sans-serif;
+    font-weight: 700;
   }
 }
 
-/* Cute custom scrollbars */
+/* IFP Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F7EFE5;
-  border-radius: 9999px;
+  background: #0A011C;
 }
 ::-webkit-scrollbar-thumb {
-  background: #DEBEA1;
-  border-radius: 9999px;
+  background: #2A1354;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #C49B74;
+  background: #FF0046;
 }
 
-/* Pastel gradient effects */
-.cute-gradient-header {
-  background: linear-gradient(135deg, #FFF3EB 0%, #FFEBE7 50%, #FFF5DF 100%);
+/* IFP Button Styles */
+.btn-primary {
+  background-color: #FFFFFF;
+  color: #000000;
+  font-family: 'Titillium Web', sans-serif;
+  font-weight: 700;
+  border-radius: 3px;
+  padding: 12px 20px;
+  transition: all 0.25s ease;
+}
+.btn-primary:hover {
+  background-color: #FF0046;
+  color: #FFFFFF;
 }
 
-.cute-card-shadow {
-  box-shadow: 0 10px 25px -5px rgba(183, 128, 76, 0.08), 0 8px 10px -6px rgba(183, 128, 76, 0.04);
+.btn-secondary {
+  background-color: #FE9900;
+  color: #000000;
+  font-family: 'Titillium Web', sans-serif;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 10px 20px;
+  box-shadow: rgb(255, 81, 0) 0px 4px 0px 0px;
+  transition: all 0.2s ease;
+}
+.btn-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: rgb(255, 81, 0) 0px 5px 0px 0px;
+}
+.btn-secondary:active {
+  transform: translateY(2px);
+  box-shadow: rgb(255, 81, 0) 0px 2px 0px 0px;
 }
 
-.cute-button-shadow {
-  box-shadow: 0 4px 14px 0 rgba(217, 119, 6, 0.25);
+.btn-pink {
+  background-color: #FF0046;
+  color: #FFFFFF;
+  font-family: 'Titillium Web', sans-serif;
+  font-weight: 700;
+  border-radius: 3px;
+  padding: 11px 20px;
+  box-shadow: rgb(200, 0, 55) 0px 3px 0px 0px;
+  transition: all 0.2s ease;
+}
+.btn-pink:hover {
+  background-color: #E6003F;
 }
 
-@keyframes floatMascot {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-8px) rotate(2deg);
-  }
+/* Card surfaces */
+.ifp-card {
+  background-color: #12052E;
+  border: 1px solid #2A1354;
+  border-radius: 3px;
+}
+.ifp-card-hover:hover {
+  border-color: #3D1C7A;
+  background-color: #160838;
 }
 
-.animate-float {
-  animation: floatMascot 3s ease-in-out infinite;
+/* Animation */
+@keyframes popIn {
+  0% { transform: scale(0.97); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
-
+.animate-pop {
+  animation: popIn 0.25s ease forwards;
+}
