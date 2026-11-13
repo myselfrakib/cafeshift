@@ -96,7 +96,18 @@ export const AppProvider = ({ children }) => {
   const [isSyncing, setIsSyncing] = useState(false);
 
   // UI state
-  const [activeTab, setActiveTab] = useState('browse'); // 'browse' | 'my-cafe' | 'my-applications'
+  const [activeTab, setActiveTab] = useState(() => {
+    try {
+      const savedUsers = localStorage.getItem(STORAGE_KEYS.USERS);
+      const savedCurrentUserId = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID);
+      if (savedUsers && savedCurrentUserId) {
+        const uList = JSON.parse(savedUsers);
+        const u = uList.find(x => x.id === savedCurrentUserId);
+        if (u?.role === 'owner') return 'my-cafe';
+      }
+    } catch {}
+    return 'browse';
+  });
   const [selectedCafeId, setSelectedCafeId] = useState(null);
   const [createShiftModalOpen, setCreateShiftModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
@@ -253,6 +264,13 @@ export const AppProvider = ({ children }) => {
 
   const ownerCafes = isOwner ? cafes.filter(c => c.ownerId === currentUser?.id) : [];
   const activeCafe = ownerCafes.find(c => c.id === selectedCafeId) || ownerCafes[0] || null;
+
+  // Ensure owner is never routed to browse shifts
+  useEffect(() => {
+    if (isOwner && activeTab === 'browse') {
+      setActiveTab('my-cafe');
+    }
+  }, [isOwner, activeTab]);
 
   const showToast = (message, type = 'info', emoji = '✨') => {
     setToast({ id: Date.now(), message, type, emoji });

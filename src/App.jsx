@@ -13,8 +13,17 @@ import CuteToast from './components/CuteToast';
 function AppContent() {
   const {
     currentUser,
-    activeTab
+    isOwner,
+    activeTab,
+    setActiveTab
   } = useApp();
+
+  // Owners cannot access browse shifts; force owner to their cafe view
+  React.useEffect(() => {
+    if (isOwner && activeTab === 'browse') {
+      setActiveTab('my-cafe');
+    }
+  }, [isOwner, activeTab, setActiveTab]);
 
   // STRICT AUTH GATE: Without auth, NO homepage or anything!
   if (!currentUser) {
@@ -33,21 +42,24 @@ function AppContent() {
 
       {/* Main Authenticated View Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* View Switcher based on active tab */}
-        {activeTab === 'browse' && (
-          <StudentShiftFeed />
-        )}
-
-        {activeTab === 'my-cafe' && (
+        {/* Owner View */}
+        {isOwner ? (
           <OwnerCafeView />
-        )}
+        ) : (
+          /* Student Views */
+          <>
+            {activeTab === 'browse' && (
+              <StudentShiftFeed />
+            )}
 
-        {activeTab === 'my-applications' && (
-          <StudentApplicationsView />
-        )}
+            {activeTab === 'my-applications' && (
+              <StudentApplicationsView />
+            )}
 
-        {activeTab === 'profile' && (
-          <StudentProfileView />
+            {activeTab === 'profile' && (
+              <StudentProfileView />
+            )}
+          </>
         )}
       </main>
 

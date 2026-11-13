@@ -23,25 +23,27 @@ export default function MobileBottomNav() {
   return (
     <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-stone-200 z-40 px-3 py-2 shadow-lg">
       <div className="flex items-center justify-around">
-        {/* 1. Browse Shifts */}
-        <button
-          onClick={() => setActiveTab('browse')}
-          className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-[3px] transition-colors ${
-            activeTab === 'browse'
-              ? 'text-[#0A011C] font-bold'
-              : 'text-stone-500 hover:text-[#0A011C] font-medium'
-          }`}
-        >
-          <div className="relative">
-            <span className="text-lg">🐾</span>
-            {openShiftsCount > 0 && (
-              <span className="absolute -top-1 -right-2 bg-[#FF0046] text-white text-[9px] font-bold px-1 rounded-[2px] min-w-[14px] text-center font-headline shadow-xs">
-                {openShiftsCount}
-              </span>
-            )}
-          </div>
-          <span className="text-[10px] mt-0.5 uppercase tracking-wider font-headline">Shifts</span>
-        </button>
+        {/* 1. Student Only: Browse Shifts */}
+        {isAttendant && (
+          <button
+            onClick={() => setActiveTab('browse')}
+            className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-[3px] transition-colors ${
+              activeTab === 'browse'
+                ? 'text-[#0A011C] font-bold'
+                : 'text-stone-500 hover:text-[#0A011C] font-medium'
+            }`}
+          >
+            <div className="relative">
+              <span className="text-lg">🐾</span>
+              {openShiftsCount > 0 && (
+                <span className="absolute -top-1 -right-2 bg-[#FF0046] text-white text-[9px] font-bold px-1 rounded-[2px] min-w-[14px] text-center font-headline shadow-xs">
+                  {openShiftsCount}
+                </span>
+              )}
+            </div>
+            <span className="text-[10px] mt-0.5 uppercase tracking-wider font-headline">Shifts</span>
+          </button>
+        )}
 
         {/* 2. Owner Cafe OR Student Bookings */}
         {isOwner ? (

@@ -24,7 +24,7 @@ export default function Navbar() {
           
           {/* Logo & Brand */}
           <div
-            onClick={() => setActiveTab('browse')}
+            onClick={() => setActiveTab(isOwner ? 'my-cafe' : 'browse')}
             className="flex items-center gap-3 cursor-pointer select-none group"
           >
             <div className="w-9 h-9 rounded-[3px] bg-[#FF0046] text-white flex items-center justify-center font-bold text-sm tracking-tighter shadow-sm group-hover:scale-105 transition-transform font-headline">
@@ -44,38 +44,19 @@ export default function Navbar() {
 
           {/* Center Navigation Tabs */}
           <nav className="hidden md:flex items-center gap-1.5 bg-stone-100 p-1 rounded-[3px] border border-stone-200 text-xs font-bold uppercase tracking-wider">
-            <button
-              onClick={() => setActiveTab('browse')}
-              className={`px-4 py-2 rounded-[3px] transition-all ${
-                activeTab === 'browse'
-                  ? 'bg-[#0A011C] text-white'
-                  : 'text-stone-600 hover:text-[#0A011C]'
-              }`}
-            >
-              Browse Shifts
-            </button>
-
-            {/* OWNER'S CAFE TAB */}
-            {isOwner && (
-              <button
-                onClick={() => {
-                  if (activeCafe) setSelectedCafeId(activeCafe.id);
-                  setActiveTab('my-cafe');
-                }}
-                className={`px-4 py-2 rounded-[3px] transition-all flex items-center gap-1.5 ${
-                  activeTab === 'my-cafe'
-                    ? 'bg-[#FF0046] text-white'
-                    : 'text-stone-600 hover:text-[#0A011C]'
-                }`}
-              >
-                <span>☕</span>
-                <span>{activeCafe ? activeCafe.name : "My Cafe"}</span>
-              </button>
-            )}
-
-            {/* STUDENT'S BOOKED SHIFTS & PROFILE TABS */}
+            {/* STUDENT TABS: BROWSE SHIFTS, BOOKED SHIFTS, PROFILE */}
             {isAttendant && (
               <>
+                <button
+                  onClick={() => setActiveTab('browse')}
+                  className={`px-4 py-2 rounded-[3px] transition-all ${
+                    activeTab === 'browse'
+                      ? 'bg-[#0A011C] text-white'
+                      : 'text-stone-600 hover:text-[#0A011C]'
+                  }`}
+                >
+                  Browse Shifts
+                </button>
                 <button
                   onClick={() => setActiveTab('my-applications')}
                   className={`px-4 py-2 rounded-[3px] transition-all flex items-center gap-1.5 ${
@@ -99,6 +80,20 @@ export default function Navbar() {
                   <span>My Profile</span>
                 </button>
               </>
+            )}
+
+            {/* OWNER'S CAFE TAB */}
+            {isOwner && (
+              <button
+                onClick={() => {
+                  if (activeCafe) setSelectedCafeId(activeCafe.id);
+                  setActiveTab('my-cafe');
+                }}
+                className="px-4 py-2 rounded-[3px] transition-all flex items-center gap-1.5 bg-[#FF0046] text-white font-bold shadow-2xs"
+              >
+                <span>☕</span>
+                <span>{activeCafe ? activeCafe.name : "My Cafe Outlets"}</span>
+              </button>
             )}
           </nav>
 
