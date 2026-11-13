@@ -165,14 +165,19 @@ export const AppProvider = ({ children }) => {
           });
           if (remoteShifts.length > 0) {
             setShifts(prev => {
-              const remoteIds = new Set(remoteShifts.map(s => s.id));
+              const map = new Map();
+              remoteShifts.forEach(s => map.set(s.id, s));
               const now = Date.now();
               // Retain local shifts only if created very recently (<10s) and not yet committed to remote
-              const recentLocalShifts = prev.filter(s => {
-                const shiftTime = parseInt(s.id.replace('shift-', '')) || 0;
-                return !remoteIds.has(s.id) && (now - shiftTime < 10000);
+              prev.forEach(s => {
+                if (!map.has(s.id)) {
+                  const shiftTime = parseInt(s.id.replace('shift-', '')) || 0;
+                  if (now - shiftTime < 10000) {
+                    map.set(s.id, s);
+                  }
+                }
               });
-              return [...remoteShifts, ...recentLocalShifts];
+              return Array.from(map.values());
             });
             setFirebaseConnected(true);
           } else {
@@ -226,13 +231,18 @@ export const AppProvider = ({ children }) => {
             const remoteShifts = Object.keys(data).map(k => ({ id: k, ...data[k] }));
             if (remoteShifts.length > 0) {
               setShifts(prev => {
-                const remoteIds = new Set(remoteShifts.map(s => s.id));
+                const map = new Map();
+                remoteShifts.forEach(s => map.set(s.id, s));
                 const now = Date.now();
-                const recentLocalShifts = prev.filter(s => {
-                  const shiftTime = parseInt(s.id.replace('shift-', '')) || 0;
-                  return !remoteIds.has(s.id) && (now - shiftTime < 10000);
+                prev.forEach(s => {
+                  if (!map.has(s.id)) {
+                    const shiftTime = parseInt(s.id.replace('shift-', '')) || 0;
+                    if (now - shiftTime < 10000) {
+                      map.set(s.id, s);
+                    }
+                  }
                 });
-                return [...remoteShifts, ...recentLocalShifts];
+                return Array.from(map.values());
               });
               setFirebaseConnected(true);
             } else {
@@ -540,6 +550,8 @@ export const AppProvider = ({ children }) => {
     showToast('Signed out of your account', 'info', '👋');
   };
 
+  const isCreatingShiftRef = React.useRef(false);
+
   // Create Shift Offer (Owner only, Min 3 hrs duration, Min ₹100/hr)
   const createShift = async ({
     cafeId,
@@ -552,47 +564,64 @@ export const AppProvider = ({ children }) => {
     dressCode = 'Comfortable casuals & sneakers (apron provided)',
     notes = ''
   }) => {
-    const cafe = cafes.find(c => c.id === cafeId) || activeCafe;
-    const finalWage = Math.max(100, Number(hourlyWage) || 100);
-    const finalDuration = Math.max(3, Number(durationHours) || 3);
-
-    const finalDate = formatDateDDMMYYYY(date);
-    const finalStartTime = formatTime12Hour(startTime);
-    const finalEndTime = calculateEndTime12Hour(startTime, finalDuration);
-
-    const newShift = {
-      id: 'shift-' + Date.now(),
-      cafeId: cafe.id,
-      ownerId: currentUser.id,
-      cafeName: cafe.name,
-      cafeArea: cafe.area,
-      cafePhotoUrl: cafe.photoUrl || '',
-      roleName: roleName || 'Cafe Floor & Table Attendant',
-      date: finalDate,
-      startTime: finalStartTime,
-      endTime: finalEndTime,
-      durationHours: finalDuration,
-      hourlyWage: finalWage,
-      totalEarnings: finalWage * finalDuration,
-      perks: perks.length > 0 ? perks : ['Free Cafe Drink', 'Warm Snack', 'Student Tip Share'],
-      dressCode,
-      notes: notes || 'Punctual and friendly during rush hours.',
-      status: 'open',
-      applicant: null,
-      appliedAt: null,
-      createdAt: new Date().toISOString()
-    };
+    if (isCreatingShiftRef.current) {
+      console.warn('Shift creation already in progress, ignoring duplicate call');
+      return;
+    }
+    isCreatingShiftRef.current = true;
+    setIsSyncing(true);
 
     try {
-      await publishShiftToFirebase(newShift);
-    } catch (e) {
-      console.warn('Firebase publish notice:', e);
-    }
+      const cafe = cafes.find(c => c.id === cafeId) || activeCafe;
+      const finalWage = Math.max(100, Number(hourlyWage) || 100);
+      const finalDuration = Math.max(3, Number(durationHours) || 3);
 
-    setShifts(prev => [newShift, ...prev]);
-    setCreateShiftModalOpen(false);
-    triggerConfetti();
-    showToast(`New shift published at ₹${finalWage}/hr (Total ₹${finalWage * finalDuration})`, 'success', '✨');
+      const finalDate = formatDateDDMMYYYY(date);
+      const finalStartTime = formatTime12Hour(startTime);
+      const finalEndTime = calculateEndTime12Hour(startTime, finalDuration);
+
+      const newShift = {
+        id: 'shift-' + Date.now(),
+        cafeId: cafe.id,
+        ownerId: currentUser.id,
+        cafeName: cafe.name,
+        cafeArea: cafe.area,
+        cafePhotoUrl: cafe.photoUrl || '',
+        roleName: roleName || 'Cafe Floor & Table Attendant',
+        date: finalDate,
+        startTime: finalStartTime,
+        endTime: finalEndTime,
+        durationHours: finalDuration,
+        hourlyWage: finalWage,
+        totalEarnings: finalWage * finalDuration,
+        perks: perks.length > 0 ? perks : ['Free Cafe Drink', 'Warm Snack', 'Student Tip Share'],
+        dressCode,
+        notes: notes || 'Punctual and friendly during rush hours.',
+        status: 'open',
+        applicant: null,
+        appliedAt: null,
+        createdAt: new Date().toISOString()
+      };
+
+      try {
+        await publishShiftToFirebase(newShift);
+      } catch (e) {
+        console.warn('Firebase publish notice:', e);
+      }
+
+      setShifts(prev => {
+        // Prevent duplicate insertion if onSnapshot already merged it
+        if (prev.some(s => s.id === newShift.id)) return prev;
+        return [newShift, ...prev];
+      });
+
+      setCreateShiftModalOpen(false);
+      triggerConfetti();
+      showToast(`New shift published at ₹${finalWage}/hr (Total ₹${finalWage * finalDuration})`, 'success', '✨');
+    } finally {
+      isCreatingShiftRef.current = false;
+      setIsSyncing(false);
+    }
   };
 
   // Apply For Shift

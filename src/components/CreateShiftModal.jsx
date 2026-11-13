@@ -56,8 +56,18 @@ export default function CreateShiftModal() {
   ]);
   const [dressCode, setDressCode] = useState('Comfortable casuals + sneakers (Cafe apron provided)');
   const [notes, setNotes] = useState('');
-
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingRef = React.useRef(false);
+
+  // Reset submission state whenever modal opens or closes
+  useEffect(() => {
+    if (!createShiftModalOpen) {
+      setIsSubmitting(false);
+      submittingRef.current = false;
+      setError('');
+    }
+  }, [createShiftModalOpen]);
 
   if (!createShiftModalOpen) return null;
 
@@ -78,6 +88,8 @@ export default function CreateShiftModal() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Guard against duplicate concurrent presses
+    if (submittingRef.current || isSubmitting) return;
     setError('');
 
     if (!roleName.trim()) {
@@ -93,17 +105,30 @@ export default function CreateShiftModal() {
       return setError('Please select a valid date');
     }
 
-    await createShift({
-      cafeId: currentCafe.id,
-      roleName,
-      date: formattedDateDDMMYYYY,
-      startTime: formattedStartTime,
-      durationHours: Number(durationHours),
-      hourlyWage: Number(hourlyWage),
-      perks: selectedPerks,
-      dressCode,
-      notes
-    });
+    // All required fields entered: lock & start processing animation immediately!
+    submittingRef.current = true;
+    setIsSubmitting(true);
+
+    try {
+      await createShift({
+        cafeId: currentCafe.id,
+        roleName,
+        date: formattedDateDDMMYYYY,
+        startTime: formattedStartTime,
+        durationHours: Number(durationHours),
+        hourlyWage: Number(hourlyWage),
+        perks: selectedPerks,
+        dressCode,
+        notes
+      });
+      // Reset form fields
+      setRoleName('');
+      setNotes('');
+    } catch (err) {
+      setError(err?.message || 'Failed to publish shift. Please try again.');
+      submittingRef.current = false;
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -353,14 +378,33 @@ export default function CreateShiftModal() {
             />
           </div>
 
-          {/* Submit (IFP Pink Button) */}
+          {/* Submit Button with Instant Processing Animation */}
           <button
             type="submit"
-            disabled={isSyncing}
-            className="w-full py-3 bg-[#FF0046] hover:bg-[#E6003F] text-white font-bold text-xs uppercase tracking-wider rounded-[3px] transition-colors flex items-center justify-center gap-2 shadow-sm"
+            disabled={isSubmitting || isSyncing}
+            className={`relative w-full py-3.5 rounded-[3px] font-bold text-xs uppercase tracking-wider font-headline transition-all overflow-hidden flex items-center justify-center gap-2 shadow-sm ${
+              isSubmitting || isSyncing
+                ? 'bg-[#0A011C] text-white cursor-wait opacity-95 ring-2 ring-[#00DADC]/40'
+                : 'bg-[#FF0046] hover:bg-[#E6003F] text-white active:scale-[0.99] cursor-pointer'
+            }`}
           >
-            {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            <span>Publish Shift on Calcutta Cafe Club</span>
+            {isSubmitting || isSyncing ? (
+              <>
+                {/* Glowing Shimmer Sweep Over Button */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer pointer-events-none" />
+
+                {/* Processing Spinner and Status Text */}
+                <div className="relative z-10 flex items-center gap-2.5">
+                  <Loader2 className="w-4 h-4 animate-spin text-[#00DADC]" />
+                  <span className="tracking-widest text-[#00DADC]">Publishing Shift Offer...</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <span>Publish Shift on Calcutta Cafe Club</span>
+                <span className="text-[11px] font-mono opacity-80">(₹{totalPay} Total)</span>
+              </>
+            )}
           </button>
         </form>
       </div>
