@@ -8,13 +8,15 @@ import StudentApplicationsView from './components/StudentApplicationsView';
 import MobileBottomNav from './components/MobileBottomNav';
 import CreateShiftModal from './components/CreateShiftModal';
 import CuteToast from './components/CuteToast';
-import { PlusCircle } from 'lucide-react';
+import { Coffee, MapPin, Heart, PlusCircle, ArrowUpRight } from 'lucide-react';
 
 function AppContent() {
   const {
     currentUser,
     activeTab,
+    setActiveTab,
     isOwner,
+    isAttendant,
     activeCafe,
     setCreateShiftModalOpen
   } = useApp();
@@ -30,34 +32,29 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col text-white pb-16 md:pb-0 relative overflow-hidden">
-      
-      {/* Background Ambient Warm Ember Orbs */}
-      <div className="fixed top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-orange-600/15 blur-[140px] pointer-events-none -z-10 animate-pulse-glow"></div>
-      <div className="fixed bottom-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-amber-600/10 blur-[130px] pointer-events-none -z-10"></div>
-
-      {/* Modern Top Dark Glass Header / Navbar */}
+    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-stone-900 pb-16 md:pb-0">
+      {/* Modern Top Header / Navbar */}
       <Navbar />
 
       {/* Main Authenticated View Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         
-        {/* Modern Role Context Bar in Glass */}
-        <div className="glass-panel rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative overflow-hidden">
-          <div className="flex items-center gap-3.5 z-10">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500/20 to-amber-500/20 border border-orange-500/30 flex items-center justify-center text-2xl shrink-0 shadow-inner">
+        {/* Modern Role Context Bar */}
+        <div className="bg-white rounded-2xl p-4 border border-stone-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-xl shrink-0 border border-stone-200/60">
               {currentUser.mascot || (isOwner ? '☕' : '🎒')}
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-bold text-base text-white font-bubble">
+                <span className="font-bold text-sm text-stone-950 font-bubble">
                   {currentUser.name}
                 </span>
-                <span className="text-[10px] font-bold tracking-wide uppercase px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                <span className="text-[10px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 border border-stone-200">
                   {isOwner ? 'Cafe Owner' : 'Student Attendant'}
                 </span>
               </div>
-              <p className="text-xs text-white/50 mt-0.5">
+              <p className="text-xs text-stone-500 mt-0.5">
                 {isOwner
                   ? `Managing ${activeCafe?.name || "Your Cafe"} · ${activeCafe?.area || 'Kolkata'}`
                   : `${currentUser.college || 'Kolkata Student'} · ${currentUser.address || 'Kolkata'}`}
@@ -65,24 +62,39 @@ function AppContent() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-end sm:self-auto z-10">
+          <div className="flex items-center gap-2 self-end sm:self-auto">
             {isOwner && (
               <button
                 onClick={() => setCreateShiftModalOpen(true)}
-                className="btn-orange-glow font-bold text-xs px-4 py-2.5 rounded-2xl shadow-md transition-all flex items-center gap-1.5"
+                className="bg-stone-900 hover:bg-stone-800 text-white font-semibold text-xs px-3.5 py-2 rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
               >
-                <PlusCircle className="w-4 h-4" />
+                <PlusCircle className="w-3.5 h-3.5" />
                 <span>Post Shift Offer</span>
               </button>
             )}
           </div>
-
-          <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-orange-500/10 blur-xl pointer-events-none"></div>
         </div>
 
         {/* View Switcher based on active tab */}
         {activeTab === 'browse' && (
-          <StudentShiftFeed />
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-200/80 pb-4">
+              <div>
+                <h1 className="text-2xl font-bubble font-bold text-stone-950">
+                  Available Cafe Shifts
+                </h1>
+                <p className="text-xs text-stone-500 mt-0.5">
+                  Browse and apply for verified rush-hour cafe shifts across Calcutta. Shifts lock in real-time.
+                </p>
+              </div>
+
+              <div className="text-xs font-medium text-stone-500 bg-stone-100 px-3 py-1.5 rounded-xl border border-stone-200/60 self-start sm:self-auto">
+                Minimum wage: <strong className="text-stone-900">₹100/hr</strong> · Shifts: <strong className="text-stone-900">3+ hrs</strong>
+              </div>
+            </div>
+
+            <StudentShiftFeed />
+          </div>
         )}
 
         {activeTab === 'my-cafe' && (
@@ -94,15 +106,15 @@ function AppContent() {
         )}
       </main>
 
-      {/* Modern Dark Glass Footer */}
-      <footer className="mt-auto border-t border-white/[0.08] bg-[#121118]/80 backdrop-blur-md py-8 px-4 mb-14 md:mb-0 text-xs text-white/40">
+      {/* Modern Footer */}
+      <footer className="mt-auto border-t border-stone-200/80 bg-white py-8 px-4 mb-14 md:mb-0 text-xs text-stone-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-bubble text-white font-bold text-sm">Chai & Paws Calcutta</span>
+            <span className="font-bubble text-stone-900 font-bold text-sm">Chai & Paws Calcutta</span>
             <span>·</span>
-            <span className="text-orange-400">Student Cafe Shift Platform</span>
+            <span>Student Cafe Work Platform</span>
           </div>
-          <div className="flex items-center gap-4 text-white/50">
+          <div className="flex items-center gap-4 text-stone-500">
             <span>Park Street</span>
             <span>·</span>
             <span>Southern Avenue</span>
