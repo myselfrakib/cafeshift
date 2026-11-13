@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Coffee, PlusCircle, ChevronDown, LogOut, User } from 'lucide-react';
+import { Coffee, PlusCircle, LogOut, User } from 'lucide-react';
 
 export default function Navbar() {
   const {
@@ -16,8 +16,6 @@ export default function Navbar() {
     firebaseConnected,
     handleLogout
   } = useApp();
-
-  const [switcherOpen, setSwitcherOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200">
@@ -117,72 +115,14 @@ export default function Navbar() {
               </button>
             )}
 
-            {/* User Profile & Account Menu */}
-            <div className="relative">
-              <button
-                onClick={() => setSwitcherOpen(!switcherOpen)}
-                className="flex items-center gap-2 p-1.5 pr-3 rounded-[3px] border border-stone-200 hover:border-stone-300 bg-white transition-colors text-left"
-              >
-                <div className="w-7 h-7 rounded-[3px] bg-stone-100 flex items-center justify-center text-xs overflow-hidden border border-stone-200">
-                  {currentUser?.photoUrl ? (
-                    <img src={currentUser.photoUrl} alt="Avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="font-bold font-headline text-[#FF0046]">
-                      {currentUser?.name ? currentUser.name[0].toUpperCase() : 'U'}
-                    </span>
-                  )}
-                </div>
-                <div className="hidden sm:block text-xs">
-                  <div className="font-bold text-[#0A011C] leading-tight uppercase font-headline">
-                    {currentUser?.name?.split(' ')[0]}
-                  </div>
-                  <div className="text-[10px] text-stone-500">
-                    {isOwner ? 'Cafe Owner' : 'Student'}
-                  </div>
-                </div>
-                <ChevronDown className="w-3.5 h-3.5 text-stone-400" />
-              </button>
-
-              {/* Account Dropdown */}
-              {switcherOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-[3px] shadow-xl border border-stone-200 py-1.5 z-50 animate-pop">
-                  <div className="px-3.5 py-2.5 border-b border-stone-100">
-                    <p className="text-xs font-bold text-[#0A011C] uppercase font-headline">
-                      {currentUser?.name}
-                    </p>
-                    <p className="text-[11px] text-stone-500">
-                      +91 {currentUser?.phone} · {isOwner ? 'Cafe Owner' : 'Student Attendant'}
-                    </p>
-                  </div>
-
-                  <div className="p-1.5 space-y-1">
-                    {isAttendant && (
-                      <button
-                        onClick={() => {
-                          setActiveTab('profile');
-                          setSwitcherOpen(false);
-                        }}
-                        className="w-full flex items-center gap-2 px-2.5 py-2 rounded-[3px] text-xs font-bold text-stone-700 hover:bg-stone-100 transition-colors uppercase tracking-wider"
-                      >
-                        <User className="w-3.5 h-3.5 text-[#FF0046]" />
-                        <span>Manage Profile</span>
-                      </button>
-                    )}
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setSwitcherOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2 px-2.5 py-2 rounded-[3px] text-xs font-bold text-[#FF0046] hover:bg-[#FF0046]/10 transition-colors uppercase tracking-wider"
-                    >
-                      <LogOut className="w-3.5 h-3.5" />
-                      <span>Sign Out</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
+            {/* Quick Sign Out for desktop */}
+            <button
+              onClick={handleLogout}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-[3px] border border-stone-200 hover:border-stone-300 hover:bg-stone-50 text-stone-600 hover:text-[#FF0046] text-xs font-bold uppercase tracking-wider transition-colors shadow-2xs"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out</span>
+            </button>
           </div>
         </div>
       </div>
