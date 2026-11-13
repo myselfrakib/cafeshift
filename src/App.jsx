@@ -14,6 +14,7 @@ function AppContent() {
   const {
     currentUser,
     isOwner,
+    isAttendant,
     activeTab,
     setActiveTab
   } = useApp();
@@ -36,7 +37,7 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8F9FA] text-[#0A011C] pb-16 md:pb-0">
+    <div className={`min-h-screen flex flex-col bg-[#F8F9FA] text-[#0A011C] ${isAttendant ? 'pb-20' : 'pb-16 md:pb-0'}`}>
       {/* Navbar */}
       <Navbar />
 
@@ -64,7 +65,7 @@ function AppContent() {
       </main>
 
       {/* Minimal Footer */}
-      <footer className="mt-auto border-t border-stone-200 bg-white py-8 px-4 mb-14 md:mb-0 text-xs text-stone-500">
+      <footer className={`mt-auto border-t border-stone-200 bg-white py-8 px-4 ${isAttendant ? 'mb-16' : 'mb-14 md:mb-0'} text-xs text-stone-500`}>
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="font-headline text-[#0A011C] font-bold text-sm tracking-wider uppercase">Calcutta Cafe Club</span>

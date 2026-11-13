@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Coffee, PlusCircle, LogOut, User } from 'lucide-react';
+import { Home, CalendarCheck, Coffee, PlusCircle, LogOut, User } from 'lucide-react';
 
 export default function Navbar() {
   const {
@@ -10,12 +10,18 @@ export default function Navbar() {
     activeTab,
     setActiveTab,
     activeCafe,
+    shifts,
     ownerCafes,
     setCreateShiftModalOpen,
     setSelectedCafeId,
     firebaseConnected,
     handleLogout
   } = useApp();
+
+  const openShiftsCount = shifts ? shifts.filter(s => s.status === 'open').length : 0;
+  const bookedShiftsCount = isOwner
+    ? (shifts ? shifts.filter(s => s.cafeId === activeCafe?.id && s.status === 'booked').length : 0)
+    : (shifts ? shifts.filter(s => s.status === 'booked' && (s.applicant?.userId === currentUser?.id || s.applicant?.email === currentUser?.email)).length : 0);
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200">
@@ -44,40 +50,55 @@ export default function Navbar() {
 
           {/* Center Navigation Tabs */}
           <nav className="hidden md:flex items-center gap-1.5 bg-stone-100 p-1 rounded-[3px] border border-stone-200 text-xs font-bold uppercase tracking-wider">
-            {/* STUDENT TABS: BROWSE SHIFTS, BOOKED SHIFTS, PROFILE */}
+            {/* STUDENT TABS: HOMEPAGE, MY SHIFTS, PROFILE */}
             {isAttendant && (
               <>
                 <button
                   onClick={() => setActiveTab('browse')}
-                  className={`px-4 py-2 rounded-[3px] transition-all ${
+                  className={`px-4 py-2 rounded-[3px] transition-all flex items-center gap-1.5 ${
                     activeTab === 'browse'
-                      ? 'bg-[#0A011C] text-white'
+                      ? 'bg-[#0A011C] text-white shadow-xs'
                       : 'text-stone-600 hover:text-[#0A011C]'
                   }`}
                 >
-                  Browse Shifts
+                  <Home className="w-3.5 h-3.5" />
+                  <span>Homepage</span>
+                  {openShiftsCount > 0 && (
+                    <span className={`ml-1 text-[9px] font-bold px-1.5 py-0.2 rounded-[2px] ${
+                      activeTab === 'browse' ? 'bg-[#FF0046] text-white' : 'bg-[#FF0046] text-white'
+                    }`}>
+                      {openShiftsCount}
+                    </span>
+                  )}
                 </button>
                 <button
                   onClick={() => setActiveTab('my-applications')}
                   className={`px-4 py-2 rounded-[3px] transition-all flex items-center gap-1.5 ${
                     activeTab === 'my-applications'
-                      ? 'bg-[#00DADC] text-black'
+                      ? 'bg-[#00DADC] text-black shadow-xs font-bold'
                       : 'text-stone-600 hover:text-[#0A011C]'
                   }`}
                 >
-                  <span>🎒</span>
-                  <span>My Booked Shifts</span>
+                  <CalendarCheck className="w-3.5 h-3.5" />
+                  <span>My Shifts</span>
+                  {bookedShiftsCount > 0 && (
+                    <span className={`ml-1 text-[9px] font-bold px-1.5 py-0.2 rounded-[2px] ${
+                      activeTab === 'my-applications' ? 'bg-[#0A011C] text-white' : 'bg-[#00DADC] text-black'
+                    }`}>
+                      {bookedShiftsCount}
+                    </span>
+                  )}
                 </button>
                 <button
                   onClick={() => setActiveTab('profile')}
                   className={`px-4 py-2 rounded-[3px] transition-all flex items-center gap-1.5 ${
                     activeTab === 'profile'
-                      ? 'bg-[#FF0046] text-white'
+                      ? 'bg-[#FF0046] text-white shadow-xs font-bold'
                       : 'text-stone-600 hover:text-[#0A011C]'
                   }`}
                 >
                   <User className="w-3.5 h-3.5" />
-                  <span>My Profile</span>
+                  <span>Profile</span>
                 </button>
               </>
             )}
