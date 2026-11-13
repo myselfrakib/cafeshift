@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import ApplicantCard from './ApplicantCard';
-import { PlusCircle, MapPin } from 'lucide-react';
+import AddCafeModal from './AddCafeModal';
+import { PlusCircle, MapPin, Plus, Edit3, Store } from 'lucide-react';
 import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 
 export default function OwnerCafeView() {
@@ -17,14 +18,36 @@ export default function OwnerCafeView() {
   } = useApp();
 
   const [cafeTab, setCafeTab] = useState('booked'); // 'booked' | 'open'
+  const [addCafeModalOpen, setAddCafeModalOpen] = useState(false);
+  const [editingCafe, setEditingCafe] = useState(null);
 
   const cafe = activeCafe;
 
   if (!cafe) {
     return (
-      <div className="max-w-xl mx-auto p-8 text-center bg-white rounded-[3px] border border-stone-200 shadow-sm mt-6">
-        <h3 className="text-lg font-bold font-headline text-[#0A011C] uppercase">No Cafe Registered</h3>
-        <p className="text-xs text-stone-500 mt-1 mb-4">You have not registered any cafe yet.</p>
+      <div className="max-w-xl mx-auto p-8 text-center bg-white rounded-[3px] border border-stone-200 shadow-sm mt-6 space-y-4">
+        <div className="w-12 h-12 rounded-[3px] bg-stone-100 flex items-center justify-center text-2xl mx-auto border border-stone-200">
+          ☕
+        </div>
+        <h3 className="text-lg font-bold font-headline text-[#0A011C] uppercase">No Cafe Registered Yet</h3>
+        <p className="text-xs text-stone-500 max-w-sm mx-auto">
+          Register your first cafe or restaurant branch to start posting shift offers for college students.
+        </p>
+        <button
+          onClick={() => {
+            setEditingCafe(null);
+            setAddCafeModalOpen(true);
+          }}
+          className="px-5 py-2.5 bg-[#FF0046] hover:bg-[#E6003F] text-white font-bold text-xs uppercase tracking-wider rounded-[3px] transition-colors shadow-sm inline-flex items-center gap-1.5"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Register Your Cafe</span>
+        </button>
+        <AddCafeModal
+          isOpen={addCafeModalOpen}
+          onClose={() => setAddCafeModalOpen(false)}
+          editCafe={null}
+        />
       </div>
     );
   }
@@ -41,25 +64,62 @@ export default function OwnerCafeView() {
   return (
     <div className="space-y-6 pb-12">
       
-      {/* Top Cafe Selector if Owner has multiple cafes */}
-      {ownerCafes.length > 1 && (
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-          <span className="font-bold uppercase tracking-wider text-stone-500 shrink-0 font-headline">Your Cafes:</span>
-          {ownerCafes.map(c => (
-            <button
-              key={c.id}
-              onClick={() => setSelectedCafeId(c.id)}
-              className={`px-3 py-1.5 rounded-[3px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 ${
-                c.id === cafe.id
-                  ? 'bg-[#FF0046] text-white shadow-xs'
-                  : 'bg-white text-stone-600 hover:text-[#0A011C] border border-stone-200'
-              }`}
-            >
-              <span>{c.name}</span>
-            </button>
-          ))}
+      {/* Cafe Multi-Branch Manager Bar */}
+      <div className="bg-white rounded-[3px] p-3.5 border border-stone-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 text-xs flex-1 no-scrollbar">
+          <span className="font-bold uppercase tracking-wider text-stone-500 shrink-0 font-headline flex items-center gap-1.5 mr-1 text-[11px]">
+            <Store className="w-3.5 h-3.5 text-[#FF0046]" />
+            <span>Your Cafes ({ownerCafes.length}):</span>
+          </span>
+          {ownerCafes.map(c => {
+            const cShifts = shifts.filter(s => s.cafeId === c.id);
+            const bookedCount = cShifts.filter(s => s.status === 'booked').length;
+            const isActive = c.id === cafe.id;
+            return (
+              <button
+                key={c.id}
+                onClick={() => setSelectedCafeId(c.id)}
+                className={`px-3 py-1.5 rounded-[3px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 shrink-0 border ${
+                  isActive
+                    ? 'bg-[#0A011C] text-white border-[#0A011C] shadow-xs'
+                    : 'bg-stone-50 text-stone-700 hover:text-black hover:bg-stone-100 border-stone-200'
+                }`}
+              >
+                <div className="w-4 h-4 rounded-[2px] bg-white/20 flex items-center justify-center overflow-hidden text-[9px]">
+                  {c.photoUrl ? (
+                    <img src={c.photoUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    '☕'
+                  )}
+                </div>
+                <span>{c.name}</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-[2px] ${
+                  isActive ? 'bg-[#FF0046] text-white' : 'bg-stone-200 text-stone-600'
+                }`}>
+                  {c.area}
+                </span>
+                {bookedCount > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-[#00DADC]" title={`${bookedCount} booked candidate(s)`}></span>
+                )}
+              </button>
+            );
+          })}
         </div>
-      )}
+
+        {/* + Add Another Cafe Button */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => {
+              setEditingCafe(null);
+              setAddCafeModalOpen(true);
+            }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[3px] border border-stone-200 bg-stone-50 hover:bg-stone-100 text-[#0A011C] text-xs font-bold uppercase tracking-wider transition-colors shadow-2xs"
+          >
+            <Plus className="w-3.5 h-3.5 text-[#FF0046]" />
+            <span>Add Cafe</span>
+          </button>
+        </div>
+      </div>
 
       {/* Cafe Header Banner (Clean White Surface with 3px corners & IFP accents) */}
       <div className="bg-white rounded-[3px] border border-stone-200 p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
@@ -74,10 +134,21 @@ export default function OwnerCafeView() {
             )}
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[3px] bg-[#00DADC] text-black">
                 {cafe.area}, Kolkata
               </span>
+              <button
+                onClick={() => {
+                  setEditingCafe(cafe);
+                  setAddCafeModalOpen(true);
+                }}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[3px] bg-stone-100 hover:bg-stone-200 text-stone-600 text-[10px] font-bold uppercase tracking-wider border border-stone-200 transition-colors"
+                title="Edit Cafe Details"
+              >
+                <Edit3 className="w-3 h-3 text-stone-500" />
+                <span>Edit Info</span>
+              </button>
             </div>
             <h1 className="text-2xl sm:text-3xl font-headline font-bold text-[#0A011C] uppercase tracking-tight mt-1">
               {cafe.name}
@@ -157,7 +228,7 @@ export default function OwnerCafeView() {
               Shift Offers & Candidate Contacts
             </h3>
             <p className="text-xs text-stone-500">
-              When a student applies, the shift locks instantly. Contact candidates directly via phone or WhatsApp.
+              Managing shifts at <strong className="text-stone-800">{cafe.name}</strong> ({cafe.area}). When a student applies, the shift locks instantly.
             </p>
           </div>
 
@@ -187,9 +258,9 @@ export default function OwnerCafeView() {
             {bookedShifts.length === 0 ? (
               <div className="text-center py-12 px-4 bg-stone-50 rounded-[3px] border border-dashed border-stone-200">
                 <div className="text-2xl mb-1 text-[#FF0046]">📋</div>
-                <h4 className="text-sm font-bold text-[#0A011C] font-headline uppercase">No Booked Candidates Yet</h4>
+                <h4 className="text-sm font-bold text-[#0A011C] font-headline uppercase">No Booked Candidates Yet for {cafe.name}</h4>
                 <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1 mb-3">
-                  When a student taps "Apply" on your shift offer, their profile and direct contact buttons will appear here immediately.
+                  When a student taps "Apply" on a shift at this cafe, their profile and contact buttons will appear here immediately.
                 </p>
               </div>
             ) : (
@@ -212,9 +283,9 @@ export default function OwnerCafeView() {
           <div className="space-y-4">
             {openShifts.length === 0 ? (
               <div className="text-center py-12 px-4 bg-stone-50 rounded-[3px] border border-dashed border-stone-200">
-                <h4 className="text-sm font-bold text-[#0A011C] font-headline uppercase">No Open Shifts Currently Listed</h4>
+                <h4 className="text-sm font-bold text-[#0A011C] font-headline uppercase">No Open Shifts for {cafe.name}</h4>
                 <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1 mb-3">
-                  Create a shift offer to find students for your upcoming rush hours.
+                  Publish a shift offer to find students for your upcoming rush hours.
                 </p>
                 <button
                   onClick={() => setCreateShiftModalOpen(true)}
@@ -252,6 +323,16 @@ export default function OwnerCafeView() {
           </div>
         )}
       </div>
+
+      {/* Add / Edit Cafe Modal */}
+      <AddCafeModal
+        isOpen={addCafeModalOpen}
+        onClose={() => {
+          setAddCafeModalOpen(false);
+          setEditingCafe(null);
+        }}
+        editCafe={editingCafe}
+      />
 
     </div>
   );

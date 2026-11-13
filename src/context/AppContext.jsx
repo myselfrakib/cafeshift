@@ -596,6 +596,19 @@ export const AppProvider = ({ children }) => {
     showToast(`Added "${name}" to your cafes!`, 'success', '☕');
   };
 
+  // Update owner cafe details
+  const updateOwnerCafe = async (cafeId, updatedFields) => {
+    setCafes(prev => prev.map(c => {
+      if (c.id === cafeId) {
+        const updated = { ...c, ...updatedFields, updatedAt: new Date().toISOString() };
+        saveCafeToFirebase(updated).catch(() => {});
+        return updated;
+      }
+      return c;
+    }));
+    showToast('Cafe details updated successfully.', 'success', '✓');
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -625,6 +638,7 @@ export const AppProvider = ({ children }) => {
         applyForShift,
         cancelShiftApplication,
         addOwnerCafe,
+        updateOwnerCafe,
         uploadImage: uploadImageToStorage,
         firebaseConnected,
         firebaseUser,

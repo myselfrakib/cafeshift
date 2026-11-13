@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { X, Calendar, Clock, AlertCircle, Loader2 } from 'lucide-react';
 import { formatDateDDMMYYYY, calculateEndTime12Hour } from '../utils/dateTime';
@@ -24,6 +24,21 @@ export default function CreateShiftModal() {
 
   const [cafeId, setCafeId] = useState(activeCafe?.id || ownerCafes[0]?.id || '');
   const [roleName, setRoleName] = useState('');
+
+  // Sync active cafe and default wage when modal opens or activeCafe changes
+  useEffect(() => {
+    if (activeCafe?.id) {
+      setCafeId(activeCafe.id);
+      if (activeCafe.minHourlyWage) {
+        setHourlyWage(Math.max(100, activeCafe.minHourlyWage));
+      }
+    } else if (ownerCafes.length > 0) {
+      setCafeId(ownerCafes[0].id);
+      if (ownerCafes[0].minHourlyWage) {
+        setHourlyWage(Math.max(100, ownerCafes[0].minHourlyWage));
+      }
+    }
+  }, [createShiftModalOpen, activeCafe, ownerCafes]);
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
