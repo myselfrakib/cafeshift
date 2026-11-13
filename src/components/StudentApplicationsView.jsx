@@ -14,63 +14,36 @@ export default function StudentApplicationsView() {
   const totalHoursBooked = studentShifts.reduce((acc, s) => acc + (s.durationHours || 0), 0);
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Student Profile Overview Card (Clean White Surface with 3px corners) */}
-      <div className="bg-white rounded-[3px] border border-stone-200 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-sm">
-        <div className="flex items-start gap-4">
-          <div className="w-14 h-14 rounded-[3px] bg-stone-100 border border-stone-200 flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
-            {currentUser?.photoUrl ? (
-              <img src={currentUser.photoUrl} alt={currentUser.name} className="w-full h-full object-cover" />
-            ) : (
-              <span className="font-headline font-bold text-lg text-[#FF0046]">
-                {currentUser?.name ? currentUser.name.split(' ').map(n=>n[0]).join('').slice(0, 2).toUpperCase() : 'ST'}
-              </span>
-            )}
-          </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-headline font-bold text-[#0A011C] uppercase tracking-tight">
-              {currentUser?.name}
-            </h1>
-            <p className="text-xs text-stone-500 mt-0.5">
-              {currentUser?.college || 'Kolkata Student'} · {currentUser?.address}
-            </p>
-            <p className="text-xs text-[#008b8d] font-mono mt-0.5">
-              Registered Phone: +91 {currentUser?.phone}
-            </p>
-          </div>
-        </div>
-
-        <div className="bg-stone-50 rounded-[3px] p-4 border border-stone-200 text-left sm:text-right shrink-0">
-          <span className="text-[10px] uppercase font-bold text-stone-400 block tracking-wider font-headline">
-            Upcoming Earnings
-          </span>
-          <div className="text-2xl font-headline font-bold text-[#FF0046]">
-            ₹{totalEarningsBooked}
-          </div>
-          <p className="text-[11px] text-stone-500">
-            {studentShifts.length} Shifts · {totalHoursBooked} Hours
-          </p>
-        </div>
-      </div>
-
+    <div className="space-y-4 pb-12">
       {/* Booked Shifts Section */}
       <div className="bg-white rounded-[3px] p-5 sm:p-6 border border-stone-200 shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b border-stone-200 pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-200 pb-3">
           <div>
-            <h3 className="text-base font-headline font-bold text-[#0A011C] uppercase tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-headline font-bold text-[#0A011C] uppercase tracking-tight">
               Your Booked Shifts
-            </h3>
-            <p className="text-xs text-stone-500">
-              These shifts are locked exclusively for you. The cafe owner will contact you directly.
+            </h2>
+            <p className="text-xs text-stone-500 mt-0.5">
+              Confirmed shifts locked exclusively for you. The cafe owner will contact you directly.
             </p>
           </div>
 
-          <button
-            onClick={() => setActiveTab('browse')}
-            className="text-xs font-bold uppercase tracking-wider text-black bg-stone-100 hover:bg-[#FF0046] hover:text-white px-3.5 py-1.5 rounded-[3px] border border-stone-200 transition-colors"
-          >
-            + Browse Shifts
-          </button>
+          <div className="flex items-center gap-3">
+            <div className="bg-stone-50 rounded-[3px] px-3.5 py-1.5 border border-stone-200 text-right">
+              <span className="text-[10px] uppercase font-bold text-stone-400 block tracking-wider font-headline">
+                Upcoming Earnings
+              </span>
+              <div className="text-base font-headline font-bold text-[#FF0046]">
+                ₹{totalEarningsBooked} <span className="text-[11px] text-stone-500 font-normal">({totalHoursBooked} hrs)</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setActiveTab('browse')}
+              className="text-xs font-bold uppercase tracking-wider text-black bg-stone-100 hover:bg-[#FF0046] hover:text-white px-3.5 py-2 rounded-[3px] border border-stone-200 transition-colors shadow-2xs"
+            >
+              + Browse Shifts
+            </button>
+          </div>
         </div>
 
         {studentShifts.length === 0 ? (
