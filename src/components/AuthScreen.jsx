@@ -19,13 +19,13 @@ export default function AuthScreen() {
 
   // Login state
   const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('Password@123');
+  const [loginPassword, setLoginPassword] = useState('');
 
   // Attendant (Student) state
   const [attendantData, setAttendantData] = useState({
     name: '',
     email: '',
-    password: 'Password@123',
+    password: '',
     phone: '',
     gender: 'Female',
     age: 19,
@@ -39,19 +39,20 @@ export default function AuthScreen() {
   const [ownerData, setOwnerData] = useState({
     name: '',
     email: '',
-    password: 'Password@123',
+    password: '',
     phone: '',
-    cafeName: "Rakib's Cafe",
+    cafeName: '',
     cafeArea: 'Park Street',
     cafeAddress: '',
     cafeMascot: '🐱',
-    minHourlyWage: 120
+    minHourlyWage: 100
   });
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     if (!loginEmail.trim()) return setError('Please enter your email');
+    if (!loginPassword) return setError('Please enter your password');
     try {
       await loginUser(loginEmail.trim(), loginPassword);
     } catch (err) {
@@ -64,6 +65,7 @@ export default function AuthScreen() {
     setError('');
     if (!attendantData.name.trim()) return setError('Please enter your full name');
     if (!attendantData.email.trim() || !attendantData.email.includes('@')) return setError('Please enter a valid email');
+    if (!attendantData.password || attendantData.password.length < 6) return setError('Password must be at least 6 characters');
     if (!attendantData.phone.trim() || attendantData.phone.replace(/\D/g, '').length < 10) {
       return setError('Please enter a valid 10-digit mobile number for +91');
     }
@@ -82,6 +84,7 @@ export default function AuthScreen() {
     setError('');
     if (!ownerData.name.trim()) return setError('Please enter your full name');
     if (!ownerData.email.trim() || !ownerData.email.includes('@')) return setError('Please enter a valid email');
+    if (!ownerData.password || ownerData.password.length < 6) return setError('Password must be at least 6 characters');
     if (!ownerData.phone.trim() || ownerData.phone.replace(/\D/g, '').length < 10) {
       return setError('Please enter a valid 10-digit mobile number for +91');
     }
@@ -202,7 +205,7 @@ export default function AuthScreen() {
                     <input
                       type="email"
                       required
-                      placeholder="e.g. rakib@rakibscafe.in"
+                      placeholder="e.g. yourname@gmail.com"
                       value={loginEmail}
                       onChange={e => setLoginEmail(e.target.value)}
                       className="w-full pl-10 pr-4 py-2.5 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] transition-colors"

@@ -22,7 +22,7 @@ export default function CreateShiftModal() {
   } = useApp();
 
   const [cafeId, setCafeId] = useState(activeCafe?.id || ownerCafes[0]?.id || '');
-  const [roleName, setRoleName] = useState('Evening Rush Attendant & Table Server');
+  const [roleName, setRoleName] = useState('');
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -31,14 +31,13 @@ export default function CreateShiftModal() {
   const [date, setDate] = useState(defaultDateStr);
   const [startTime, setStartTime] = useState('16:00');
   const [durationHours, setDurationHours] = useState(3); // Minimum 3 hours required!
-  const [hourlyWage, setHourlyWage] = useState(activeCafe?.minHourlyWage || 120); // Minimum 100 required!
+  const [hourlyWage, setHourlyWage] = useState(activeCafe?.minHourlyWage || 100); // Minimum 100 required!
   const [selectedPerks, setSelectedPerks] = useState([
     'Free Specialty Coffee ☕',
-    'Warm Meal / Snack 🥪',
-    'Student Tip Share 💸'
+    'Warm Meal / Snack 🥪'
   ]);
   const [dressCode, setDressCode] = useState('Comfortable casuals + sneakers (Cafe apron provided)');
-  const [notes, setNotes] = useState('Friendly, polite student who loves greeting guests and keeping tables tidy during rush hours.');
+  const [notes, setNotes] = useState('');
 
   const [error, setError] = useState('');
 
@@ -59,6 +58,9 @@ export default function CreateShiftModal() {
     e.preventDefault();
     setError('');
 
+    if (!roleName.trim()) {
+      return setError('Please enter a shift title / work role');
+    }
     if (durationHours < 3) {
       return setError('Shift duration must be at least 3 hours (as per student fair work standards)');
     }

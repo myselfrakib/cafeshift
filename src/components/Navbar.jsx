@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Coffee, PlusCircle, ChevronDown, Check, LogOut } from 'lucide-react';
+import { Coffee, PlusCircle, ChevronDown, LogOut } from 'lucide-react';
 
 export default function Navbar() {
   const {
@@ -11,8 +11,6 @@ export default function Navbar() {
     setActiveTab,
     activeCafe,
     ownerCafes,
-    users,
-    switchUser,
     setCreateShiftModalOpen,
     setSelectedCafeId,
     firebaseConnected,
@@ -138,39 +136,13 @@ export default function Navbar() {
                     </p>
                   </div>
 
-                  <div className="p-1.5 border-b border-stone-100">
-                    <p className="text-[10px] uppercase font-bold text-stone-400 px-2 py-1">
-                      Switch Profile (Demo)
-                    </p>
-                    {users.map(u => (
-                      <button
-                        key={u.id}
-                        onClick={() => {
-                          switchUser(u.id);
-                          setSwitcherOpen(false);
-                        }}
-                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-[3px] text-xs transition-colors text-left ${
-                          u.id === currentUser?.id
-                            ? 'bg-stone-100 font-bold text-[#FF0046]'
-                            : 'text-stone-700 hover:bg-stone-50'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span>{u.mascot || '👤'}</span>
-                          <span className="truncate">{u.name} ({u.role === 'owner' ? 'Owner' : 'Student'})</span>
-                        </div>
-                        {u.id === currentUser?.id && <Check className="w-3.5 h-3.5 text-[#FF0046]" />}
-                      </button>
-                    ))}
-                  </div>
-
                   <div className="p-1.5">
                     <button
                       onClick={() => {
                         handleLogout();
                         setSwitcherOpen(false);
                       }}
-                      className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-[3px] text-xs font-bold text-[#FF0046] hover:bg-[#FF0046]/10 transition-colors uppercase tracking-wider"
+                      className="w-full flex items-center gap-2 px-2.5 py-2 rounded-[3px] text-xs font-bold text-[#FF0046] hover:bg-[#FF0046]/10 transition-colors uppercase tracking-wider"
                     >
                       <LogOut className="w-3.5 h-3.5" />
                       <span>Sign Out</span>

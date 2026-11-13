@@ -39,7 +39,6 @@ import {
   getDownloadURL
 } from 'firebase/storage';
 
-import { INITIAL_USERS, INITIAL_CAFES, INITIAL_SHIFTS } from '../data/seedData';
 
 // Storage fallback keys
 const STORAGE_PREFIX = 'calcutta_cafe_';

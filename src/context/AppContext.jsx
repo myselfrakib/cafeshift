@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { INITIAL_USERS, INITIAL_CAFES, INITIAL_SHIFTS } from '../data/seedData';
 import {
   auth,
   db,
@@ -37,38 +36,45 @@ import confetti from 'canvas-confetti';
 const AppContext = createContext();
 
 const STORAGE_KEYS = {
-  USERS: 'calcutta_cafe_users_v3',
-  CAFES: 'calcutta_cafe_cafes_v3',
-  SHIFTS: 'calcutta_cafe_shifts_v3',
-  CURRENT_USER_ID: 'calcutta_cafe_current_user_v3',
+  USERS: 'calcutta_cafe_prod_users',
+  CAFES: 'calcutta_cafe_prod_cafes',
+  SHIFTS: 'calcutta_cafe_prod_shifts',
+  CURRENT_USER_ID: 'calcutta_cafe_prod_current_user',
 };
 
+// Clear legacy demo keys from prior prototyping
+try {
+  ['calcutta_cafe_users_v3', 'calcutta_cafe_cafes_v3', 'calcutta_cafe_shifts_v3', 'calcutta_cafe_current_user_v3', 'calcutta_cafe_users_v2', 'calcutta_cafe_cafes_v2', 'calcutta_cafe_shifts_v2'].forEach(k => {
+    localStorage.removeItem(k);
+  });
+} catch (e) {}
+
 export const AppProvider = ({ children }) => {
-  // Initialize data
+  // Initialize data (Production: empty defaults)
   const [users, setUsers] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.USERS);
-      return saved ? JSON.parse(saved) : INITIAL_USERS;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return INITIAL_USERS;
+      return [];
     }
   });
 
   const [cafes, setCafes] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.CAFES);
-      return saved ? JSON.parse(saved) : INITIAL_CAFES;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return INITIAL_CAFES;
+      return [];
     }
   });
 
   const [shifts, setShifts] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SHIFTS);
-      return saved ? JSON.parse(saved) : INITIAL_SHIFTS;
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return INITIAL_SHIFTS;
+      return [];
     }
   });
 
@@ -198,9 +204,9 @@ export const AppProvider = ({ children }) => {
               id: user.uid,
               name: user.displayName || user.email.split('@')[0],
               email: user.email,
-              phone: '9830123456',
+              phone: user.phoneNumber ? user.phoneNumber.replace(/^\+91/, '') : '',
               role: 'attendant',
-              mascot: '🐱'
+              mascot: '🎒'
             };
             return [newUser, ...prev];
           }
@@ -431,10 +437,10 @@ export const AppProvider = ({ children }) => {
         return;
       }
     } catch (error) {
-      // Check local user match (demo profiles)
-      const demoUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-      if (demoUser) {
-        switchUser(demoUser.id);
+      // Check local registered users if offline / local session
+      const matchedUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (matchedUser) {
+        switchUser(matchedUser.id);
         return;
       }
       throw error;
