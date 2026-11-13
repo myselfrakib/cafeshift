@@ -128,7 +128,7 @@ export default function CreateShiftModal() {
               >
                 {ownerCafes.map(c => (
                   <option key={c.id} value={c.id}>
-                    {c.mascot} {c.name} ({c.area})
+                    ☕ {c.name} ({c.area})
                   </option>
                 ))}
               </select>

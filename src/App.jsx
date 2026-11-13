@@ -42,8 +42,14 @@ function AppContent() {
         {/* Role Context Bar */}
         <div className="bg-white rounded-[3px] p-4 border border-stone-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[3px] bg-stone-100 border border-stone-200 flex items-center justify-center text-xl shrink-0">
-              {currentUser.mascot || (isOwner ? '☕' : '🎒')}
+            <div className="w-10 h-10 rounded-[3px] bg-stone-100 border border-stone-200 flex items-center justify-center overflow-hidden shrink-0">
+              {currentUser.photoUrl ? (
+                <img src={currentUser.photoUrl} alt={currentUser.name} className="w-full h-full object-cover" />
+              ) : (
+                <span className="font-headline font-bold text-sm text-[#FF0046]">
+                  {currentUser.name ? currentUser.name.split(' ').map(n=>n[0]).join('').slice(0, 2).toUpperCase() : (isOwner ? '☕' : 'CC')}
+                </span>
+              )}
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">

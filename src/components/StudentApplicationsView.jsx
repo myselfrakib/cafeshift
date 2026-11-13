@@ -17,8 +17,14 @@ export default function StudentApplicationsView() {
       {/* Student Profile Overview Card (Clean White Surface with 3px corners) */}
       <div className="bg-white rounded-[3px] border border-stone-200 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-sm">
         <div className="flex items-start gap-4">
-          <div className="w-14 h-14 rounded-[3px] bg-stone-50 border border-stone-200 flex items-center justify-center text-3xl shrink-0 shadow-xs">
-            {currentUser?.mascot || '🐼'}
+          <div className="w-14 h-14 rounded-[3px] bg-stone-100 border border-stone-200 flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
+            {currentUser?.photoUrl ? (
+              <img src={currentUser.photoUrl} alt={currentUser.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="font-headline font-bold text-lg text-[#FF0046]">
+                {currentUser?.name ? currentUser.name.split(' ').map(n=>n[0]).join('').slice(0, 2).toUpperCase() : 'ST'}
+              </span>
+            )}
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl font-headline font-bold text-[#0A011C] uppercase tracking-tight">

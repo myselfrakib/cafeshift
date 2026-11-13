@@ -54,7 +54,7 @@ export default function MobileBottomNav() {
             }`}
           >
             <div className="relative">
-              <span className="text-lg">{activeCafe?.mascot || '☕'}</span>
+              <span className="text-lg">☕</span>
               {bookedShiftsCount > 0 && (
                 <span className="absolute -top-1 -right-2 bg-[#00DADC] text-black text-[9px] font-bold px-1 rounded-[2px] min-w-[14px] text-center font-headline shadow-xs">
                   {bookedShiftsCount}

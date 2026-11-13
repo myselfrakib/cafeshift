@@ -18,8 +18,14 @@ export default function ApplicantCard({ shift, onComplete, onCancel }) {
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         {/* Student Profile Info */}
         <div className="flex items-start gap-3.5">
-          <div className="w-12 h-12 rounded-[3px] bg-stone-50 border border-stone-200 flex items-center justify-center text-2xl shrink-0 shadow-xs">
-            {applicant.mascot || '🐼'}
+          <div className="w-12 h-12 rounded-[3px] bg-stone-100 border border-stone-200 flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
+            {applicant.photoUrl ? (
+              <img src={applicant.photoUrl} alt={applicant.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="font-headline font-bold text-base text-[#FF0046]">
+                {applicant.name ? applicant.name.split(' ').map(n=>n[0]).join('').slice(0, 2).toUpperCase() : 'ST'}
+              </span>
+            )}
           </div>
 
           <div>

@@ -205,8 +205,8 @@ export const AppProvider = ({ children }) => {
               name: user.displayName || user.email.split('@')[0],
               email: user.email,
               phone: user.phoneNumber ? user.phoneNumber.replace(/^\+91/, '') : '',
-              role: 'attendant',
-              mascot: '🎒'
+              photoUrl: user.photoURL || '',
+              role: 'attendant'
             };
             return [newUser, ...prev];
           }
@@ -260,7 +260,7 @@ export const AppProvider = ({ children }) => {
       } else {
         setActiveTab('browse');
       }
-      showToast(`Logged in as ${user.name} (${user.role === 'owner' ? 'Cafe Owner' : 'Student Attendant'})`, 'success', user.mascot || '👤');
+      showToast(`Logged in as ${user.name} (${user.role === 'owner' ? 'Cafe Owner' : 'Student Attendant'})`, 'success', user.role === 'owner' ? '☕' : '👋');
     }
   };
 
@@ -273,7 +273,7 @@ export const AppProvider = ({ children }) => {
     cafeName,
     cafeArea,
     cafeAddress,
-    cafeMascot = '🐱',
+    photoUrl = '',
     cafePhotoUrl = '',
     cafeDescription = '',
     minHourlyWage = 100
@@ -282,6 +282,7 @@ export const AppProvider = ({ children }) => {
     const cleanPhone = phone.replace(/^\+91/, '').replace(/\s+/g, '');
     let uid = 'owner-' + Date.now();
     const newCafeId = 'cafe-' + Date.now();
+    const finalPhoto = photoUrl || cafePhotoUrl || '';
 
     try {
       const res = await registerFirebaseUser({
@@ -291,7 +292,7 @@ export const AppProvider = ({ children }) => {
         profileData: {
           name,
           phone: cleanPhone,
-          mascot: cafeMascot,
+          photoUrl: finalPhoto,
           cafeId: newCafeId
         }
       });
@@ -310,8 +311,7 @@ export const AppProvider = ({ children }) => {
       tagline: 'Specialty Coffee & Student Shifts ☕',
       area: cafeArea || 'Park Street',
       address: cafeAddress || `${cafeArea}, Kolkata`,
-      mascot: cafeMascot,
-      photoUrl: cafePhotoUrl || '',
+      photoUrl: finalPhoto,
       coverGradient: 'from-stone-900 to-amber-950',
       minHourlyWage: Math.max(100, Number(minHourlyWage) || 100),
       description: cafeDescription || 'A welcoming cafe offering flexible part-time shifts for energetic students!',
@@ -326,7 +326,7 @@ export const AppProvider = ({ children }) => {
       name,
       email,
       phone: cleanPhone,
-      mascot: cafeMascot,
+      photoUrl: finalPhoto,
       bio: `Owner of ${cafeName} in ${cafeArea}. Supporting student education with flexible hourly jobs!`,
       cafes: [newCafeId]
     };
@@ -355,7 +355,6 @@ export const AppProvider = ({ children }) => {
     age,
     address,
     college,
-    mascot = '🐼',
     photoUrl = '',
     bio = ''
   }) => {
@@ -375,7 +374,6 @@ export const AppProvider = ({ children }) => {
           age: Number(age) || 19,
           address,
           college,
-          mascot,
           photoUrl
         }
       });
@@ -397,7 +395,6 @@ export const AppProvider = ({ children }) => {
       age: Number(age) || 19,
       address: address || 'Kolkata, West Bengal',
       college: college || 'College Student in Kolkata',
-      mascot: mascot,
       photoUrl: photoUrl || '',
       bio: bio || 'Ready for flexible shifts at Kolkata cafes.'
     };
@@ -408,7 +405,7 @@ export const AppProvider = ({ children }) => {
     setIsSyncing(false);
 
     triggerConfetti();
-    showToast(`Welcome ${name}! Your student profile is active.`, 'success', mascot);
+    showToast(`Welcome ${name}! Your student profile is active.`, 'success', '👋');
     return uid;
   };
 
@@ -487,7 +484,6 @@ export const AppProvider = ({ children }) => {
       ownerId: currentUser.id,
       cafeName: cafe.name,
       cafeArea: cafe.area,
-      cafeMascot: cafe.mascot || '☕',
       cafePhotoUrl: cafe.photoUrl || '',
       roleName: roleName || 'Cafe Floor & Table Attendant',
       date,
@@ -529,7 +525,6 @@ export const AppProvider = ({ children }) => {
       age: currentUser.age || 19,
       gender: currentUser.gender || 'Not specified',
       address: currentUser.address || 'Kolkata',
-      mascot: currentUser.mascot || '🐼',
       photoUrl: currentUser.photoUrl || ''
     };
 
@@ -570,7 +565,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // Add owner cafe
-  const addOwnerCafe = async ({ name, area, address, mascot, description, minHourlyWage, photoUrl }) => {
+  const addOwnerCafe = async ({ name, area, address, description, minHourlyWage, photoUrl }) => {
     const newCafeId = 'cafe-' + Date.now();
     const newCafe = {
       id: newCafeId,
@@ -579,7 +574,6 @@ export const AppProvider = ({ children }) => {
       tagline: 'Specialty Sips in Calcutta ☕',
       area,
       address,
-      mascot: mascot || '☕',
       photoUrl: photoUrl || '',
       coverGradient: 'from-stone-900 to-amber-950',
       minHourlyWage: Math.max(100, Number(minHourlyWage) || 100),

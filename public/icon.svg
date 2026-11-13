@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Base Background -->
+  <rect width="512" height="512" rx="80" fill="#0A011C"/>
+  <rect x="16" y="16" width="480" height="480" rx="64" stroke="#FF0046" stroke-width="20"/>
+  
+  <!-- Stylized Modern Coffee Cup -->
+  <path d="M144 208H336V296C336 331.346 307.346 360 272 360H208C172.654 360 144 331.346 144 296V208Z" fill="#FF0046"/>
+  <path d="M336 232H364C379.464 232 392 244.536 392 260C392 275.464 379.464 288 364 288H336" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round"/>
+  
+  <!-- Steam lines in Vivid Cyan #00DADC -->
+  <path d="M200 128C192 148 208 164 200 184" stroke="#00DADC" stroke-width="16" stroke-linecap="round"/>
+  <path d="M240 112C232 136 248 152 240 184" stroke="#00DADC" stroke-width="16" stroke-linecap="round"/>
+  <path d="M280 128C272 148 288 164 280 184" stroke="#00DADC" stroke-width="16" stroke-linecap="round"/>
+  
+  <!-- Base Saucer -->
+  <path d="M120 392H360" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round"/>
+  
+  <!-- CCC Monogram in Titillium Web style -->
+  <text x="240" y="304" font-family="'Titillium Web', 'Arial Black', sans-serif" font-size="72" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="4">CCC</text>
+</svg>

@@ -110,8 +110,14 @@ export default function Navbar() {
                 onClick={() => setSwitcherOpen(!switcherOpen)}
                 className="flex items-center gap-2 p-1.5 pr-3 rounded-[3px] border border-stone-200 hover:border-stone-300 bg-white transition-colors text-left"
               >
-                <div className="w-7 h-7 rounded-[3px] bg-stone-100 flex items-center justify-center text-sm border border-stone-200">
-                  {currentUser?.mascot || '👤'}
+                <div className="w-7 h-7 rounded-[3px] bg-stone-100 flex items-center justify-center text-xs overflow-hidden border border-stone-200">
+                  {currentUser?.photoUrl ? (
+                    <img src={currentUser.photoUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="font-bold font-headline text-[#FF0046]">
+                      {currentUser?.name ? currentUser.name[0].toUpperCase() : 'U'}
+                    </span>
+                  )}
                 </div>
                 <div className="hidden sm:block text-xs">
                   <div className="font-bold text-[#0A011C] leading-tight uppercase font-headline">

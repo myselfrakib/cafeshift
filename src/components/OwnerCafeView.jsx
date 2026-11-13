@@ -48,14 +48,13 @@ export default function OwnerCafeView() {
             <button
               key={c.id}
               onClick={() => setSelectedCafeId(c.id)}
-              className={`px-3 py-1.5 rounded-[3px] font-bold uppercase tracking-wider transition-colors ${
+              className={`px-3 py-1.5 rounded-[3px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 ${
                 c.id === cafe.id
                   ? 'bg-[#FF0046] text-white shadow-xs'
                   : 'bg-white text-stone-600 hover:text-[#0A011C] border border-stone-200'
               }`}
             >
-              <span>{c.mascot}</span>
-              <span className="ml-1.5">{c.name}</span>
+              <span>{c.name}</span>
             </button>
           ))}
         </div>
@@ -64,8 +63,14 @@ export default function OwnerCafeView() {
       {/* Cafe Header Banner (Clean White Surface with 3px corners & IFP accents) */}
       <div className="bg-white rounded-[3px] border border-stone-200 p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
         <div className="flex items-start gap-4">
-          <div className="w-16 h-16 rounded-[3px] bg-stone-50 text-[#FF0046] border border-stone-200 flex items-center justify-center text-3xl shrink-0 shadow-xs">
-            {cafe.mascot || '☕'}
+          <div className="w-16 h-16 rounded-[3px] bg-stone-50 border border-stone-200 flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
+            {cafe.photoUrl ? (
+              <img src={cafe.photoUrl} alt={cafe.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="font-headline font-bold text-xl text-[#FF0046]">
+                {cafe.name ? cafe.name.slice(0, 2).toUpperCase() : '☕'}
+              </span>
+            )}
           </div>
           <div>
             <div className="flex items-center gap-2">

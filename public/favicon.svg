@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Base Background -->
+  <rect width="64" height="64" rx="10" fill="#0A011C"/>
+  <rect x="2" y="2" width="60" height="60" rx="8" stroke="#FF0046" stroke-width="2.5"/>
+  
+  <!-- Stylized Modern Coffee Cup -->
+  <path d="M18 26H42V37C42 41.4183 38.4183 45 34 45H26C21.5817 45 18 41.4183 18 37V26Z" fill="#FF0046"/>
+  <path d="M42 29H45.5C47.433 29 49 30.567 49 32.5C49 34.433 47.433 36 45.5 36H42" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <!-- Steam lines in Vivid Cyan #00DADC -->
+  <path d="M25 16C24 18.5 26 20.5 25 23" stroke="#00DADC" stroke-width="2" stroke-linecap="round"/>
+  <path d="M30 14C29 17 31 19 30 23" stroke="#00DADC" stroke-width="2" stroke-linecap="round"/>
+  <path d="M35 16C34 18.5 36 20.5 35 23" stroke="#00DADC" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Base Saucer -->
+  <path d="M15 49H45" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <!-- CCC Monogram -->
+  <text x="30" y="38" font-family="'Titillium Web', 'Arial Black', sans-serif" font-size="9" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="0.5">CCC</text>
+</svg>

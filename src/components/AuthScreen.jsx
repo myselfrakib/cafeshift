@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { CALCUTTA_AREAS, ANIMAL_MASCOTS } from '../data/seedData';
-import { Coffee, GraduationCap, Lock, Mail, Phone, MapPin, Eye, EyeOff, Sparkles, ArrowRight, Loader2, Clock, Zap } from 'lucide-react';
+import { CALCUTTA_AREAS } from '../data/seedData';
+import { uploadImageToStorage } from '../services/firebaseService';
+import { Coffee, GraduationCap, Lock, Mail, Phone, MapPin, Eye, EyeOff, Sparkles, ArrowRight, Loader2, Clock, Zap, Camera, Upload } from 'lucide-react';
 
 export default function AuthScreen() {
   const {
@@ -16,6 +17,7 @@ export default function AuthScreen() {
   const [mode, setMode] = useState('login');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   // Login state
   const [loginEmail, setLoginEmail] = useState('');
@@ -31,7 +33,6 @@ export default function AuthScreen() {
     age: 19,
     address: '',
     college: '',
-    mascot: '🐼',
     photoUrl: ''
   });
 
@@ -44,7 +45,7 @@ export default function AuthScreen() {
     cafeName: '',
     cafeArea: 'Park Street',
     cafeAddress: '',
-    cafeMascot: '🐱',
+    photoUrl: '',
     minHourlyWage: 100
   });
 
@@ -341,8 +342,8 @@ export default function AuthScreen() {
                   />
                 </div>
 
-                {/* Age & Gender & Mascot */}
-                <div className="grid grid-cols-3 gap-2">
+                {/* Age & Gender */}
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">Age</label>
                     <input
@@ -368,19 +369,45 @@ export default function AuthScreen() {
                       <option value="Other">Other</option>
                     </select>
                   </div>
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">Mascot</label>
-                    <select
-                      value={attendantData.mascot}
-                      onChange={e => setAttendantData({ ...attendantData, mascot: e.target.value })}
-                      className="w-full px-2 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046]"
-                    >
-                      <option value="🐼">🐼 Panda</option>
-                      <option value="🐶">🐶 Pup</option>
-                      <option value="🐱">🐱 Cat</option>
-                      <option value="🐰">🐰 Bunny</option>
-                      <option value="🦊">🦊 Fox</option>
-                    </select>
+                </div>
+
+                {/* Profile Photo Upload */}
+                <div className="p-3 bg-stone-50 rounded-[3px] border border-stone-200">
+                  <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1.5 font-headline">
+                    Profile Photo (Optional)
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-[3px] bg-white border border-stone-200 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+                      {attendantData.photoUrl ? (
+                        <img src={attendantData.photoUrl} alt="Preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <Camera className="w-5 h-5 text-stone-400" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold uppercase tracking-wider bg-white hover:bg-stone-100 text-stone-700 rounded-[3px] border border-stone-200 transition-colors shadow-2xs">
+                        <Upload className="w-3.5 h-3.5 text-[#FF0046]" />
+                        <span>{attendantData.photoUrl ? 'Change Photo' : 'Upload Student Photo'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setUploadingPhoto(true);
+                              try {
+                                const url = await uploadImageToStorage(file, 'students');
+                                setAttendantData(prev => ({ ...prev, photoUrl: url }));
+                              } finally {
+                                setUploadingPhoto(false);
+                              }
+                            }
+                          }}
+                        />
+                      </label>
+                      <p className="text-[10px] text-stone-400 mt-1">PNG, JPG, or WebP. Shown to cafe owners when booked.</p>
+                    </div>
                   </div>
                 </div>
 
@@ -498,40 +525,63 @@ export default function AuthScreen() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                        Base Wage (Min ₹100)
-                      </label>
-                      <div className="flex items-center">
-                        <span className="px-3 py-2 text-xs font-bold bg-stone-200 text-stone-800 rounded-l-[3px] border border-r-0 border-stone-200">
-                          ₹
-                        </span>
-                        <input
-                          type="number"
-                          min={100}
-                          step={5}
-                          required
-                          value={ownerData.minHourlyWage}
-                          onChange={e => setOwnerData({ ...ownerData, minHourlyWage: e.target.value })}
-                          className="w-full px-3 py-2 text-xs rounded-r-[3px] border border-stone-200 bg-stone-50 font-bold text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046]"
-                        />
-                      </div>
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
+                      Base Starting Hourly Wage (Min ₹100/hr)
+                    </label>
+                    <div className="flex items-center">
+                      <span className="px-3 py-2 text-xs font-bold bg-stone-200 text-stone-800 rounded-l-[3px] border border-r-0 border-stone-200">
+                        ₹
+                      </span>
+                      <input
+                        type="number"
+                        min={100}
+                        step={5}
+                        required
+                        value={ownerData.minHourlyWage}
+                        onChange={e => setOwnerData({ ...ownerData, minHourlyWage: e.target.value })}
+                        className="w-full px-3 py-2 text-xs rounded-r-[3px] border border-stone-200 bg-stone-50 font-bold text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046]"
+                      />
                     </div>
+                  </div>
 
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">Mascot</label>
-                      <select
-                        value={ownerData.cafeMascot}
-                        onChange={e => setOwnerData({ ...ownerData, cafeMascot: e.target.value })}
-                        className="w-full px-2 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046]"
-                      >
-                        <option value="🐱">🐱 Cat</option>
-                        <option value="☕">☕ Coffee</option>
-                        <option value="🐰">🐰 Bunny</option>
-                        <option value="🦊">🦊 Fox</option>
-                        <option value="🐶">🐶 Pup</option>
-                      </select>
+                  {/* Cafe Logo / Storefront Photo Upload */}
+                  <div className="p-3 bg-stone-50 rounded-[3px] border border-stone-200">
+                    <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1.5 font-headline">
+                      Cafe Logo or Photo (Optional)
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-[3px] bg-white border border-stone-200 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+                        {ownerData.photoUrl ? (
+                          <img src={ownerData.photoUrl} alt="Preview" className="w-full h-full object-cover" />
+                        ) : (
+                          <Coffee className="w-5 h-5 text-stone-400" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold uppercase tracking-wider bg-white hover:bg-stone-100 text-stone-700 rounded-[3px] border border-stone-200 transition-colors shadow-2xs">
+                          <Upload className="w-3.5 h-3.5 text-[#FF0046]" />
+                          <span>{ownerData.photoUrl ? 'Change Photo' : 'Upload Cafe Logo'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setUploadingPhoto(true);
+                                try {
+                                  const url = await uploadImageToStorage(file, 'cafes');
+                                  setOwnerData(prev => ({ ...prev, photoUrl: url }));
+                                } finally {
+                                  setUploadingPhoto(false);
+                                }
+                              }
+                            }}
+                          />
+                        </label>
+                        <p className="text-[10px] text-stone-400 mt-1">Displayed to students on shift offer cards.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
