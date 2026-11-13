@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #FFFDF9;
+    color: #4A3525;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4, .font-bubble {
+    font-family: 'Fredoka', cursive, 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+/* Cute custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F7EFE5;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb {
+  background: #DEBEA1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C49B74;
+}
+
+/* Pastel gradient effects */
+.cute-gradient-header {
+  background: linear-gradient(135deg, #FFF3EB 0%, #FFEBE7 50%, #FFF5DF 100%);
+}
+
+.cute-card-shadow {
+  box-shadow: 0 10px 25px -5px rgba(183, 128, 76, 0.08), 0 8px 10px -6px rgba(183, 128, 76, 0.04);
+}
+
+.cute-button-shadow {
+  box-shadow: 0 4px 14px 0 rgba(217, 119, 6, 0.25);
+}
+
+@keyframes floatMascot {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(2deg);
+  }
+}
+
+.animate-float {
+  animation: floatMascot 3s ease-in-out infinite;
+}
+
