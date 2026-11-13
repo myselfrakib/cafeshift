@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import ApplicantCard from './ApplicantCard';
 import AddCafeModal from './AddCafeModal';
-import { PlusCircle, MapPin, Plus, Edit3, Store, Trash2 } from 'lucide-react';
+import { PlusCircle, MapPin, Plus, Edit3, Store, Trash2, CheckCircle2, ArrowRight } from 'lucide-react';
 import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 
 export default function OwnerCafeView() {
@@ -65,64 +65,154 @@ export default function OwnerCafeView() {
   return (
     <div className="space-y-6 pb-12">
       
-      {/* Cafe Multi-Branch Manager Bar */}
-      <div className="bg-white rounded-[3px] p-3.5 border border-stone-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 text-xs flex-1 no-scrollbar">
-          <span className="font-bold uppercase tracking-wider text-stone-500 shrink-0 font-headline flex items-center gap-1.5 mr-1 text-[11px]">
-            <Store className="w-3.5 h-3.5 text-[#FF0046]" />
-            <span>Your Cafes ({ownerCafes.length}):</span>
-          </span>
-          {ownerCafes.map(c => {
-            const cShifts = shifts.filter(s => s.cafeId === c.id);
-            const bookedCount = cShifts.filter(s => s.status === 'booked').length;
-            const isActive = c.id === cafe.id;
-            return (
-              <button
-                key={c.id}
-                onClick={() => setSelectedCafeId(c.id)}
-                className={`px-3 py-1.5 rounded-[3px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 shrink-0 border ${
-                  isActive
-                    ? 'bg-[#0A011C] text-white border-[#0A011C] shadow-xs'
-                    : 'bg-stone-50 text-stone-700 hover:text-black hover:bg-stone-100 border-stone-200'
-                }`}
-              >
-                <div className="w-4 h-4 rounded-[2px] bg-white/20 flex items-center justify-center overflow-hidden text-[9px]">
-                  {c.photoUrl ? (
-                    <img src={c.photoUrl} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    '☕'
-                  )}
-                </div>
-                <span>{c.name}</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-[2px] ${
-                  isActive ? 'bg-[#FF0046] text-white' : 'bg-stone-200 text-stone-600'
-                }`}>
-                  {c.area}
-                </span>
-                {bookedCount > 0 && (
-                  <span className="w-2 h-2 rounded-full bg-[#00DADC]" title={`${bookedCount} booked candidate(s)`}></span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+      {/* 1. Cafe Multi-Branch Manager Cards Section */}
+      <div className="bg-white rounded-[3px] p-5 sm:p-6 border border-stone-200 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold font-headline text-[#0A011C] uppercase tracking-tight flex items-center gap-2">
+                <Store className="w-5 h-5 text-[#FF0046]" />
+                <span>Your Cafe Outlets</span>
+              </h2>
+              <span className="text-xs font-bold font-mono px-2 py-0.5 rounded-[3px] bg-stone-100 text-stone-700 border border-stone-200">
+                {ownerCafes.length} {ownerCafes.length === 1 ? 'Location' : 'Locations'}
+              </span>
+            </div>
+            <p className="text-xs text-stone-500 mt-1">
+              Select an outlet to manage its shift roster, review applicants, and publish new offers.
+            </p>
+          </div>
 
-        {/* + Add Another Cafe Button */}
-        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => {
               setEditingCafe(null);
               setAddCafeModalOpen(true);
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[3px] border border-stone-200 bg-stone-50 hover:bg-stone-100 text-[#0A011C] text-xs font-bold uppercase tracking-wider transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[3px] bg-[#FF0046] hover:bg-[#E6003F] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-2xs self-start sm:self-auto"
           >
-            <Plus className="w-3.5 h-3.5 text-[#FF0046]" />
-            <span>Add Cafe</span>
+            <Plus className="w-4 h-4" />
+            <span>Add Cafe Outlet</span>
+          </button>
+        </div>
+
+        {/* Outlets Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          {ownerCafes.map(c => {
+            const cShifts = shifts.filter(s => s.cafeId === c.id);
+            const bookedCount = cShifts.filter(s => s.status === 'booked').length;
+            const openCount = cShifts.filter(s => s.status === 'open').length;
+            const isActive = c.id === cafe.id;
+
+            return (
+              <div
+                key={c.id}
+                onClick={() => setSelectedCafeId(c.id)}
+                className={`group relative p-4 rounded-[3px] border transition-all cursor-pointer flex flex-col justify-between ${
+                  isActive
+                    ? 'bg-stone-50/80 border-[#0A011C] ring-2 ring-[#0A011C]/15 shadow-sm'
+                    : 'bg-white border-stone-200 hover:border-stone-400 hover:shadow-xs'
+                }`}
+              >
+                <div>
+                  {/* Top: Cafe Image, Name, and Area */}
+                  <div className="flex items-start gap-3">
+                    <div className="w-12 h-12 rounded-[3px] bg-white border border-stone-200 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+                      {c.photoUrl ? (
+                        <img src={c.photoUrl} alt={c.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="font-headline font-bold text-lg text-[#FF0046]">
+                          {c.name ? c.name.slice(0, 2).toUpperCase() : '☕'}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold font-headline text-base text-[#0A011C] uppercase truncate group-hover:text-[#FF0046] transition-colors">
+                        {c.name}
+                      </h3>
+                      <div className="flex items-center gap-1 text-xs text-stone-500 mt-0.5">
+                        <MapPin className="w-3 h-3 text-[#FF0046] shrink-0" />
+                        <span className="truncate">{c.area}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Middle: Shift & Applicant Badges */}
+                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-stone-200/80 text-[11px]">
+                    <span className={`px-2 py-0.5 rounded-[2px] font-bold font-mono ${
+                      openCount > 0 ? 'bg-amber-100 text-amber-900 border border-amber-200' : 'bg-stone-100 text-stone-500'
+                    }`}>
+                      {openCount} Open
+                    </span>
+
+                    <span className={`px-2 py-0.5 rounded-[2px] font-bold font-mono ${
+                      bookedCount > 0 ? 'bg-[#00DADC]/25 text-[#006062] border border-[#00DADC]/50 font-bold' : 'bg-stone-100 text-stone-500'
+                    }`}>
+                      {bookedCount} Booked
+                    </span>
+
+                    <span className="text-[10px] text-stone-400 ml-auto font-mono">
+                      ₹{c.minHourlyWage || 100}/hr min
+                    </span>
+                  </div>
+                </div>
+
+                {/* Bottom: Selection status and Edit button */}
+                <div className="mt-3.5 pt-2.5 border-t border-stone-200/60 flex items-center justify-between">
+                  {isActive ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold font-headline text-[#FF0046] uppercase tracking-wider">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Active Outlet</span>
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-bold text-stone-500 group-hover:text-[#0A011C] uppercase tracking-wider flex items-center gap-1">
+                      <span>Select Outlet</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </span>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingCafe(c);
+                      setAddCafeModalOpen(true);
+                    }}
+                    className="p-1 rounded-[2px] text-stone-400 hover:text-[#0A011C] hover:bg-stone-200 transition-colors"
+                    title={`Edit ${c.name} details`}
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* "+ Add New Cafe" Card in the Grid */}
+          <button
+            type="button"
+            onClick={() => {
+              setEditingCafe(null);
+              setAddCafeModalOpen(true);
+            }}
+            className="p-5 rounded-[3px] border-2 border-dashed border-stone-200 hover:border-[#FF0046] hover:bg-stone-50/50 transition-all flex flex-col items-center justify-center text-center gap-2 group min-h-[140px]"
+          >
+            <div className="w-10 h-10 rounded-[3px] bg-stone-100 group-hover:bg-[#FF0046]/10 text-stone-400 group-hover:text-[#FF0046] flex items-center justify-center transition-colors">
+              <Plus className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="font-bold text-xs font-headline uppercase tracking-wider text-stone-700 group-hover:text-[#FF0046] transition-colors">
+                Add Another Outlet
+              </div>
+              <p className="text-[11px] text-stone-400 mt-0.5">
+                Register a new branch in Kolkata
+              </p>
+            </div>
           </button>
         </div>
       </div>
 
-      {/* Cafe Header Banner (Clean White Surface with 3px corners & IFP accents) */}
+      {/* 2. Active Cafe Focus Header Banner */}
       <div className="bg-white rounded-[3px] border border-stone-200 p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
         <div className="flex items-start gap-4">
           <div className="w-16 h-16 rounded-[3px] bg-stone-50 border border-stone-200 flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
