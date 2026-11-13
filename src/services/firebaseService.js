@@ -201,3 +201,4 @@ export async function cancelShiftInFirebase(shiftId) {
     await rtdbUpdate(rtdbRef(rtdb, `shifts/${shiftId}`), updatePayload);
   }
 }
+

@@ -1,6 +1,5 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 export default function CuteToast() {
   const { toast } = useApp();
@@ -8,16 +7,13 @@ export default function CuteToast() {
   if (!toast) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 max-w-md w-full px-4 animate-pop">
-      <div className="bg-amber-950 text-amber-50 p-4 rounded-2xl shadow-2xl border-2 border-amber-500/30 flex items-start gap-3 backdrop-blur-md">
-        <div className="text-2xl select-none animate-bounce-small">
-          {toast.emoji || '🐾'}
-        </div>
-        <div className="flex-1 text-sm font-medium leading-snug">
+    <div className="fixed bottom-6 right-4 sm:right-6 z-50 max-w-sm w-full px-2 animate-pop pointer-events-none">
+      <div className="bg-stone-900 text-white p-3.5 rounded-xl shadow-lg border border-stone-700/60 flex items-center gap-3 backdrop-blur-md">
+        <span className="text-lg shrink-0">{toast.emoji || '✨'}</span>
+        <div className="flex-1 text-xs font-medium leading-tight text-stone-200">
           {toast.message}
         </div>
       </div>
     </div>
   );
 }
-

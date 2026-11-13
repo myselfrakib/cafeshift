@@ -37,14 +37,14 @@ import confetti from 'canvas-confetti';
 const AppContext = createContext();
 
 const STORAGE_KEYS = {
-  USERS: 'calcutta_cafe_users_v2',
-  CAFES: 'calcutta_cafe_cafes_v2',
-  SHIFTS: 'calcutta_cafe_shifts_v2',
-  CURRENT_USER_ID: 'calcutta_cafe_current_user_v2',
+  USERS: 'calcutta_cafe_users_v3',
+  CAFES: 'calcutta_cafe_cafes_v3',
+  SHIFTS: 'calcutta_cafe_shifts_v3',
+  CURRENT_USER_ID: 'calcutta_cafe_current_user_v3',
 };
 
 export const AppProvider = ({ children }) => {
-  // Local cache initialization
+  // Initialize data
   const [users, setUsers] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.USERS);
@@ -72,12 +72,13 @@ export const AppProvider = ({ children }) => {
     }
   });
 
+  // WITHOUT AUTH: Defaults to null so user MUST log in or sign up first!
   const [currentUserId, setCurrentUserId] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.CURRENT_USER_ID);
-      return saved || 'user-rakib';
+      return saved || null;
     } catch {
-      return 'user-rakib';
+      return null;
     }
   });
 
@@ -87,10 +88,8 @@ export const AppProvider = ({ children }) => {
   const [isSyncing, setIsSyncing] = useState(false);
 
   // UI state
-  const [activeTab, setActiveTab] = useState('browse'); // 'browse' | 'my-cafe' | 'my-applications' | 'profile'
+  const [activeTab, setActiveTab] = useState('browse'); // 'browse' | 'my-cafe' | 'my-applications'
   const [selectedCafeId, setSelectedCafeId] = useState(null);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authInitialMode, setAuthInitialMode] = useState('signup-owner');
   const [createShiftModalOpen, setCreateShiftModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -121,7 +120,11 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, currentUserId);
+      if (currentUserId) {
+        localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, currentUserId);
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.CURRENT_USER_ID);
+      }
     } catch (e) {
       console.error(e);
     }
@@ -132,7 +135,6 @@ export const AppProvider = ({ children }) => {
     let unsubscribeFirestore = null;
 
     try {
-      // 1. Listen to Firestore shifts collection
       const shiftsCol = collection(db, 'shifts');
       unsubscribeFirestore = onSnapshot(shiftsCol, (snapshot) => {
         if (!snapshot.empty) {
@@ -151,11 +153,11 @@ export const AppProvider = ({ children }) => {
           }
         }
       }, (error) => {
-        console.warn('Firestore onSnapshot listener notice (rules or offline):', error.message);
+        console.warn('Firestore onSnapshot notice:', error.message);
         subscribeToRTDB();
       });
     } catch (err) {
-      console.warn('Error setting up Firestore listener, trying RTDB:', err);
+      console.warn('Firestore setup notice:', err);
       subscribeToRTDB();
     }
 
@@ -184,7 +186,7 @@ export const AppProvider = ({ children }) => {
       }
     }
 
-    // 2. Firebase Auth listener
+    // Firebase Auth listener
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       setFirebaseUser(user);
       if (user) {
@@ -213,14 +215,15 @@ export const AppProvider = ({ children }) => {
     };
   }, []);
 
-  const currentUser = users.find(u => u.id === currentUserId) || users[0];
+  // Current active user (strictly null if not authenticated)
+  const currentUser = currentUserId ? users.find(u => u.id === currentUserId) || null : null;
   const isOwner = currentUser?.role === 'owner';
   const isAttendant = currentUser?.role === 'attendant';
 
-  const ownerCafes = cafes.filter(c => c.ownerId === currentUser?.id);
-  const activeCafe = cafes.find(c => c.id === (selectedCafeId || ownerCafes[0]?.id)) || ownerCafes[0] || cafes[0];
+  const ownerCafes = isOwner ? cafes.filter(c => c.ownerId === currentUser?.id) : [];
+  const activeCafe = ownerCafes.find(c => c.id === selectedCafeId) || ownerCafes[0] || null;
 
-  const showToast = (message, type = 'info', emoji = '🐾') => {
+  const showToast = (message, type = 'info', emoji = '✨') => {
     setToast({ id: Date.now(), message, type, emoji });
     setTimeout(() => {
       setToast(null);
@@ -230,10 +233,10 @@ export const AppProvider = ({ children }) => {
   const triggerConfetti = () => {
     try {
       confetti({
-        particleCount: 85,
-        spread: 75,
+        particleCount: 60,
+        spread: 60,
         origin: { y: 0.6 },
-        colors: ['#FFB5A7', '#FCD5CE', '#F8EDEB', '#F9DCC4', '#FEC89A', '#B7804C']
+        colors: ['#D97706', '#92400E', '#F59E0B', '#10B981', '#78350F']
       });
     } catch (e) {}
   };
@@ -247,12 +250,15 @@ export const AppProvider = ({ children }) => {
         if (userCafes.length > 0) {
           setSelectedCafeId(userCafes[0].id);
         }
+        setActiveTab('my-cafe');
+      } else {
+        setActiveTab('browse');
       }
-      showToast(`Switched to ${user.name} (${user.role === 'owner' ? 'Cafe Owner ☕' : 'Student Attendant 🎒'})`, 'success', user.mascot || '🐾');
+      showToast(`Logged in as ${user.name} (${user.role === 'owner' ? 'Cafe Owner' : 'Student Attendant'})`, 'success', user.mascot || '👤');
     }
   };
 
-  // Sign up Owner with Firebase Auth & Storage photo support
+  // Sign up Owner
   const signupOwner = async ({
     name,
     email,
@@ -288,19 +294,19 @@ export const AppProvider = ({ children }) => {
       }
       setFirebaseConnected(true);
     } catch (err) {
-      console.warn('Firebase Auth notice (using seamless fallback):', err.message);
+      console.warn('Firebase Auth fallback:', err.message);
     }
 
     const newCafe = {
       id: newCafeId,
       ownerId: uid,
-      name: cafeName || "My Cute Cafe",
-      tagline: 'Cozy Sips & Calcutta Smiles ☕',
+      name: cafeName || "My Cafe",
+      tagline: 'Specialty Coffee & Student Shifts ☕',
       area: cafeArea || 'Park Street',
       address: cafeAddress || `${cafeArea}, Kolkata`,
       mascot: cafeMascot,
       photoUrl: cafePhotoUrl || '',
-      coverGradient: 'from-amber-400 via-orange-300 to-rose-300',
+      coverGradient: 'from-stone-900 to-amber-950',
       minHourlyWage: Math.max(100, Number(minHourlyWage) || 100),
       description: cafeDescription || 'A welcoming cafe offering flexible part-time shifts for energetic students!',
       rating: 5.0,
@@ -326,15 +332,14 @@ export const AppProvider = ({ children }) => {
     setCurrentUserId(uid);
     setSelectedCafeId(newCafeId);
     setActiveTab('my-cafe');
-    setAuthModalOpen(false);
     setIsSyncing(false);
 
     triggerConfetti();
-    showToast(`Welcome ${name}! "${cafeName}" registered in Firebase! 🎉`, 'success', '☕');
+    showToast(`Welcome ${name}! "${cafeName}" is live on Chai & Paws.`, 'success', '☕');
     return uid;
   };
 
-  // Sign up Student Attendant with Firebase Auth & Storage photo support
+  // Sign up Student Attendant
   const signupAttendant = async ({
     name,
     email,
@@ -373,7 +378,7 @@ export const AppProvider = ({ children }) => {
       }
       setFirebaseConnected(true);
     } catch (err) {
-      console.warn('Firebase Auth notice (using seamless fallback):', err.message);
+      console.warn('Firebase Auth fallback:', err.message);
     }
 
     const newUser = {
@@ -385,24 +390,23 @@ export const AppProvider = ({ children }) => {
       gender: gender || 'Not specified',
       age: Number(age) || 19,
       address: address || 'Kolkata, West Bengal',
-      college: college || 'College / School Student in Kolkata',
+      college: college || 'College Student in Kolkata',
       mascot: mascot,
       photoUrl: photoUrl || '',
-      bio: bio || 'Excited to work flexible shifts at Calcutta cafes, learn barista skills & earn hourly pocket money!'
+      bio: bio || 'Ready for flexible shifts at Kolkata cafes.'
     };
 
     setUsers(prev => [newUser, ...prev]);
     setCurrentUserId(uid);
     setActiveTab('browse');
-    setAuthModalOpen(false);
     setIsSyncing(false);
 
     triggerConfetti();
-    showToast(`Welcome aboard, ${name}! Your student profile is live in Firebase! 🎒✨`, 'success', mascot);
+    showToast(`Welcome ${name}! Your student profile is active.`, 'success', mascot);
     return uid;
   };
 
-  // Login with Firebase Auth
+  // Login
   const loginUser = async (email, password = 'Password@123') => {
     setIsSyncing(true);
     try {
@@ -413,35 +417,42 @@ export const AppProvider = ({ children }) => {
         const existing = users.find(u => u.id === user.uid || u.email === user.email);
         if (existing) {
           setCurrentUserId(existing.id);
+          setActiveTab(existing.role === 'owner' ? 'my-cafe' : 'browse');
         } else if (profile) {
           const newUser = { id: user.uid, ...profile };
           setUsers(prev => [newUser, ...prev]);
           setCurrentUserId(user.uid);
+          setActiveTab(newUser.role === 'owner' ? 'my-cafe' : 'browse');
+        } else {
+          setCurrentUserId(user.uid);
+          setActiveTab('browse');
         }
-        setAuthModalOpen(false);
-        showToast(`Welcome back, ${user.displayName || email}! 🐾`, 'success', '🔑');
+        showToast(`Signed in successfully as ${user.displayName || email}`, 'success', '👋');
+        return;
       }
     } catch (error) {
-      const demoUser = users.find(u => u.email === email);
+      // Check local user match (demo profiles)
+      const demoUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
       if (demoUser) {
         switchUser(demoUser.id);
-        setAuthModalOpen(false);
-        showToast(`Logged into demo profile: ${demoUser.name}`, 'info', demoUser.mascot || '🐾');
-      } else {
-        throw error;
+        return;
       }
+      throw error;
     } finally {
       setIsSyncing(false);
     }
   };
 
-  // Sign out
+  // Sign out / Logout
   const handleLogout = async () => {
     try {
       await signOut(auth);
     } catch (e) {}
     setFirebaseUser(null);
-    showToast('Signed out of Firebase account', 'info', '👋');
+    setCurrentUserId(null);
+    setSelectedCafeId(null);
+    setActiveTab('browse');
+    showToast('Signed out of your account', 'info', '👋');
   };
 
   // Create Shift Offer (Owner only, Min 3 hrs duration, Min ₹100/hr)
@@ -472,16 +483,16 @@ export const AppProvider = ({ children }) => {
       cafeArea: cafe.area,
       cafeMascot: cafe.mascot || '☕',
       cafePhotoUrl: cafe.photoUrl || '',
-      roleName: roleName || 'Cafe Floor & Table Attendant 🐾',
+      roleName: roleName || 'Cafe Floor & Table Attendant',
       date,
       startTime,
       endTime,
       durationHours: finalDuration,
       hourlyWage: finalWage,
       totalEarnings: finalWage * finalDuration,
-      perks: perks.length > 0 ? perks : ['Free Cafe Drink ☕', 'Warm Meal / Snack 🥪', 'Student Tip Share 💸'],
+      perks: perks.length > 0 ? perks : ['Free Cafe Drink', 'Warm Snack', 'Student Tip Share'],
       dressCode,
-      notes: notes || 'Punctual, friendly, and excited to help during rush hours!',
+      notes: notes || 'Punctual and friendly during rush hours.',
       status: 'open',
       applicant: null,
       appliedAt: null,
@@ -493,37 +504,27 @@ export const AppProvider = ({ children }) => {
     setShifts(prev => [newShift, ...prev]);
     setCreateShiftModalOpen(false);
     triggerConfetti();
-    showToast(`Shift for "${cafe.name}" published to Firebase! (₹${finalWage}/hr · ₹${finalWage * finalDuration} total)`, 'success', '✨');
+    showToast(`New shift published at ₹${finalWage}/hr (Total ₹${finalWage * finalDuration})`, 'success', '✨');
   };
 
-  // Apply For Shift (Real-time Firebase Booking)
+  // Apply For Shift
   const applyForShift = async (shiftId) => {
-    if (!isAttendant) {
-      const student = users.find(u => u.role === 'attendant');
-      if (student) {
-        switchUser(student.id);
-        showToast(`Switched to student profile "${student.name}" to apply!`, 'info', '🎒');
-      } else {
-        setAuthInitialMode('signup-attendant');
-        setAuthModalOpen(true);
-        showToast('Please sign up or switch to a Student Attendant account to apply!', 'info', '🐾');
-        return;
-      }
+    if (!currentUser || !isAttendant) {
+      showToast('Please sign in as a student attendant to apply!', 'info', '🎒');
+      return;
     }
 
-    const studentUser = users.find(u => u.id === currentUserId) || users.find(u => u.role === 'attendant');
-
     const applicantInfo = {
-      userId: studentUser.id,
-      name: studentUser.name,
-      phone: studentUser.phone,
-      email: studentUser.email,
-      college: studentUser.college || 'Kolkata Student',
-      age: studentUser.age || 19,
-      gender: studentUser.gender || 'Not specified',
-      address: studentUser.address || 'Kolkata',
-      mascot: studentUser.mascot || '🐼',
-      photoUrl: studentUser.photoUrl || ''
+      userId: currentUser.id,
+      name: currentUser.name,
+      phone: currentUser.phone,
+      email: currentUser.email,
+      college: currentUser.college || 'Kolkata Student',
+      age: currentUser.age || 19,
+      gender: currentUser.gender || 'Not specified',
+      address: currentUser.address || 'Kolkata',
+      mascot: currentUser.mascot || '🐼',
+      photoUrl: currentUser.photoUrl || ''
     };
 
     bookShiftInFirebase(shiftId, applicantInfo).catch(() => {});
@@ -541,7 +542,7 @@ export const AppProvider = ({ children }) => {
     }));
 
     triggerConfetti();
-    showToast(`Yay! Shift booked & removed from public feed. ${studentUser.name}'s contact (+91 ${applicantInfo.phone}) sent to cafe owner! 🎉`, 'success', '🐾');
+    showToast(`Shift booked! Owner can now contact you on +91 ${applicantInfo.phone}.`, 'success', '🎉');
   };
 
   // Cancel shift application
@@ -559,7 +560,7 @@ export const AppProvider = ({ children }) => {
       }
       return shift;
     }));
-    showToast('Shift reservation cancelled. It is back in public listings.', 'info', '↩️');
+    showToast('Shift booking cancelled. Re-opened for students.', 'info', '↩️');
   };
 
   // Add owner cafe
@@ -569,12 +570,12 @@ export const AppProvider = ({ children }) => {
       id: newCafeId,
       ownerId: currentUser.id,
       name,
-      tagline: 'Cozy Spot in Calcutta ☕',
+      tagline: 'Specialty Sips in Calcutta ☕',
       area,
       address,
-      mascot: mascot || '🐱',
+      mascot: mascot || '☕',
       photoUrl: photoUrl || '',
-      coverGradient: 'from-amber-300 via-orange-200 to-rose-200',
+      coverGradient: 'from-stone-900 to-amber-950',
       minHourlyWage: Math.max(100, Number(minHourlyWage) || 100),
       description: description || 'Proudly serving Calcutta coffee and hiring students.',
       rating: 5.0,
@@ -591,7 +592,7 @@ export const AppProvider = ({ children }) => {
       return u;
     }));
     setSelectedCafeId(newCafeId);
-    showToast(`Added "${name}" to your cafes!`, 'success', mascot || '☕');
+    showToast(`Added "${name}" to your cafes!`, 'success', '☕');
   };
 
   return (
@@ -609,10 +610,6 @@ export const AppProvider = ({ children }) => {
         setSelectedCafeId,
         activeCafe,
         ownerCafes,
-        authModalOpen,
-        setAuthModalOpen,
-        authInitialMode,
-        setAuthInitialMode,
         createShiftModalOpen,
         setCreateShiftModalOpen,
         toast,
