@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import ApplicantCard from './ApplicantCard';
 import AddCafeModal from './AddCafeModal';
-import { PlusCircle, MapPin, Plus, Edit3, Store } from 'lucide-react';
+import { PlusCircle, MapPin, Plus, Edit3, Store, Trash2 } from 'lucide-react';
 import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 
 export default function OwnerCafeView() {
@@ -14,6 +14,7 @@ export default function OwnerCafeView() {
     setSelectedCafeId,
     setCreateShiftModalOpen,
     cancelShiftApplication,
+    deleteShift,
     showToast
   } = useApp();
 
@@ -271,6 +272,7 @@ export default function OwnerCafeView() {
                     shift={shift}
                     onComplete={handleCompleteShift}
                     onCancel={cancelShiftApplication}
+                    onDelete={deleteShift}
                   />
                 ))}
               </div>
@@ -315,6 +317,22 @@ export default function OwnerCafeView() {
                         <div>Date: <strong className="text-stone-700">{formatDateDDMMYYYY(shift.date)}</strong></div>
                         <div>Timing: <strong className="text-stone-700">{formatTime12Hour(shift.startTime)} – {formatTime12Hour(shift.endTime)}</strong> ({shift.durationHours} hrs)</div>
                       </div>
+                    </div>
+
+                    {/* Delete Open Shift Action */}
+                    <div className="pt-3 mt-3 border-t border-stone-200 flex items-center justify-between gap-2">
+                      <span className="text-[10px] text-stone-400 font-medium">Unbooked · Available on feed</span>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Delete the shift offer "${shift.roleName}"? It will be permanently removed from the feed.`)) {
+                            deleteShift(shift.id);
+                          }
+                        }}
+                        className="px-2.5 py-1.5 rounded-[3px] border border-stone-200 hover:border-rose-300 bg-white hover:bg-rose-50 text-stone-600 hover:text-[#FF0046] font-bold text-[11px] uppercase tracking-wider transition-colors inline-flex items-center gap-1.5 shadow-2xs"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete Shift</span>
+                      </button>
                     </div>
                   </div>
                 ))}

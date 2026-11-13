@@ -20,6 +20,7 @@ import {
   getDoc,
   getDocs,
   updateDoc,
+  deleteDoc,
   onSnapshot,
   query,
   orderBy
@@ -29,6 +30,7 @@ import {
   ref as rtdbRef,
   set as rtdbSet,
   update as rtdbUpdate,
+  remove as rtdbRemove,
   onValue as rtdbOnValue,
   get as rtdbGet
 } from 'firebase/database';
@@ -215,5 +217,23 @@ export async function saveUserToFirebase(userData) {
     await rtdbSet(rtdbRef(rtdb, `users/${userId}`), userData);
   }
 }
+
+/**
+ * Permanently delete a shift offer from Firestore & RTDB
+ */
+export async function deleteShiftFromFirebase(shiftId) {
+  try {
+    await deleteDoc(doc(db, 'shifts', shiftId));
+  } catch (e) {
+    console.warn('Firestore shift delete failed, trying RTDB:', e);
+  }
+
+  try {
+    await rtdbRemove(rtdbRef(rtdb, `shifts/${shiftId}`));
+  } catch (e) {
+    console.warn('RTDB shift delete notice:', e);
+  }
+}
+
 
 

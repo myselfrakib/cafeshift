@@ -30,7 +30,8 @@ import {
   publishShiftToFirebase,
   bookShiftInFirebase,
   cancelShiftInFirebase,
-  saveUserToFirebase
+  saveUserToFirebase,
+  deleteShiftFromFirebase
 } from '../services/firebaseService';
 import confetti from 'canvas-confetti';
 import { formatDateDDMMYYYY, formatTime12Hour, calculateEndTime12Hour } from '../utils/dateTime';
@@ -164,12 +165,18 @@ export const AppProvider = ({ children }) => {
           });
           if (remoteShifts.length > 0) {
             setShifts(prev => {
-              const mergedMap = new Map();
-              prev.forEach(s => mergedMap.set(s.id, s));
-              remoteShifts.forEach(s => mergedMap.set(s.id, s));
-              return Array.from(mergedMap.values());
+              const remoteIds = new Set(remoteShifts.map(s => s.id));
+              const now = Date.now();
+              // Retain local shifts only if created very recently (<10s) and not yet committed to remote
+              const recentLocalShifts = prev.filter(s => {
+                const shiftTime = parseInt(s.id.replace('shift-', '')) || 0;
+                return !remoteIds.has(s.id) && (now - shiftTime < 10000);
+              });
+              return [...remoteShifts, ...recentLocalShifts];
             });
             setFirebaseConnected(true);
+          } else {
+            setShifts([]);
           }
         }
       }, (error) => {
@@ -219,12 +226,17 @@ export const AppProvider = ({ children }) => {
             const remoteShifts = Object.keys(data).map(k => ({ id: k, ...data[k] }));
             if (remoteShifts.length > 0) {
               setShifts(prev => {
-                const mergedMap = new Map();
-                prev.forEach(s => mergedMap.set(s.id, s));
-                remoteShifts.forEach(s => mergedMap.set(s.id, s));
-                return Array.from(mergedMap.values());
+                const remoteIds = new Set(remoteShifts.map(s => s.id));
+                const now = Date.now();
+                const recentLocalShifts = prev.filter(s => {
+                  const shiftTime = parseInt(s.id.replace('shift-', '')) || 0;
+                  return !remoteIds.has(s.id) && (now - shiftTime < 10000);
+                });
+                return [...remoteShifts, ...recentLocalShifts];
               });
               setFirebaseConnected(true);
+            } else {
+              setShifts([]);
             }
           }
         }, (err) => {
@@ -646,6 +658,19 @@ export const AppProvider = ({ children }) => {
     showToast('Shift booking cancelled. Re-opened for students.', 'info', '↩️');
   };
 
+  // Delete shift offer (Owner action: permanently remove an open or booked shift)
+  const deleteShift = async (shiftId) => {
+    setShifts(prev => prev.filter(s => s.id !== shiftId));
+
+    try {
+      await deleteShiftFromFirebase(shiftId);
+    } catch (e) {
+      console.warn('Firebase delete notice:', e);
+    }
+
+    showToast('Shift removed successfully.', 'info', '🗑️');
+  };
+
   // Add owner cafe
   const addOwnerCafe = async ({ name, area, address, description, minHourlyWage, photoUrl }) => {
     const newCafeId = 'cafe-' + Date.now();
@@ -733,6 +758,7 @@ export const AppProvider = ({ children }) => {
         createShift,
         applyForShift,
         cancelShiftApplication,
+        deleteShift,
         addOwnerCafe,
         updateOwnerCafe,
         updateUserProfile,

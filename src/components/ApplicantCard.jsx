@@ -1,8 +1,8 @@
 import React from 'react';
-import { Phone, MessageCircle, MapPin, GraduationCap, Calendar, Clock } from 'lucide-react';
+import { Phone, MessageCircle, MapPin, GraduationCap, Calendar, Clock, Trash2 } from 'lucide-react';
 import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 
-export default function ApplicantCard({ shift, onComplete, onCancel }) {
+export default function ApplicantCard({ shift, onComplete, onCancel, onDelete }) {
   const applicant = shift.applicant;
 
   if (!applicant) return null;
@@ -115,6 +115,23 @@ export default function ApplicantCard({ shift, onComplete, onCancel }) {
             Mark Paid & Done
           </button>
         )}
+
+        <button
+          onClick={() => {
+            if (window.confirm(`Are you sure you want to cancel and delete this booked shift for ${applicant.name}?`)) {
+              if (onDelete) {
+                onDelete(shift.id);
+              } else if (onCancel) {
+                onCancel(shift.id);
+              }
+            }
+          }}
+          className="text-xs font-bold uppercase tracking-wider px-3.5 py-2.5 rounded-[3px] border border-stone-200 hover:border-rose-200 hover:bg-rose-50 text-stone-500 hover:text-[#FF0046] transition-colors flex items-center justify-center gap-1.5"
+          title="Delete / Cancel Shift"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          <span>Delete</span>
+        </button>
       </div>
     </div>
   );
