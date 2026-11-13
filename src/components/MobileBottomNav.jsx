@@ -104,12 +104,12 @@ export default function MobileBottomNav() {
     );
   }
 
-  // 2. OWNER BOTTOM NAVBAR (Outlets | Post Shift | Logout)
+  // 2. OWNER BOTTOM NAVBAR (Home | Post Shift | Logout)
   if (isOwner) {
     return (
       <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-stone-200 z-40 px-3 py-2 shadow-lg">
         <div className="flex items-center justify-around">
-          {/* Owner Cafe Outlets */}
+          {/* Owner Home View */}
           <button
             onClick={() => setActiveTab('my-cafe')}
             className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-[3px] transition-colors ${
@@ -119,15 +119,15 @@ export default function MobileBottomNav() {
             }`}
           >
             <div className="relative">
-              <Coffee className="w-5 h-5" />
+              <Home className="w-5 h-5" />
               {bookedShiftsCount > 0 && (
                 <span className="absolute -top-1 -right-2 bg-[#00DADC] text-black text-[9px] font-bold px-1 rounded-[2px] min-w-[14px] text-center font-headline shadow-xs">
                   {bookedShiftsCount}
                 </span>
               )}
             </div>
-            <span className="text-[10px] mt-0.5 max-w-[75px] truncate uppercase tracking-wider font-headline">
-              {activeCafe?.name?.split(' ')[0] || "My Cafe"}
+            <span className="text-[10px] mt-0.5 uppercase tracking-wider font-headline">
+              Home
             </span>
           </button>
 

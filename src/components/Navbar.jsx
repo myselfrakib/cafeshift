@@ -112,8 +112,8 @@ export default function Navbar() {
                 }}
                 className="px-4 py-2 rounded-[3px] transition-all flex items-center gap-1.5 bg-[#FF0046] text-white font-bold shadow-2xs"
               >
-                <span>☕</span>
-                <span>{activeCafe ? activeCafe.name : "My Cafe Outlets"}</span>
+                <Home className="w-3.5 h-3.5" />
+                <span>Home ({activeCafe ? activeCafe.name : "My Cafe"})</span>
               </button>
             )}
           </nav>
