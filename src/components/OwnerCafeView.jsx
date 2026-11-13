@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import ApplicantCard from './ApplicantCard';
 import { PlusCircle, MapPin } from 'lucide-react';
+import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 
 export default function OwnerCafeView() {
   const {
@@ -240,8 +241,8 @@ export default function OwnerCafeView() {
                       </div>
                       <h4 className="font-bold text-base text-[#0A011C] font-headline uppercase">{shift.roleName}</h4>
                       <div className="text-stone-500 mt-2 space-y-1">
-                        <div>Date: <strong className="text-stone-700">{shift.date}</strong></div>
-                        <div>Timing: <strong className="text-stone-700">{shift.startTime} – {shift.endTime}</strong> ({shift.durationHours} hrs)</div>
+                        <div>Date: <strong className="text-stone-700">{formatDateDDMMYYYY(shift.date)}</strong></div>
+                        <div>Timing: <strong className="text-stone-700">{formatTime12Hour(shift.startTime)} – {formatTime12Hour(shift.endTime)}</strong> ({shift.durationHours} hrs)</div>
                       </div>
                     </div>
                   </div>

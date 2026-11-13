@@ -32,6 +32,7 @@ import {
   cancelShiftInFirebase
 } from '../services/firebaseService';
 import confetti from 'canvas-confetti';
+import { formatDateDDMMYYYY, formatTime12Hour, calculateEndTime12Hour } from '../utils/dateTime';
 
 const AppContext = createContext();
 
@@ -474,9 +475,9 @@ export const AppProvider = ({ children }) => {
     const finalWage = Math.max(100, Number(hourlyWage) || 100);
     const finalDuration = Math.max(3, Number(durationHours) || 3);
 
-    const [hours, minutes] = startTime.split(':').map(Number);
-    const endH = (hours + finalDuration) % 24;
-    const endTime = `${String(endH).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    const finalDate = formatDateDDMMYYYY(date);
+    const finalStartTime = formatTime12Hour(startTime);
+    const finalEndTime = calculateEndTime12Hour(startTime, finalDuration);
 
     const newShift = {
       id: 'shift-' + Date.now(),
@@ -486,9 +487,9 @@ export const AppProvider = ({ children }) => {
       cafeArea: cafe.area,
       cafePhotoUrl: cafe.photoUrl || '',
       roleName: roleName || 'Cafe Floor & Table Attendant',
-      date,
-      startTime,
-      endTime,
+      date: finalDate,
+      startTime: finalStartTime,
+      endTime: finalEndTime,
       durationHours: finalDuration,
       hourlyWage: finalWage,
       totalEarnings: finalWage * finalDuration,

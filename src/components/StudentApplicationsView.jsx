@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { MapPin } from 'lucide-react';
+import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 
 export default function StudentApplicationsView() {
   const { shifts, currentUser, cancelShiftApplication, setActiveTab } = useApp();
@@ -115,11 +116,11 @@ export default function StudentApplicationsView() {
                   <div className="bg-white p-3 rounded-[3px] border border-stone-200 space-y-1 text-xs">
                     <div className="flex justify-between text-stone-600">
                       <span>Date:</span>
-                      <span className="font-bold text-[#0A011C] font-headline">{shift.date}</span>
+                      <span className="font-bold text-[#0A011C] font-headline">{formatDateDDMMYYYY(shift.date)}</span>
                     </div>
                     <div className="flex justify-between text-stone-600">
                       <span>Time:</span>
-                      <span className="text-stone-800">{shift.startTime} – {shift.endTime} ({shift.durationHours} hrs)</span>
+                      <span className="text-stone-800">{formatTime12Hour(shift.startTime)} – {formatTime12Hour(shift.endTime)} ({shift.durationHours} hrs)</span>
                     </div>
                     <div className="flex justify-between text-stone-600 pt-1 border-t border-stone-100">
                       <span>Payout:</span>

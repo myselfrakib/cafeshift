@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { X, Calendar, Clock, AlertCircle, Loader2 } from 'lucide-react';
+import { formatDateDDMMYYYY, calculateEndTime12Hour } from '../utils/dateTime';
 
 const COMMON_PERKS = [
   'Free Specialty Coffee ☕',
@@ -29,7 +30,9 @@ export default function CreateShiftModal() {
   const defaultDateStr = tomorrow.toISOString().split('T')[0];
 
   const [date, setDate] = useState(defaultDateStr);
-  const [startTime, setStartTime] = useState('16:00');
+  const [startHour, setStartHour] = useState('04');
+  const [startMinute, setStartMinute] = useState('00');
+  const [startPeriod, setStartPeriod] = useState('PM');
   const [durationHours, setDurationHours] = useState(3); // Minimum 3 hours required!
   const [hourlyWage, setHourlyWage] = useState(activeCafe?.minHourlyWage || 100); // Minimum 100 required!
   const [selectedPerks, setSelectedPerks] = useState([
@@ -45,6 +48,10 @@ export default function CreateShiftModal() {
 
   const currentCafe = ownerCafes.find(c => c.id === cafeId) || activeCafe;
   const totalPay = durationHours * hourlyWage;
+
+  const formattedStartTime = `${startHour}:${startMinute} ${startPeriod}`;
+  const formattedEndTime = calculateEndTime12Hour(formattedStartTime, durationHours);
+  const formattedDateDDMMYYYY = formatDateDDMMYYYY(date);
 
   const togglePerk = (perk) => {
     if (selectedPerks.includes(perk)) {
@@ -74,8 +81,8 @@ export default function CreateShiftModal() {
     await createShift({
       cafeId: currentCafe.id,
       roleName,
-      date,
-      startTime,
+      date: formattedDateDDMMYYYY,
+      startTime: formattedStartTime,
       durationHours: Number(durationHours),
       hourlyWage: Number(hourlyWage),
       perks: selectedPerks,
@@ -150,13 +157,18 @@ export default function CreateShiftModal() {
             />
           </div>
 
-          {/* Date and Starting Time */}
+          {/* Date (DD/MM/YYYY) and Starting Time (12-hour format) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-stone-600 flex items-center gap-1 mb-1 font-headline">
-                <Calendar className="w-3.5 h-3.5 text-[#008b8d]" />
-                <span>Date</span>
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-bold uppercase tracking-wider text-stone-600 flex items-center gap-1 font-headline">
+                  <Calendar className="w-3.5 h-3.5 text-[#008b8d]" />
+                  <span>Date</span>
+                </label>
+                <span className="text-[10px] font-bold text-[#FF0046] font-mono bg-[#FF0046]/10 px-1.5 py-0.5 rounded-[2px]">
+                  {formattedDateDDMMYYYY}
+                </span>
+              </div>
               <input
                 type="date"
                 required
@@ -164,20 +176,55 @@ export default function CreateShiftModal() {
                 onChange={e => setDate(e.target.value)}
                 className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046]"
               />
+              <p className="text-[10px] text-stone-400 mt-0.5">Format follows DD/MM/YYYY</p>
             </div>
 
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-stone-600 flex items-center gap-1 mb-1 font-headline">
-                <Clock className="w-3.5 h-3.5 text-[#008b8d]" />
-                <span>Start Time</span>
-              </label>
-              <input
-                type="time"
-                required
-                value={startTime}
-                onChange={e => setStartTime(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046]"
-              />
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-bold uppercase tracking-wider text-stone-600 flex items-center gap-1 font-headline">
+                  <Clock className="w-3.5 h-3.5 text-[#008b8d]" />
+                  <span>Start Time (12-Hr)</span>
+                </label>
+                <span className="text-[10px] font-bold text-[#008b8d] font-mono bg-[#00DADC]/15 px-1.5 py-0.5 rounded-[2px]">
+                  {formattedStartTime}
+                </span>
+              </div>
+
+              {/* 12-Hour Time Selectors */}
+              <div className="grid grid-cols-3 gap-1">
+                {/* Hour */}
+                <select
+                  value={startHour}
+                  onChange={e => setStartHour(e.target.value)}
+                  className="px-2 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] font-bold focus:bg-white focus:outline-none focus:border-[#FF0046]"
+                >
+                  {['01','02','03','04','05','06','07','08','09','10','11','12'].map(h => (
+                    <option key={h} value={h}>{h} Hr</option>
+                  ))}
+                </select>
+
+                {/* Minute */}
+                <select
+                  value={startMinute}
+                  onChange={e => setStartMinute(e.target.value)}
+                  className="px-2 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] font-bold focus:bg-white focus:outline-none focus:border-[#FF0046]"
+                >
+                  {['00','15','30','45'].map(m => (
+                    <option key={m} value={m}>{m} Min</option>
+                  ))}
+                </select>
+
+                {/* AM/PM */}
+                <select
+                  value={startPeriod}
+                  onChange={e => setStartPeriod(e.target.value)}
+                  className="px-2 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] font-bold focus:bg-white focus:outline-none focus:border-[#FF0046]"
+                >
+                  <option value="AM">AM</option>
+                  <option value="PM">PM</option>
+                </select>
+              </div>
+              <p className="text-[10px] text-stone-400 mt-0.5">Ends at {formattedEndTime}</p>
             </div>
           </div>
 

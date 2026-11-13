@@ -1,15 +1,20 @@
 import React from 'react';
 import { Phone, MessageCircle, MapPin, GraduationCap, Calendar, Clock } from 'lucide-react';
+import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 
 export default function ApplicantCard({ shift, onComplete, onCancel }) {
   const applicant = shift.applicant;
 
   if (!applicant) return null;
 
+  const displayDate = formatDateDDMMYYYY(shift.date);
+  const displayStartTime = formatTime12Hour(shift.startTime);
+  const displayEndTime = formatTime12Hour(shift.endTime);
+
   const cleanPhone = applicant.phone ? applicant.phone.replace(/\D/g, '') : '';
   const waPhone = cleanPhone.startsWith('91') ? cleanPhone : `91${cleanPhone}`;
   const waText = encodeURIComponent(
-    `Hello ${applicant.name}! This is regarding your booked shift at ${shift.cafeName} for "${shift.roleName}" on ${shift.date} (${shift.startTime}). We are happy to confirm your shift!`
+    `Hello ${applicant.name}! This is regarding your booked shift at ${shift.cafeName} for "${shift.roleName}" on ${displayDate} (${displayStartTime}). We are happy to confirm your shift!`
   );
   const waUrl = `https://wa.me/${waPhone}?text=${waText}`;
 
@@ -64,7 +69,7 @@ export default function ApplicantCard({ shift, onComplete, onCancel }) {
             <span className="text-xs font-normal text-stone-500"> (₹{shift.hourlyWage}/hr)</span>
           </div>
           <div className="text-[11px] text-stone-500">
-            {shift.durationHours} hrs · {shift.startTime}
+            {shift.durationHours} hrs · {displayStartTime}
           </div>
         </div>
       </div>
@@ -73,9 +78,9 @@ export default function ApplicantCard({ shift, onComplete, onCancel }) {
       <div className="bg-stone-50 rounded-[3px] p-3 border border-stone-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-stone-600">
         <div className="flex items-center gap-1.5">
           <Calendar className="w-3.5 h-3.5 text-[#FF0046]" />
-          <span>Date: <strong className="text-[#0A011C] font-headline">{shift.date}</strong></span>
+          <span>Date: <strong className="text-[#0A011C] font-headline">{displayDate}</strong></span>
           <span className="text-stone-300">·</span>
-          <span>Time: <strong className="text-[#0A011C] font-headline">{shift.startTime} – {shift.endTime}</strong></span>
+          <span>Time: <strong className="text-[#0A011C] font-headline">{displayStartTime} – {displayEndTime}</strong></span>
         </div>
         <div>
           Role: <strong className="text-[#0A011C] font-headline uppercase">{shift.roleName}</strong>

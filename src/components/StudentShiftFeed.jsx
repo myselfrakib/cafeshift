@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { CALCUTTA_AREAS } from '../data/seedData';
 import { Search, MapPin, Calendar, Clock, ArrowRight } from 'lucide-react';
+import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 
 const KOLKATA_AREAS_FILTERS = [
   'All',
@@ -182,7 +183,7 @@ export default function StudentShiftFeed() {
                   <div className="flex items-center justify-between text-[#0A011C] font-bold font-headline uppercase">
                     <span className="flex items-center gap-1.5">
                       <Calendar className="w-3.5 h-3.5 text-stone-500" />
-                      <span>{shift.date}</span>
+                      <span>{formatDateDDMMYYYY(shift.date)}</span>
                     </span>
                     <span className="text-[10px] font-bold bg-white text-stone-800 px-2 py-0.5 rounded-[2px] border border-stone-200">
                       {shift.durationHours} hrs
@@ -190,7 +191,7 @@ export default function StudentShiftFeed() {
                   </div>
                   <div className="flex items-center gap-1.5 text-stone-500">
                     <Clock className="w-3.5 h-3.5 text-stone-400" />
-                    <span>{shift.startTime} – {shift.endTime}</span>
+                    <span>{formatTime12Hour(shift.startTime)} – {formatTime12Hour(shift.endTime)}</span>
                   </div>
                 </div>
 
@@ -254,7 +255,7 @@ export default function StudentShiftFeed() {
               </div>
               <div className="flex justify-between text-stone-600">
                 <span>Date & Time:</span>
-                <span>{confirmShift.date} · {confirmShift.startTime} ({confirmShift.durationHours} hrs)</span>
+                <span>{formatDateDDMMYYYY(confirmShift.date)} · {formatTime12Hour(confirmShift.startTime)} – {formatTime12Hour(confirmShift.endTime)} ({confirmShift.durationHours} hrs)</span>
               </div>
               <div className="flex justify-between text-stone-600">
                 <span>Location:</span>
