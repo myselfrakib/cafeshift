@@ -1,0 +1,167 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "shifts": {
+      ".read": true,
+      ".write": true
+    },
+    "cafes": {
+      ".read": true,
+      ".write": true
+    },
+    "tiutbc": {
+      "storeStatus": {
+        ".read": true,
+        ".write": "root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true"
+      },
+      "app_settings": {
+        ".read": true,
+        ".write": "root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true"
+      },
+      "servicepincodes": {
+        ".read": true,
+        ".write": "root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true"
+      },
+      "categories": {
+        ".read": true,
+        ".write": "root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true"
+      },
+      "foodItems": {
+        ".read": true,
+        ".write": "root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true"
+      },
+      "reviews": {
+        ".read": true,
+        ".write": "auth != null"
+      },
+      "orderReviews": {
+        ".read": "auth != null",
+        "$orderId": {
+          ".write": "auth != null && (root.child('tiutbc/orders').child($orderId).child('userDetails/userId').val() === auth.uid || root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true)"
+        }
+      },
+      "admins": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true"
+        }
+      },
+      "deliveryagent": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "(auth.uid === $uid && !data.exists()) || (auth.uid === $uid && data.exists()) || root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true",
+          ".validate": "newData.hasChildren(['name', 'email', 'phone', 'status']) && newData.child('status').isBoolean()",
+          "isOnline": {
+            ".validate": "newData.isBoolean()"
+          },
+          "lastOnlineAt": {
+            ".validate": "newData.isNumber()"
+          }
+        }
+      },
+      "users": {
+        ".read": true,
+        "$uid": {
+          "allDetails": {
+            "phoneNumber": {
+              ".read": true
+            },
+            ".read": "auth != null && (auth.uid === $uid || root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true)"
+          },
+          ".write": "auth.uid === $uid || root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true",
+          "orderStats": {
+            ".write": "auth.uid === $uid || root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true"
+          },
+          "addresses": {
+            ".read": "auth.uid === $uid",
+            ".write": "auth.uid === $uid"
+          }
+        }
+      },
+      "carts": {
+        "$cartId": {
+          ".read": "(auth != null && (auth.uid === $cartId || $cartId.matches(/^guest_/))) || (auth == null && $cartId.matches(/^guest_/))",
+          ".write": "(auth != null && auth.uid === $cartId) || $cartId.matches(/^guest_/)"
+        }
+      },
+      "orders": {
+        ".indexOn": [
+          "userDetails/userId",
+          "orderDetails/status",
+          "orderDetails/createdAt",
+          "orderDetails/assignedTo"
+        ],
+        ".read": "auth != null",
+        "$orderId": {
+          ".read": "auth != null && (data.child('userDetails/userId').val() === auth.uid || data.child('orderDetails/assignedTo').val() === auth.uid || root.child('tiutbc/deliveryagent').child(auth.uid).child('status').val() === true || root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true)",
+          ".write": "auth != null && ((!data.exists() && newData.child('userDetails/userId').val() === auth.uid) || (data.exists() && (data.child('userDetails/userId').val() === auth.uid || data.child('orderDetails/assignedTo').val() === auth.uid || root.child('tiutbc/deliveryagent').child(auth.uid).child('status').val() === true || root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true)))",
+          "userDetails": {
+            ".validate": "!data.exists() ? newData.hasChildren(['userId', 'fullName', 'phone', 'roomNumber', 'buildingBlock']) : true"
+          },
+          "orderDetails": {
+            ".validate": "!data.exists() ? newData.hasChildren(['items', 'total', 'status', 'createdAt', 'paymentMethod']) : true",
+            "status": {
+              ".validate": "newData.val() === 'pending' || newData.val() === 'confirmed' || newData.val() === 'preparing' || newData.val() === 'cooking' || newData.val() === 'packing' || newData.val() === 'out-for-delivery' || newData.val() === 'outfordelivery' || newData.val() === 'delivered' || newData.val() === 'cancelled' || newData.val() === 'rejected'"
+            },
+            "paymentMethod": {
+              ".validate": "newData.val() === 'cod' || newData.val() === 'online'"
+            },
+            "total": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "deliveryFee": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "subtotal": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "assignedTo": {
+              ".validate": "newData.isString()"
+            },
+            "assignedAt": {
+              ".validate": "newData.isNumber()"
+            },
+            "assignedBy": {
+              ".validate": "newData.isString()"
+            },
+            "assignmentMethod": {
+              ".validate": "newData.val() === 'manual' || newData.val() === 'auto'"
+            },
+            "paymentCollected": {
+              ".validate": "newData.isBoolean()"
+            },
+            "paymentCollectedAt": {
+              ".validate": "newData.isNumber()"
+            },
+            "paymentCollectedBy": {
+              ".validate": "newData.isString()"
+            },
+            "collectionMethod": {
+              ".validate": "newData.val() === 'cash' || newData.val() === 'upi'"
+            }
+          }
+        }
+      },
+      "notifications": {
+        "$uid": {
+          ".read": "auth.uid === $uid",
+          ".write": "auth.uid === $uid || root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true"
+        }
+      }
+    },
+    "users": {
+      ".read": "root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true",
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true)"
+      }
+    },
+    "carts": {
+      ".read": "root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true",
+      "$cartId": {
+        ".read": "auth != null && (auth.uid === $cartId || $cartId.matches(/^guest_/) || root.child('tiutbc/admins').child(auth.uid).child('admin').val() === true)",
+        ".write": "(auth != null && auth.uid === $cartId) || $cartId.matches(/^guest_/)"
+      }
+    }
+  }
+}
