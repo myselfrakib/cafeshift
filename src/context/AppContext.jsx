@@ -174,6 +174,10 @@ export const AppProvider = ({ children }) => {
         }
       }, (error) => {
         console.warn('Firestore onSnapshot notice:', error.message);
+        if (unsubscribeFirestore) {
+          unsubscribeFirestore();
+          unsubscribeFirestore = null;
+        }
         subscribeToRTDB();
       });
 
@@ -196,6 +200,10 @@ export const AppProvider = ({ children }) => {
         }
       }, (error) => {
         console.warn('Firestore cafes notice:', error.message);
+        if (unsubscribeCafes) {
+          unsubscribeCafes();
+          unsubscribeCafes = null;
+        }
       });
     } catch (err) {
       console.warn('Firestore setup notice:', err);
@@ -228,9 +236,26 @@ export const AppProvider = ({ children }) => {
     }
 
     // Firebase Auth listener
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      setFirebaseUser(user);
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        try {
+          // Probe token validation to catch blocked API restrictions
+          await user.getIdToken();
+          setFirebaseUser(user);
+          setFirebaseConnected(true);
+        } catch (tokenErr) {
+          if (
+            tokenErr?.message?.includes('securetoken') ||
+            tokenErr?.message?.includes('blocked') ||
+            tokenErr?.code === 'auth/internal-error'
+          ) {
+            console.warn('Firebase Auth token blocked by Google Cloud API key restrictions. Signing out stale session to stop retry loop.');
+            await signOut(auth).catch(() => {});
+            setFirebaseUser(null);
+            return;
+          }
+        }
+        setFirebaseUser(user);
         setFirebaseConnected(true);
         setUsers(prev => {
           const exists = prev.find(u => u.id === user.uid || u.email === user.email);
@@ -247,6 +272,8 @@ export const AppProvider = ({ children }) => {
           }
           return prev;
         });
+      } else {
+        setFirebaseUser(null);
       }
     });
 
