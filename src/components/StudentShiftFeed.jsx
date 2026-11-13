@@ -48,19 +48,19 @@ export default function StudentShiftFeed() {
 
   return (
     <div className="space-y-5">
-      {/* Search & Filter Bar (IFP Dark Surface) */}
-      <div className="bg-[#12052E] rounded-[3px] p-4 border border-[#2A1354] space-y-3.5">
+      {/* Search & Filter Bar */}
+      <div className="bg-white rounded-[3px] p-4 border border-stone-200 shadow-xs space-y-3.5">
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
           
           {/* Search Input */}
           <div className="relative w-full md:w-80">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#786C94]" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
             <input
               type="text"
               placeholder="Search cafe, role, or area..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs rounded-[3px] border border-[#2A1354] bg-[#160838] text-white placeholder-[#786C94] focus:bg-[#1C0D46] focus:outline-none focus:border-[#FF0046] transition-colors"
+              className="w-full pl-9 pr-4 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] transition-colors"
             />
           </div>
 
@@ -76,13 +76,13 @@ export default function StudentShiftFeed() {
                   onClick={() => setSelectedArea(area)}
                   className={`px-3 py-1.5 rounded-[3px] font-bold uppercase tracking-wider whitespace-nowrap transition-colors flex items-center gap-1.5 shrink-0 ${
                     selectedArea === area
-                      ? 'bg-[#FF0046] text-white'
-                      : 'bg-[#160838] text-[#A399BA] hover:text-white border border-[#2A1354]'
+                      ? 'bg-[#FF0046] text-white shadow-2xs'
+                      : 'bg-stone-100 text-stone-700 hover:text-black border border-stone-200'
                   }`}
                 >
                   <span>{area}</span>
                   <span className={`text-[10px] px-1 rounded-[2px] ${
-                    selectedArea === area ? 'bg-black/30 text-white' : 'bg-[#2A1354] text-[#A399BA]'
+                    selectedArea === area ? 'bg-black/20 text-white' : 'bg-stone-200 text-stone-600'
                   }`}>
                     {count}
                   </span>
@@ -93,17 +93,17 @@ export default function StudentShiftFeed() {
         </div>
 
         {/* Hourly Pay Filter */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#2A1354] text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-stone-100 text-xs">
           <div className="flex items-center gap-1.5">
-            <span className="font-bold uppercase tracking-wider text-[#A399BA] font-headline">Hourly Pay:</span>
+            <span className="font-bold uppercase tracking-wider text-stone-500 font-headline">Hourly Pay:</span>
             {[0, 120, 140, 150].map(wage => (
               <button
                 key={wage}
                 onClick={() => setMinWageFilter(wage)}
                 className={`px-3 py-1 rounded-[3px] text-xs font-bold uppercase tracking-wider transition-colors ${
                   minWageFilter === wage
-                    ? 'bg-[#00DADC] text-black font-headline'
-                    : 'bg-[#160838] text-[#A399BA] hover:text-white border border-[#2A1354]'
+                    ? 'bg-[#0A011C] text-white font-headline shadow-2xs'
+                    : 'bg-stone-100 text-stone-700 hover:text-black border border-stone-200'
                 }`}
               >
                 {wage === 0 ? 'All' : `₹${wage}+/hr`}
@@ -111,27 +111,27 @@ export default function StudentShiftFeed() {
             ))}
           </div>
 
-          <div className="text-[11px] text-[#A399BA]">
-            Showing <strong className="text-white">{filteredShifts.length}</strong> available shifts
+          <div className="text-[11px] text-stone-500">
+            Showing <strong className="text-[#0A011C]">{filteredShifts.length}</strong> available shifts
           </div>
         </div>
       </div>
 
       {/* Shifts Grid */}
       {filteredShifts.length === 0 ? (
-        <div className="text-center py-16 px-4 bg-[#12052E] rounded-[3px] border border-dashed border-[#2A1354]">
-          <div className="w-12 h-12 rounded-[3px] bg-[#1E0D48] text-[#FF0046] flex items-center justify-center text-xl mx-auto mb-3 border border-[#3D1C7A]">
+        <div className="text-center py-16 px-4 bg-white rounded-[3px] border border-dashed border-stone-200">
+          <div className="w-12 h-12 rounded-[3px] bg-stone-100 text-[#FF0046] flex items-center justify-center text-xl mx-auto mb-3 border border-stone-200">
             ☕
           </div>
-          <h3 className="text-base font-bold text-white font-headline uppercase tracking-wider">
+          <h3 className="text-base font-bold text-[#0A011C] font-headline uppercase tracking-wider">
             No Shifts Available in this Selection
           </h3>
-          <p className="text-xs text-[#A399BA] max-w-sm mx-auto mt-1 mb-4">
+          <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1 mb-4">
             Shifts disappear once applied by other students. Try clearing your filters or check back shortly.
           </p>
           <button
             onClick={() => { setSearchTerm(''); setSelectedArea('All'); setMinWageFilter(0); }}
-            className="text-xs font-bold uppercase tracking-wider text-black bg-white hover:bg-[#FF0046] hover:text-white px-4 py-2 rounded-[3px] transition-colors"
+            className="text-xs font-bold uppercase tracking-wider text-white bg-[#0A011C] hover:bg-[#FF0046] px-4 py-2 rounded-[3px] transition-colors"
           >
             Reset Filters
           </button>
@@ -141,49 +141,49 @@ export default function StudentShiftFeed() {
           {filteredShifts.map(shift => (
             <div
               key={shift.id}
-              className="bg-[#12052E] rounded-[3px] p-5 border border-[#2A1354] hover:border-[#3D1C7A] transition-all flex flex-col justify-between"
+              className="bg-white rounded-[3px] p-5 border border-stone-200 hover:border-stone-300 shadow-xs transition-all flex flex-col justify-between"
             >
               <div>
                 {/* Header */}
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-[3px] bg-[#1E0D48] border border-[#3D1C7A] flex items-center justify-center text-xl shrink-0">
+                    <div className="w-10 h-10 rounded-[3px] bg-stone-100 border border-stone-200 flex items-center justify-center text-xl shrink-0">
                       {shift.cafeMascot || '☕'}
                     </div>
                     <div>
-                      <h4 className="font-headline font-bold text-base text-white uppercase leading-tight tracking-tight">
+                      <h4 className="font-headline font-bold text-base text-[#0A011C] uppercase leading-tight tracking-tight">
                         {shift.cafeName}
                       </h4>
-                      <div className="flex items-center gap-1 text-[11px] text-[#A399BA] mt-0.5">
+                      <div className="flex items-center gap-1 text-[11px] text-stone-500 mt-0.5">
                         <MapPin className="w-3 h-3 text-[#FF0046] shrink-0" />
                         <span>{shift.cafeArea}, Kolkata</span>
                       </div>
                     </div>
                   </div>
 
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-[#00DADC]/15 text-[#00DADC] border border-[#00DADC]/30 px-2 py-0.5 rounded-[3px] shrink-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-[3px] shrink-0">
                     Open Shift
                   </span>
                 </div>
 
                 {/* Role Title */}
-                <h3 className="font-headline text-lg font-bold text-white mb-3 uppercase tracking-tight">
+                <h3 className="font-headline text-lg font-bold text-[#0A011C] mb-3 uppercase tracking-tight">
                   {shift.roleName}
                 </h3>
 
                 {/* Date & Time */}
-                <div className="bg-[#160838] rounded-[3px] p-3 border border-[#2A1354] mb-3 space-y-1 text-xs">
-                  <div className="flex items-center justify-between text-white font-bold font-headline uppercase">
+                <div className="bg-stone-50 rounded-[3px] p-3 border border-stone-200 mb-3 space-y-1 text-xs">
+                  <div className="flex items-center justify-between text-[#0A011C] font-bold font-headline uppercase">
                     <span className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-[#00DADC]" />
+                      <Calendar className="w-3.5 h-3.5 text-stone-500" />
                       <span>{shift.date}</span>
                     </span>
-                    <span className="text-[10px] font-bold bg-[#1E0D48] text-[#FE9900] px-2 py-0.5 rounded-[2px] border border-[#3D1C7A]">
+                    <span className="text-[10px] font-bold bg-white text-stone-800 px-2 py-0.5 rounded-[2px] border border-stone-200">
                       {shift.durationHours} hrs
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[#A399BA]">
-                    <Clock className="w-3.5 h-3.5 text-[#FE9900]" />
+                  <div className="flex items-center gap-1.5 text-stone-500">
+                    <Clock className="w-3.5 h-3.5 text-stone-400" />
                     <span>{shift.startTime} – {shift.endTime}</span>
                   </div>
                 </div>
@@ -193,7 +193,7 @@ export default function StudentShiftFeed() {
                   {shift.perks?.slice(0, 3).map((perk, idx) => (
                     <span
                       key={idx}
-                      className="text-[10px] bg-[#1E0D48] text-[#A399BA] px-2 py-0.5 rounded-[2px] border border-[#2A1354]"
+                      className="text-[10px] bg-stone-100 text-stone-700 px-2 py-0.5 rounded-[2px] border border-stone-200 font-medium"
                     >
                       {perk}
                     </span>
@@ -202,14 +202,14 @@ export default function StudentShiftFeed() {
               </div>
 
               {/* Bottom Pay & Apply Action */}
-              <div className="pt-3 border-t border-[#2A1354] flex items-center justify-between gap-3">
+              <div className="pt-3 border-t border-stone-100 flex items-center justify-between gap-3">
                 <div>
-                  <span className="text-[10px] font-bold text-[#786C94] block uppercase tracking-wider font-headline">
+                  <span className="text-[10px] font-bold text-stone-400 block uppercase tracking-wider font-headline">
                     Student Pay
                   </span>
-                  <div className="font-headline text-lg font-bold text-[#00DADC] flex items-baseline gap-1">
+                  <div className="font-headline text-lg font-bold text-[#0A011C] flex items-baseline gap-1">
                     <span>₹{shift.totalEarnings}</span>
-                    <span className="text-xs font-normal text-[#A399BA]">
+                    <span className="text-xs font-normal text-stone-500">
                       (₹{shift.hourlyWage}/hr)
                     </span>
                   </div>
@@ -217,7 +217,7 @@ export default function StudentShiftFeed() {
 
                 <button
                   onClick={() => handleApplyClick(shift)}
-                  className="bg-white hover:bg-[#FF0046] hover:text-white text-black font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-[3px] transition-colors flex items-center gap-1.5"
+                  className="bg-[#0A011C] hover:bg-[#FF0046] text-white font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-[3px] transition-colors flex items-center gap-1.5 shadow-xs"
                 >
                   <span>Apply Now</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -230,44 +230,44 @@ export default function StudentShiftFeed() {
 
       {/* Confirmation Modal */}
       {confirmShift && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-xs">
-          <div className="bg-[#12052E] rounded-[3px] max-w-md w-full p-5 sm:p-6 border border-[#2A1354] space-y-4 animate-pop shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-xs">
+          <div className="bg-white rounded-t-[3px] sm:rounded-[3px] max-w-md w-full p-5 sm:p-6 border border-stone-200 space-y-4 animate-pop shadow-2xl">
             <div>
-              <h3 className="text-xl font-bold font-headline text-white uppercase tracking-tight">
+              <h3 className="text-xl font-bold font-headline text-[#0A011C] uppercase tracking-tight">
                 Confirm Shift Application
               </h3>
-              <p className="text-xs text-[#A399BA] mt-0.5">
-                Apply to work at <strong className="text-white">{confirmShift.cafeName}</strong>
+              <p className="text-xs text-stone-500 mt-0.5">
+                Apply to work at <strong className="text-[#0A011C]">{confirmShift.cafeName}</strong>
               </p>
             </div>
 
-            <div className="bg-[#160838] p-3.5 rounded-[3px] border border-[#2A1354] text-xs space-y-1.5">
-              <div className="flex justify-between font-bold text-white uppercase font-headline">
+            <div className="bg-stone-50 p-3.5 rounded-[3px] border border-stone-200 text-xs space-y-1.5">
+              <div className="flex justify-between font-bold text-[#0A011C] uppercase font-headline">
                 <span>Role:</span>
                 <span>{confirmShift.roleName}</span>
               </div>
-              <div className="flex justify-between text-[#A399BA]">
+              <div className="flex justify-between text-stone-600">
                 <span>Date & Time:</span>
                 <span>{confirmShift.date} · {confirmShift.startTime} ({confirmShift.durationHours} hrs)</span>
               </div>
-              <div className="flex justify-between text-[#A399BA]">
+              <div className="flex justify-between text-stone-600">
                 <span>Location:</span>
                 <span>{confirmShift.cafeArea}, Kolkata</span>
               </div>
-              <div className="pt-2 border-t border-[#2A1354] flex justify-between font-bold text-[#00DADC] text-sm font-headline">
+              <div className="pt-2 border-t border-stone-200 flex justify-between font-bold text-[#0A011C] text-sm font-headline">
                 <span>Total Payment:</span>
                 <span>₹{confirmShift.totalEarnings} (₹{confirmShift.hourlyWage}/hr)</span>
               </div>
             </div>
 
-            <p className="text-[11px] text-[#A399BA] leading-relaxed">
+            <p className="text-[11px] text-stone-500 leading-relaxed">
               Upon confirmation, this listing will be <strong>marked booked and removed from public listings</strong>. The cafe owner will contact your registered phone (+91 {currentUser?.phone}) via Call or WhatsApp.
             </p>
 
             <div className="flex gap-2 pt-2">
               <button
                 onClick={() => setConfirmShift(null)}
-                className="flex-1 py-2.5 rounded-[3px] border border-[#2A1354] text-xs font-bold uppercase tracking-wider text-[#A399BA] hover:text-white hover:bg-[#160838]"
+                className="flex-1 py-2.5 rounded-[3px] border border-stone-200 text-xs font-bold uppercase tracking-wider text-stone-700 hover:text-black hover:bg-stone-50"
               >
                 Cancel
               </button>

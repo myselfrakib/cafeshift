@@ -7,21 +7,20 @@ export default {
   theme: {
     extend: {
       colors: {
-        // IFP Design System Tokens
         ifp: {
-          bg: '#0A011C', // Deep Violet background
-          surface: '#13052E',
-          card: '#160838',
-          cardHover: '#1E0D48',
-          border: '#2A1354',
-          borderLight: '#3D1C7A',
+          bg: '#F8F9FA',
+          surface: '#FFFFFF',
+          card: '#FFFFFF',
+          cardHover: '#F9FAFB',
+          border: '#E5E7EB',
+          borderLight: '#F3F4F6',
           primary: '#FF0046', // Vivid Pink
           primaryHover: '#E6003F',
           secondary: '#00DADC', // Vivid Cyan
           tertiary: '#FE9900', // Vivid Orange
-          dark: '#000000',
-          textMuted: '#A399BA',
-          textSubtle: '#786C94'
+          dark: '#0A011C',
+          textMuted: '#6B7280',
+          textSubtle: '#9CA3AF'
         }
       },
       borderRadius: {

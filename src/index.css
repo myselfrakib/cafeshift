@@ -4,8 +4,8 @@
 
 @layer base {
   body {
-    background-color: #0A011C;
-    color: #FFFFFF;
+    background-color: #F8F9FA;
+    color: #0A011C;
     font-family: 'Titillium Web', 'Gotham', 'Noir Pro', sans-serif;
   }
 
@@ -15,16 +15,16 @@
   }
 }
 
-/* IFP Custom Scrollbars */
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0A011C;
+  background: #F1F3F5;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2A1354;
+  background: #CBD5E1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -33,8 +33,8 @@
 
 /* IFP Button Styles */
 .btn-primary {
-  background-color: #FFFFFF;
-  color: #000000;
+  background-color: #0A011C;
+  color: #FFFFFF;
   font-family: 'Titillium Web', sans-serif;
   font-weight: 700;
   border-radius: 3px;
@@ -81,13 +81,9 @@
 
 /* Card surfaces */
 .ifp-card {
-  background-color: #12052E;
-  border: 1px solid #2A1354;
+  background-color: #FFFFFF;
+  border: 1px solid #E5E7EB;
   border-radius: 3px;
-}
-.ifp-card-hover:hover {
-  border-color: #3D1C7A;
-  background-color: #160838;
 }
 
 /* Animation */

@@ -14,34 +14,34 @@ export default function ApplicantCard({ shift, onComplete, onCancel }) {
   const waUrl = `https://wa.me/${waPhone}?text=${waText}`;
 
   return (
-    <div className="bg-[#160838] rounded-[3px] p-5 border border-[#2A1354] space-y-4 shadow-md">
+    <div className="bg-white rounded-[3px] p-5 border border-stone-200 space-y-4 shadow-sm">
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         {/* Student Profile Info */}
         <div className="flex items-start gap-3.5">
-          <div className="w-12 h-12 rounded-[3px] bg-[#1E0D48] border border-[#3D1C7A] flex items-center justify-center text-2xl shrink-0">
+          <div className="w-12 h-12 rounded-[3px] bg-stone-50 border border-stone-200 flex items-center justify-center text-2xl shrink-0 shadow-xs">
             {applicant.mascot || '🐼'}
           </div>
 
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h4 className="text-lg font-bold text-white font-headline uppercase tracking-tight">
+              <h4 className="text-lg font-bold text-[#0A011C] font-headline uppercase tracking-tight">
                 {applicant.name}
               </h4>
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-[#1E0D48] text-[#A399BA] px-2 py-0.5 rounded-[3px] border border-[#3D1C7A]">
+              <span className="text-[10px] font-bold uppercase tracking-wider bg-stone-100 text-stone-600 px-2 py-0.5 rounded-[3px] border border-stone-200">
                 {applicant.gender || 'Student'} · {applicant.age} yrs
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-[#00DADC]/20 text-[#00DADC] border border-[#00DADC]/40 px-2 py-0.5 rounded-[3px] flex items-center gap-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider bg-[#00DADC]/20 text-[#008b8d] border border-[#00DADC]/40 px-2 py-0.5 rounded-[3px] flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#00DADC]"></span>
                 <span>Booked</span>
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5 text-xs text-[#A399BA] mt-1">
-              <GraduationCap className="w-3.5 h-3.5 text-[#00DADC] shrink-0" />
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-1">
+              <GraduationCap className="w-3.5 h-3.5 text-[#008b8d] shrink-0" />
               <span>{applicant.college || 'Kolkata College Student'}</span>
             </div>
 
-            <div className="flex items-center gap-1.5 text-xs text-[#A399BA] mt-0.5">
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-0.5">
               <MapPin className="w-3.5 h-3.5 text-[#FF0046] shrink-0" />
               <span>{applicant.address || 'Kolkata'}</span>
             </div>
@@ -49,35 +49,35 @@ export default function ApplicantCard({ shift, onComplete, onCancel }) {
         </div>
 
         {/* Payout Details */}
-        <div className="bg-[#12052E] p-3 rounded-[3px] border border-[#2A1354] text-left sm:text-right shrink-0">
-          <span className="text-[10px] uppercase font-bold text-[#786C94] block tracking-wider font-headline">
+        <div className="bg-stone-50 p-3 rounded-[3px] border border-stone-200 text-left sm:text-right shrink-0">
+          <span className="text-[10px] uppercase font-bold text-stone-400 block tracking-wider font-headline">
             Student Payout
           </span>
-          <div className="text-lg font-headline font-bold text-[#00DADC]">
+          <div className="text-lg font-headline font-bold text-[#FF0046]">
             ₹{shift.totalEarnings}
-            <span className="text-xs font-normal text-[#A399BA]"> (₹{shift.hourlyWage}/hr)</span>
+            <span className="text-xs font-normal text-stone-500"> (₹{shift.hourlyWage}/hr)</span>
           </div>
-          <div className="text-[11px] text-[#A399BA]">
+          <div className="text-[11px] text-stone-500">
             {shift.durationHours} hrs · {shift.startTime}
           </div>
         </div>
       </div>
 
       {/* Applied Shift Info */}
-      <div className="bg-[#12052E] rounded-[3px] p-3 border border-[#2A1354] text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[#A399BA]">
+      <div className="bg-stone-50 rounded-[3px] p-3 border border-stone-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-stone-600">
         <div className="flex items-center gap-1.5">
-          <Calendar className="w-3.5 h-3.5 text-[#00DADC]" />
-          <span>Date: <strong className="text-white font-headline">{shift.date}</strong></span>
-          <span className="text-[#3D1C7A]">·</span>
-          <span>Time: <strong className="text-white font-headline">{shift.startTime} – {shift.endTime}</strong></span>
+          <Calendar className="w-3.5 h-3.5 text-[#FF0046]" />
+          <span>Date: <strong className="text-[#0A011C] font-headline">{shift.date}</strong></span>
+          <span className="text-stone-300">·</span>
+          <span>Time: <strong className="text-[#0A011C] font-headline">{shift.startTime} – {shift.endTime}</strong></span>
         </div>
         <div>
-          Role: <strong className="text-white font-headline uppercase">{shift.roleName}</strong>
+          Role: <strong className="text-[#0A011C] font-headline uppercase">{shift.roleName}</strong>
         </div>
       </div>
 
       {/* Direct Contact Actions (IFP Buttons) */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2 border-t border-[#2A1354]">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2 border-t border-stone-200">
         <a
           href={`tel:+91${cleanPhone}`}
           className="flex-1 inline-flex items-center justify-center gap-2 bg-[#00DADC] hover:bg-[#00c5c7] text-black font-bold text-xs uppercase tracking-wider py-2.5 px-4 rounded-[3px] shadow-sm transition-colors"
@@ -99,7 +99,7 @@ export default function ApplicantCard({ shift, onComplete, onCancel }) {
         {onComplete && (
           <button
             onClick={() => onComplete(shift.id)}
-            className="text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-[3px] border border-[#2A1354] text-[#A399BA] hover:text-white hover:bg-[#1E0D48] transition-colors"
+            className="text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-[3px] border border-stone-200 text-stone-600 hover:text-[#0A011C] hover:bg-stone-100 transition-colors"
           >
             Mark Paid & Done
           </button>

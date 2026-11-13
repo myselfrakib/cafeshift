@@ -21,9 +21,9 @@ export default function OwnerCafeView() {
 
   if (!cafe) {
     return (
-      <div className="max-w-xl mx-auto p-8 text-center bg-[#12052E] rounded-[3px] border border-[#2A1354] mt-6">
-        <h3 className="text-lg font-bold font-headline text-white uppercase">No Cafe Registered</h3>
-        <p className="text-xs text-[#A399BA] mt-1 mb-4">You have not registered any cafe yet.</p>
+      <div className="max-w-xl mx-auto p-8 text-center bg-white rounded-[3px] border border-stone-200 shadow-sm mt-6">
+        <h3 className="text-lg font-bold font-headline text-[#0A011C] uppercase">No Cafe Registered</h3>
+        <p className="text-xs text-stone-500 mt-1 mb-4">You have not registered any cafe yet.</p>
       </div>
     );
   }
@@ -43,15 +43,15 @@ export default function OwnerCafeView() {
       {/* Top Cafe Selector if Owner has multiple cafes */}
       {ownerCafes.length > 1 && (
         <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-          <span className="font-bold uppercase tracking-wider text-[#A399BA] shrink-0 font-headline">Your Cafes:</span>
+          <span className="font-bold uppercase tracking-wider text-stone-500 shrink-0 font-headline">Your Cafes:</span>
           {ownerCafes.map(c => (
             <button
               key={c.id}
               onClick={() => setSelectedCafeId(c.id)}
               className={`px-3 py-1.5 rounded-[3px] font-bold uppercase tracking-wider transition-colors ${
                 c.id === cafe.id
-                  ? 'bg-[#FF0046] text-white'
-                  : 'bg-[#12052E] text-[#A399BA] hover:text-white border border-[#2A1354]'
+                  ? 'bg-[#FF0046] text-white shadow-xs'
+                  : 'bg-white text-stone-600 hover:text-[#0A011C] border border-stone-200'
               }`}
             >
               <span>{c.mascot}</span>
@@ -61,10 +61,10 @@ export default function OwnerCafeView() {
         </div>
       )}
 
-      {/* Cafe Header Banner (IFP Dark Surface with 3px corners) */}
-      <div className="bg-[#12052E] rounded-[3px] border border-[#2A1354] p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      {/* Cafe Header Banner (Clean White Surface with 3px corners & IFP accents) */}
+      <div className="bg-white rounded-[3px] border border-stone-200 p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
         <div className="flex items-start gap-4">
-          <div className="w-16 h-16 rounded-[3px] bg-[#1E0D48] text-[#FF0046] border border-[#3D1C7A] flex items-center justify-center text-3xl shrink-0">
+          <div className="w-16 h-16 rounded-[3px] bg-stone-50 text-[#FF0046] border border-stone-200 flex items-center justify-center text-3xl shrink-0 shadow-xs">
             {cafe.mascot || '☕'}
           </div>
           <div>
@@ -73,13 +73,13 @@ export default function OwnerCafeView() {
                 {cafe.area}, Kolkata
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-headline font-bold text-white uppercase tracking-tight mt-1">
+            <h1 className="text-2xl sm:text-3xl font-headline font-bold text-[#0A011C] uppercase tracking-tight mt-1">
               {cafe.name}
             </h1>
-            <p className="text-xs text-[#A399BA] mt-1 max-w-lg">
+            <p className="text-xs text-stone-500 mt-1 max-w-lg leading-relaxed">
               {cafe.description}
             </p>
-            <div className="flex items-center gap-2 mt-2 text-xs text-[#A399BA]">
+            <div className="flex items-center gap-2 mt-2 text-xs text-stone-500">
               <MapPin className="w-3.5 h-3.5 text-[#FF0046]" />
               <span>{cafe.address}</span>
             </div>
@@ -94,72 +94,72 @@ export default function OwnerCafeView() {
             <PlusCircle className="w-4 h-4" />
             <span>Publish Shift Offer</span>
           </button>
-          <span className="text-center text-[11px] text-[#A399BA] font-medium font-headline uppercase">
+          <span className="text-center text-[11px] text-stone-400 font-medium font-headline uppercase">
             Min 3 hrs · Min ₹100/hr
           </span>
         </div>
       </div>
 
-      {/* Metrics Row (IFP 3px corners) */}
+      {/* Metrics Row (IFP 3px corners, Light White Cards) */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-[#12052E] p-4 rounded-[3px] border border-[#2A1354]">
-          <span className="text-[11px] font-bold text-[#A399BA] block uppercase tracking-wider font-headline">
+        <div className="bg-white p-4 rounded-[3px] border border-stone-200 shadow-sm">
+          <span className="text-[11px] font-bold text-stone-400 block uppercase tracking-wider font-headline">
             Booked Candidates
           </span>
-          <div className="text-2xl font-headline font-bold text-white mt-1">
+          <div className="text-2xl font-headline font-bold text-[#0A011C] mt-1">
             {bookedShifts.length}
           </div>
-          <p className="text-[11px] text-[#00DADC] mt-0.5">Ready to contact</p>
+          <p className="text-[11px] text-[#008b8d] font-semibold mt-0.5">Ready to contact</p>
         </div>
 
-        <div className="bg-[#12052E] p-4 rounded-[3px] border border-[#2A1354]">
-          <span className="text-[11px] font-bold text-[#A399BA] block uppercase tracking-wider font-headline">
+        <div className="bg-white p-4 rounded-[3px] border border-stone-200 shadow-sm">
+          <span className="text-[11px] font-bold text-stone-400 block uppercase tracking-wider font-headline">
             Live Offers
           </span>
-          <div className="text-2xl font-headline font-bold text-white mt-1">
+          <div className="text-2xl font-headline font-bold text-[#0A011C] mt-1">
             {openShifts.length}
           </div>
-          <p className="text-[11px] text-[#FE9900] mt-0.5">Listed for students</p>
+          <p className="text-[11px] text-[#FE9900] font-semibold mt-0.5">Listed for students</p>
         </div>
 
-        <div className="bg-[#12052E] p-4 rounded-[3px] border border-[#2A1354]">
-          <span className="text-[11px] font-bold text-[#A399BA] block uppercase tracking-wider font-headline">
+        <div className="bg-white p-4 rounded-[3px] border border-stone-200 shadow-sm">
+          <span className="text-[11px] font-bold text-stone-400 block uppercase tracking-wider font-headline">
             Base Wage
           </span>
-          <div className="text-2xl font-headline font-bold text-[#00DADC] mt-1">
+          <div className="text-2xl font-headline font-bold text-[#FF0046] mt-1">
             ₹{cafe.minHourlyWage}/hr
           </div>
-          <p className="text-[11px] text-[#A399BA] mt-0.5">≥ ₹100 guarantee</p>
+          <p className="text-[11px] text-stone-500 mt-0.5">≥ ₹100 guarantee</p>
         </div>
 
-        <div className="bg-[#12052E] p-4 rounded-[3px] border border-[#2A1354]">
-          <span className="text-[11px] font-bold text-[#A399BA] block uppercase tracking-wider font-headline">
+        <div className="bg-white p-4 rounded-[3px] border border-stone-200 shadow-sm">
+          <span className="text-[11px] font-bold text-stone-400 block uppercase tracking-wider font-headline">
             Owner Contact
           </span>
-          <div className="text-sm font-bold text-white mt-1 font-mono">
+          <div className="text-sm font-bold text-[#0A011C] mt-1 font-mono">
             +91 {currentUser?.phone}
           </div>
-          <p className="text-[11px] text-[#A399BA] mt-0.5">{currentUser?.name}</p>
+          <p className="text-[11px] text-stone-500 mt-0.5">{currentUser?.name}</p>
         </div>
       </div>
 
       {/* Shift Management Tabs */}
-      <div className="bg-[#12052E] rounded-[3px] p-5 sm:p-6 border border-[#2A1354] space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2A1354] pb-4">
+      <div className="bg-white rounded-[3px] p-5 sm:p-6 border border-stone-200 shadow-sm space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-200 pb-4">
           <div>
-            <h3 className="text-lg font-headline font-bold text-white uppercase tracking-tight">
+            <h3 className="text-lg font-headline font-bold text-[#0A011C] uppercase tracking-tight">
               Shift Offers & Candidate Contacts
             </h3>
-            <p className="text-xs text-[#A399BA]">
+            <p className="text-xs text-stone-500">
               When a student applies, the shift locks instantly. Contact candidates directly via phone or WhatsApp.
             </p>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-[#0A011C] p-1 rounded-[3px] border border-[#2A1354] text-xs font-bold uppercase tracking-wider">
+          <div className="flex items-center gap-1.5 bg-stone-100 p-1 rounded-[3px] border border-stone-200 text-xs font-bold uppercase tracking-wider">
             <button
               onClick={() => setCafeTab('booked')}
               className={`px-3 py-1.5 rounded-[3px] transition-colors ${
-                cafeTab === 'booked' ? 'bg-[#FF0046] text-white' : 'text-[#A399BA] hover:text-white'
+                cafeTab === 'booked' ? 'bg-[#FF0046] text-white shadow-xs' : 'text-stone-600 hover:text-[#0A011C]'
               }`}
             >
               Booked Candidates ({bookedShifts.length})
@@ -167,7 +167,7 @@ export default function OwnerCafeView() {
             <button
               onClick={() => setCafeTab('open')}
               className={`px-3 py-1.5 rounded-[3px] transition-colors ${
-                cafeTab === 'open' ? 'bg-[#00DADC] text-black' : 'text-[#A399BA] hover:text-white'
+                cafeTab === 'open' ? 'bg-[#00DADC] text-black shadow-xs' : 'text-stone-600 hover:text-[#0A011C]'
               }`}
             >
               Open Shifts ({openShifts.length})
@@ -179,10 +179,10 @@ export default function OwnerCafeView() {
         {cafeTab === 'booked' && (
           <div className="space-y-4">
             {bookedShifts.length === 0 ? (
-              <div className="text-center py-12 px-4 bg-[#160838] rounded-[3px] border border-dashed border-[#2A1354]">
+              <div className="text-center py-12 px-4 bg-stone-50 rounded-[3px] border border-dashed border-stone-200">
                 <div className="text-2xl mb-1 text-[#FF0046]">📋</div>
-                <h4 className="text-sm font-bold text-white font-headline uppercase">No Booked Candidates Yet</h4>
-                <p className="text-xs text-[#A399BA] max-w-sm mx-auto mt-1 mb-3">
+                <h4 className="text-sm font-bold text-[#0A011C] font-headline uppercase">No Booked Candidates Yet</h4>
+                <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1 mb-3">
                   When a student taps "Apply" on your shift offer, their profile and direct contact buttons will appear here immediately.
                 </p>
               </div>
@@ -205,14 +205,14 @@ export default function OwnerCafeView() {
         {cafeTab === 'open' && (
           <div className="space-y-4">
             {openShifts.length === 0 ? (
-              <div className="text-center py-12 px-4 bg-[#160838] rounded-[3px] border border-dashed border-[#2A1354]">
-                <h4 className="text-sm font-bold text-white font-headline uppercase">No Open Shifts Currently Listed</h4>
-                <p className="text-xs text-[#A399BA] max-w-sm mx-auto mt-1 mb-3">
+              <div className="text-center py-12 px-4 bg-stone-50 rounded-[3px] border border-dashed border-stone-200">
+                <h4 className="text-sm font-bold text-[#0A011C] font-headline uppercase">No Open Shifts Currently Listed</h4>
+                <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1 mb-3">
                   Create a shift offer to find students for your upcoming rush hours.
                 </p>
                 <button
                   onClick={() => setCreateShiftModalOpen(true)}
-                  className="px-4 py-2 bg-[#FF0046] hover:bg-[#E6003F] text-white rounded-[3px] text-xs font-bold uppercase tracking-wider"
+                  className="px-4 py-2 bg-[#FF0046] hover:bg-[#E6003F] text-white rounded-[3px] text-xs font-bold uppercase tracking-wider shadow-xs"
                 >
                   Create Shift Offer
                 </button>
@@ -222,21 +222,21 @@ export default function OwnerCafeView() {
                 {openShifts.map(shift => (
                   <div
                     key={shift.id}
-                    className="p-4 rounded-[3px] border border-[#2A1354] bg-[#160838] flex flex-col justify-between text-xs"
+                    className="p-4 rounded-[3px] border border-stone-200 bg-stone-50 flex flex-col justify-between text-xs hover:border-stone-300 transition-colors"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider bg-[#00DADC]/15 text-[#00DADC] px-2 py-0.5 rounded-[3px] border border-[#00DADC]/30">
+                        <span className="text-[10px] font-bold uppercase tracking-wider bg-[#00DADC]/15 text-[#008b8d] px-2 py-0.5 rounded-[3px] border border-[#00DADC]/30">
                           Active on Feed
                         </span>
-                        <span className="font-bold text-[#00DADC] font-headline">
+                        <span className="font-bold text-[#008b8d] font-headline text-sm">
                           ₹{shift.hourlyWage}/hr · ₹{shift.totalEarnings} total
                         </span>
                       </div>
-                      <h4 className="font-bold text-base text-white font-headline uppercase">{shift.roleName}</h4>
-                      <div className="text-[#A399BA] mt-2 space-y-1">
-                        <div>Date: {shift.date}</div>
-                        <div>Timing: {shift.startTime} – {shift.endTime} ({shift.durationHours} hrs)</div>
+                      <h4 className="font-bold text-base text-[#0A011C] font-headline uppercase">{shift.roleName}</h4>
+                      <div className="text-stone-500 mt-2 space-y-1">
+                        <div>Date: <strong className="text-stone-700">{shift.date}</strong></div>
+                        <div>Timing: <strong className="text-stone-700">{shift.startTime} – {shift.endTime}</strong> ({shift.durationHours} hrs)</div>
                       </div>
                     </div>
                   </div>

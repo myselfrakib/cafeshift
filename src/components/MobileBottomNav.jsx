@@ -21,21 +21,21 @@ export default function MobileBottomNav() {
     : shifts.filter(s => s.status === 'booked' && (s.applicant?.userId === currentUser?.id || s.applicant?.email === currentUser?.email)).length;
 
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 bg-[#0A011C]/95 backdrop-blur-md border-t border-[#2A1354] z-40 px-3 py-2 shadow-2xl">
+    <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-stone-200 z-40 px-3 py-2 shadow-lg">
       <div className="flex items-center justify-around">
         {/* 1. Browse Shifts */}
         <button
           onClick={() => setActiveTab('browse')}
           className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-[3px] transition-colors ${
             activeTab === 'browse'
-              ? 'text-white font-bold'
-              : 'text-[#A399BA] hover:text-white font-medium'
+              ? 'text-[#0A011C] font-bold'
+              : 'text-stone-500 hover:text-[#0A011C] font-medium'
           }`}
         >
           <div className="relative">
             <span className="text-lg">🐾</span>
             {openShiftsCount > 0 && (
-              <span className="absolute -top-1 -right-2 bg-[#FF0046] text-white text-[9px] font-bold px-1 rounded-[2px] min-w-[14px] text-center font-headline">
+              <span className="absolute -top-1 -right-2 bg-[#FF0046] text-white text-[9px] font-bold px-1 rounded-[2px] min-w-[14px] text-center font-headline shadow-xs">
                 {openShiftsCount}
               </span>
             )}
@@ -50,13 +50,13 @@ export default function MobileBottomNav() {
             className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-[3px] transition-colors ${
               activeTab === 'my-cafe'
                 ? 'text-[#FF0046] font-bold'
-                : 'text-[#A399BA] hover:text-white font-medium'
+                : 'text-stone-500 hover:text-[#0A011C] font-medium'
             }`}
           >
             <div className="relative">
               <span className="text-lg">{activeCafe?.mascot || '☕'}</span>
               {bookedShiftsCount > 0 && (
-                <span className="absolute -top-1 -right-2 bg-[#00DADC] text-black text-[9px] font-bold px-1 rounded-[2px] min-w-[14px] text-center font-headline">
+                <span className="absolute -top-1 -right-2 bg-[#00DADC] text-black text-[9px] font-bold px-1 rounded-[2px] min-w-[14px] text-center font-headline shadow-xs">
                   {bookedShiftsCount}
                 </span>
               )}
@@ -70,14 +70,14 @@ export default function MobileBottomNav() {
             onClick={() => setActiveTab('my-applications')}
             className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-[3px] transition-colors ${
               activeTab === 'my-applications'
-                ? 'text-[#00DADC] font-bold'
-                : 'text-[#A399BA] hover:text-white font-medium'
+                ? 'text-[#FF0046] font-bold'
+                : 'text-stone-500 hover:text-[#0A011C] font-medium'
             }`}
           >
             <div className="relative">
               <span className="text-lg">🎒</span>
               {bookedShiftsCount > 0 && (
-                <span className="absolute -top-1 -right-2 bg-[#00DADC] text-black text-[9px] font-bold px-1 rounded-[2px] min-w-[14px] text-center font-headline">
+                <span className="absolute -top-1 -right-2 bg-[#00DADC] text-black text-[9px] font-bold px-1 rounded-[2px] min-w-[14px] text-center font-headline shadow-xs">
                   {bookedShiftsCount}
                 </span>
               )}
@@ -100,7 +100,7 @@ export default function MobileBottomNav() {
         {/* 4. Sign Out */}
         <button
           onClick={handleLogout}
-          className="flex flex-col items-center justify-center py-1 px-3 rounded-[3px] text-[#A399BA] hover:text-[#FF0046] font-medium"
+          className="flex flex-col items-center justify-center py-1 px-3 rounded-[3px] text-stone-500 hover:text-[#FF0046] font-medium"
         >
           <LogOut className="w-4 h-4" />
           <span className="text-[10px] mt-0.5 uppercase tracking-wider font-headline">Logout</span>
