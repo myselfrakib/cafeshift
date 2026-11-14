@@ -106,7 +106,7 @@ export const AppProvider = ({ children }) => {
       const saved = localStorage.getItem(STORAGE_KEYS.USERS);
       if (!saved) return [];
       const parsed = JSON.parse(saved);
-      return Array.isArray(parsed) ? parsed.map(u => ({ ...u, photoUrl: sanitizePhotoUrl(u.photoUrl) })) : [];
+      return Array.isArray(parsed) ? parsed.map(u => ({ ...u, email: u.email || '', photoUrl: sanitizePhotoUrl(u.photoUrl) })) : [];
     } catch {
       return [];
     }
@@ -434,12 +434,12 @@ export const AppProvider = ({ children }) => {
         setFirebaseUser(user);
         setFirebaseConnected(true);
         setUsers(prev => {
-          const exists = prev.find(u => u.id === user.uid || u.email === user.email);
+          const exists = prev.find(u => u.id === user.uid || (user.email && u.email === user.email));
           if (!exists) {
             const newUser = {
               id: user.uid,
-              name: user.displayName || user.email.split('@')[0],
-              email: user.email,
+              name: user.displayName || (user.email ? user.email.split('@')[0] : 'Student Attendant'),
+              email: user.email || '',
               phone: user.phoneNumber ? user.phoneNumber.replace(/^\+91/, '') : '',
               photoUrl: user.photoURL || '',
               role: 'attendant'
@@ -787,12 +787,12 @@ export const AppProvider = ({ children }) => {
     }
 
     const applicantInfo = {
-      userId: currentUser.id,
-      name: currentUser.name,
-      phone: currentUser.phone,
-      email: currentUser.email,
+      userId: currentUser.id || '',
+      name: currentUser.name || 'Student Attendant',
+      phone: currentUser.phone || '',
+      email: currentUser.email || '',
       college: currentUser.college || 'Kolkata Student',
-      age: currentUser.age || 19,
+      age: Number(currentUser.age) || 19,
       gender: currentUser.gender || 'Not specified',
       address: currentUser.address || 'Kolkata',
       photoUrl: currentUser.photoUrl || ''
@@ -992,12 +992,12 @@ export const AppProvider = ({ children }) => {
     }
 
     const applicantInfo = {
-      userId: currentUser.id,
-      name: currentUser.name,
-      phone: currentUser.phone,
-      email: currentUser.email,
+      userId: currentUser.id || '',
+      name: currentUser.name || 'Student Attendant',
+      phone: currentUser.phone || '',
+      email: currentUser.email || '',
       college: currentUser.college || 'Kolkata Student',
-      age: currentUser.age || 19,
+      age: Number(currentUser.age) || 19,
       gender: currentUser.gender || 'Not specified',
       address: currentUser.address || 'Kolkata',
       photoUrl: currentUser.photoUrl || '',

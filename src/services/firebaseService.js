@@ -148,14 +148,39 @@ export async function logoutFirebaseUser() {
 }
 
 /**
+ * Recursively strip undefined values and sanitize objects/arrays
+ * so Firestore & RTDB never reject writes with:
+ * "Unsupported field value: undefined"
+ */
+export function sanitizeForFirebase(obj) {
+  if (obj === null || obj === undefined) return null;
+  if (typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeForFirebase(item));
+  }
+  const clean = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value === undefined) {
+      clean[key] = ''; // Convert undefined to safe empty string
+    } else if (value !== null && typeof value === 'object') {
+      clean[key] = sanitizeForFirebase(value);
+    } else {
+      clean[key] = value;
+    }
+  }
+  return clean;
+}
+
+/**
  * Save new cafe to Firestore / RTDB
  */
 export async function saveCafeToFirebase(cafeData) {
+  const payload = sanitizeForFirebase(cafeData);
   try {
-    await setDoc(doc(db, 'cafes', cafeData.id), cafeData);
+    await setDoc(doc(db, 'cafes', payload.id), payload);
   } catch (e) {
     console.warn('Firestore cafe save failed, saving to RTDB:', e);
-    await rtdbSet(rtdbRef(rtdb, `cafes/${cafeData.id}`), cafeData);
+    await rtdbSet(rtdbRef(rtdb, `cafes/${payload.id}`), payload);
   }
 }
 
@@ -163,11 +188,12 @@ export async function saveCafeToFirebase(cafeData) {
  * Publish shift offer to Firestore & RTDB
  */
 export async function publishShiftToFirebase(shiftData) {
+  const payload = sanitizeForFirebase(shiftData);
   try {
-    await setDoc(doc(db, 'shifts', shiftData.id), shiftData);
+    await setDoc(doc(db, 'shifts', payload.id), payload);
   } catch (e) {
     console.warn('Firestore shift save failed, saving to RTDB:', e);
-    await rtdbSet(rtdbRef(rtdb, `shifts/${shiftData.id}`), shiftData);
+    await rtdbSet(rtdbRef(rtdb, `shifts/${payload.id}`), payload);
   }
 }
 
@@ -176,11 +202,24 @@ export async function publishShiftToFirebase(shiftData) {
  * Updates status to 'booked' and saves applicant info
  */
 export async function bookShiftInFirebase(shiftId, applicantInfo) {
-  const updatePayload = {
+  const safeApplicant = sanitizeForFirebase({
+    userId: applicantInfo?.userId || '',
+    name: applicantInfo?.name || 'Student Attendant',
+    phone: applicantInfo?.phone || '',
+    email: applicantInfo?.email || '',
+    college: applicantInfo?.college || 'Kolkata Student',
+    age: Number(applicantInfo?.age) || 19,
+    gender: applicantInfo?.gender || 'Not specified',
+    address: applicantInfo?.address || 'Kolkata',
+    photoUrl: applicantInfo?.photoUrl || '',
+    ...(applicantInfo || {})
+  });
+
+  const updatePayload = sanitizeForFirebase({
     status: 'booked',
-    applicant: applicantInfo,
+    applicant: safeApplicant,
     appliedAt: new Date().toISOString()
-  };
+  });
 
   try {
     await updateDoc(doc(db, 'shifts', shiftId), updatePayload);
@@ -194,11 +233,11 @@ export async function bookShiftInFirebase(shiftId, applicantInfo) {
  * Cancel shift booking in Firebase
  */
 export async function cancelShiftInFirebase(shiftId) {
-  const updatePayload = {
+  const updatePayload = sanitizeForFirebase({
     status: 'open',
     applicant: null,
     appliedAt: null
-  };
+  });
 
   try {
     await updateDoc(doc(db, 'shifts', shiftId), updatePayload);
@@ -212,14 +251,15 @@ export async function cancelShiftInFirebase(shiftId) {
  * Save / Update user profile in Firestore & RTDB
  */
 export async function saveUserToFirebase(userData) {
-  const userId = userData.id || userData.uid;
+  const payload = sanitizeForFirebase(userData);
+  const userId = payload?.id || payload?.uid;
   if (!userId) return;
 
   try {
-    await setDoc(doc(db, 'users', userId), userData, { merge: true });
+    await setDoc(doc(db, 'users', userId), payload, { merge: true });
   } catch (e) {
     console.warn('Firestore user save failed, saving to RTDB:', e);
-    await rtdbSet(rtdbRef(rtdb, `users/${userId}`), userData);
+    await rtdbSet(rtdbRef(rtdb, `users/${userId}`), payload);
   }
 }
 
@@ -244,11 +284,12 @@ export async function deleteShiftFromFirebase(shiftId) {
  * Publish job opportunity to Firestore & RTDB
  */
 export async function publishJobToFirebase(jobData) {
+  const payload = sanitizeForFirebase(jobData);
   try {
-    await setDoc(doc(db, 'jobs', jobData.id), jobData);
+    await setDoc(doc(db, 'jobs', payload.id), payload);
   } catch (e) {
     console.warn('Firestore job save failed, saving to RTDB:', e);
-    await rtdbSet(rtdbRef(rtdb, `jobs/${jobData.id}`), jobData);
+    await rtdbSet(rtdbRef(rtdb, `jobs/${payload.id}`), payload);
   }
 }
 
@@ -256,18 +297,33 @@ export async function publishJobToFirebase(jobData) {
  * Apply for a job in Firebase (appends applicant to applicants list)
  */
 export async function applyJobInFirebase(jobId, applicantData) {
+  const safeApplicant = sanitizeForFirebase({
+    userId: applicantData?.userId || '',
+    name: applicantData?.name || 'Student Attendant',
+    phone: applicantData?.phone || '',
+    email: applicantData?.email || '',
+    college: applicantData?.college || 'Kolkata Student',
+    age: Number(applicantData?.age) || 19,
+    gender: applicantData?.gender || 'Not specified',
+    address: applicantData?.address || 'Kolkata',
+    photoUrl: applicantData?.photoUrl || '',
+    note: applicantData?.note || '',
+    appliedAt: new Date().toISOString(),
+    ...(applicantData || {})
+  });
+
   try {
     const jobRef = doc(db, 'jobs', jobId);
     const snap = await getDoc(jobRef);
     if (snap.exists()) {
       const existing = snap.data();
       const applicants = existing.applicants || [];
-      const updatedApplicants = [applicantData, ...applicants.filter(a => a.userId !== applicantData.userId)];
-      await updateDoc(jobRef, {
+      const updatedApplicants = [safeApplicant, ...applicants.filter(a => a.userId !== safeApplicant.userId)];
+      await updateDoc(jobRef, sanitizeForFirebase({
         applicants: updatedApplicants,
         applicantCount: updatedApplicants.length,
         updatedAt: new Date().toISOString()
-      });
+      }));
     }
   } catch (e) {
     console.warn('Firestore job application update failed, trying RTDB:', e);
@@ -276,12 +332,12 @@ export async function applyJobInFirebase(jobId, applicantData) {
       if (snap.exists()) {
         const existing = snap.val();
         const applicants = existing.applicants || [];
-        const updatedApplicants = [applicantData, ...applicants.filter(a => a.userId !== applicantData.userId)];
-        await rtdbUpdate(rtdbRef(rtdb, `jobs/${jobId}`), {
+        const updatedApplicants = [safeApplicant, ...applicants.filter(a => a.userId !== safeApplicant.userId)];
+        await rtdbUpdate(rtdbRef(rtdb, `jobs/${jobId}`), sanitizeForFirebase({
           applicants: updatedApplicants,
           applicantCount: updatedApplicants.length,
           updatedAt: new Date().toISOString()
-        });
+        }));
       }
     } catch (rtdbErr) {
       console.warn('RTDB job application notice:', rtdbErr);
