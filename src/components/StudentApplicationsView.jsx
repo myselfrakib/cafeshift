@@ -55,9 +55,6 @@ export default function StudentApplicationsView() {
     j => (j.applicants || []).some(a => a.userId === currentUser?.id || a.email === currentUser?.email)
   )].sort((a, b) => getJobTime(b) - getJobTime(a));
 
-  const totalEarningsBooked = studentShifts.reduce((acc, s) => acc + (s.totalEarnings || 0), 0);
-  const totalHoursBooked = studentShifts.reduce((acc, s) => acc + (s.durationHours || 0), 0);
-
   return (
     <div className="space-y-4 pb-12">
       
@@ -102,38 +99,15 @@ export default function StudentApplicationsView() {
       {/* SECTION 1: BOOKED SHIFTS */}
       {appType === 'shifts' && (
         <div className="bg-white rounded-[3px] p-5 sm:p-6 border border-stone-200 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-200 pb-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl sm:text-2xl font-headline font-bold text-[#0A011C] uppercase tracking-tight flex items-center gap-2">
-                  <CalendarCheck className="w-5 h-5 text-[#00DADC]" />
-                  <span>My Booked Shifts</span>
-                </h2>
-                <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-[2px] bg-cyan-50 text-[#006062] border border-cyan-200">
-                  Confirmed
-                </span>
-              </div>
-              <p className="text-xs text-stone-500 mt-1">
-                Confirmed shifts locked exclusively for you. Contact the cafe manager directly and navigate to the location.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="bg-stone-50 rounded-[3px] px-3.5 py-1.5 border border-stone-200 text-right">
-                <span className="text-[10px] uppercase font-bold text-stone-400 block tracking-wider font-headline">
-                  Upcoming Earnings
-                </span>
-                <div className="text-base font-headline font-bold text-[#FF0046]">
-                  ₹{totalEarningsBooked} <span className="text-[11px] text-stone-500 font-normal">({totalHoursBooked} hrs)</span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setActiveTab('browse')}
-                className="text-xs font-bold uppercase tracking-wider text-black bg-stone-100 hover:bg-[#FF0046] hover:text-white px-3.5 py-2 rounded-[3px] border border-stone-200 transition-colors shadow-2xs"
-              >
-                + Browse Shifts
-              </button>
+          <div className="border-b border-stone-200 pb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-headline font-bold text-[#0A011C] uppercase tracking-tight flex items-center gap-2">
+                <CalendarCheck className="w-5 h-5 text-[#00DADC]" />
+                <span>My Booked Shifts</span>
+              </h2>
+              <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-[2px] bg-cyan-50 text-[#006062] border border-cyan-200">
+                {studentShifts.length} Confirmed
+              </span>
             </div>
           </div>
 
@@ -296,28 +270,16 @@ export default function StudentApplicationsView() {
       {/* SECTION 2: JOB APPLICATIONS */}
       {appType === 'jobs' && (
         <div className="bg-white rounded-[3px] p-5 sm:p-6 border border-stone-200 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-200 pb-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl sm:text-2xl font-headline font-bold text-[#0A011C] uppercase tracking-tight flex items-center gap-2">
-                  <Briefcase className="w-5 h-5 text-[#FF0046]" />
-                  <span>My Job Applications</span>
-                </h2>
-                <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-[2px] bg-emerald-50 text-emerald-800 border border-emerald-200">
-                  {appliedJobs.length} Active
-                </span>
-              </div>
-              <p className="text-xs text-stone-500 mt-1">
-                Your submitted job applications at Kolkata cafes. Contact the cafe manager directly and navigate to the location.
-              </p>
+          <div className="border-b border-stone-200 pb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-headline font-bold text-[#0A011C] uppercase tracking-tight flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-[#FF0046]" />
+                <span>My Job Applications</span>
+              </h2>
+              <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-[2px] bg-emerald-50 text-emerald-800 border border-emerald-200">
+                {appliedJobs.length} Active
+              </span>
             </div>
-
-            <button
-              onClick={() => setActiveTab('browse')}
-              className="text-xs font-bold uppercase tracking-wider text-black bg-stone-100 hover:bg-[#0A011C] hover:text-white px-3.5 py-2 rounded-[3px] border border-stone-200 transition-colors shadow-2xs self-start sm:self-auto"
-            >
-              + Browse Jobs
-            </button>
           </div>
 
           {appliedJobs.length === 0 ? (
