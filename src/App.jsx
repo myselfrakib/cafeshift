@@ -4,6 +4,7 @@ import AuthScreen from './components/AuthScreen';
 import Navbar from './components/Navbar';
 import StudentShiftFeed from './components/StudentShiftFeed';
 import OwnerCafeView from './components/OwnerCafeView';
+import OwnerProfileView from './components/OwnerProfileView';
 import StudentApplicationsView from './components/StudentApplicationsView';
 import StudentProfileView from './components/StudentProfileView';
 import MobileBottomNav from './components/MobileBottomNav';
@@ -46,7 +47,11 @@ function AppContent() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
         {/* Owner View */}
         {isOwner ? (
-          <OwnerCafeView />
+          activeTab === 'profile' ? (
+            <OwnerProfileView />
+          ) : (
+            <OwnerCafeView />
+          )
         ) : (
           /* Student Views */
           <>

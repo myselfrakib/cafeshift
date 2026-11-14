@@ -120,10 +120,11 @@ export default function MobileBottomNav() {
     );
   }
 
-  // 2. OWNER BOTTOM NAVBAR (Home | Post Shift | Logout)
+  // 2. OWNER BOTTOM NAVBAR (Home | Post Shift | Profile)
   if (isOwner) {
     const isHomeActive = activeTab === 'my-cafe' && !createShiftModalOpen;
     const isPostActive = Boolean(createShiftModalOpen);
+    const isProfileActive = activeTab === 'profile' && !createShiftModalOpen;
 
     return (
       <nav 
@@ -175,15 +176,33 @@ export default function MobileBottomNav() {
             </span>
           </button>
 
-          {/* 3. Owner Logout */}
+          {/* 3. Owner Profile */}
           <button
             type="button"
-            onClick={handleLogout}
-            className="relative flex flex-col items-center justify-center py-1.5 px-3 rounded-[3px] transition-all text-stone-500 hover:text-[#FF0046] hover:bg-stone-100 font-medium group"
+            onClick={() => {
+              setCreateShiftModalOpen(false);
+              setActiveTab('profile');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`relative flex flex-col items-center justify-center py-1.5 px-3 rounded-[3px] transition-all group ${
+              isProfileActive
+                ? 'bg-[#0A011C] text-white shadow-xs font-bold'
+                : 'text-stone-500 hover:text-[#0A011C] hover:bg-stone-100 font-medium'
+            }`}
           >
-            <LogOut className="w-5 h-5 transition-transform group-hover:scale-105 stroke-2" />
+            <div className={`w-5 h-5 rounded-[2px] overflow-hidden border flex items-center justify-center transition-all ${
+              isProfileActive
+                ? 'border-white ring-1 ring-white'
+                : 'border-stone-300 bg-stone-100 group-hover:border-[#0A011C]'
+            }`}>
+              {currentUser?.photoUrl ? (
+                <img src={currentUser.photoUrl} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <User className={`w-3.5 h-3.5 ${isProfileActive ? 'text-white' : 'text-stone-600'}`} />
+              )}
+            </div>
             <span className="text-[10px] font-bold mt-1 uppercase tracking-wider font-headline">
-              Logout
+              Profile
             </span>
           </button>
 
