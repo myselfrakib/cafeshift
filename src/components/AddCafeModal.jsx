@@ -1,11 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { CALCUTTA_AREAS } from '../data/seedData';
 import { uploadImageToStorage } from '../services/firebaseService';
-import { ArrowLeft, X, Coffee, MapPin, Upload, AlertCircle, Loader2, Check, Sparkles, Trash2 } from 'lucide-react';
+import {
+  searchPlacesAndCafes,
+  fetchCurrentLocationAddress,
+  matchKolkataArea
+} from '../services/googlePlacesService';
+import {
+  ArrowLeft,
+  X,
+  Coffee,
+  MapPin,
+  Upload,
+  AlertCircle,
+  Loader2,
+  Check,
+  Sparkles,
+  Trash2,
+  Navigation,
+  Search,
+  ExternalLink,
+  Compass,
+  CheckCircle2
+} from 'lucide-react';
 
 export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
-  const { addOwnerCafe, updateOwnerCafe, setIsEditingCafe } = useApp();
+  const { addOwnerCafe, updateOwnerCafe, setIsEditingCafe, showToast } = useApp();
 
   const [name, setName] = useState('');
   const [area, setArea] = useState('Park Street');
@@ -16,6 +37,17 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Smart Google Places suggestions state
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearchingPlaces, setIsSearchingPlaces] = useState(false);
+  const [fetchingLocation, setFetchingLocation] = useState(false);
+  const [locationSuccessNote, setLocationSuccessNote] = useState('');
+
+  const nameInputRef = useRef(null);
+  const suggestionsBoxRef = useRef(null);
+  const searchTimeoutRef = useRef(null);
 
   // Sync state with active cafe and inform app context that full-screen editing is active
   useEffect(() => {
@@ -44,6 +76,22 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
+  // Close suggestions popover on click outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        suggestionsBoxRef.current &&
+        !suggestionsBoxRef.current.contains(e.target) &&
+        nameInputRef.current &&
+        !nameInputRef.current.contains(e.target)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   useEffect(() => {
     if (editCafe) {
       setName(editCafe.name || '');
@@ -61,9 +109,83 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
       setPhotoUrl('');
     }
     setError('');
+    setLocationSuccessNote('');
+    setShowSuggestions(false);
   }, [editCafe, isOpen]);
 
   if (!isOpen) return null;
+
+  // Handle typing in cafe name to fetch Google Places / Directory data
+  const handleNameChange = (val) => {
+    setName(val);
+    setError('');
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    if (!val || val.trim().length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      setIsSearchingPlaces(false);
+      return;
+    }
+
+    setIsSearchingPlaces(true);
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const results = await searchPlacesAndCafes(val);
+        setSuggestions(results);
+        setShowSuggestions(results.length > 0);
+      } catch (err) {
+        console.warn('Place search notice:', err);
+      } finally {
+        setIsSearchingPlaces(false);
+      }
+    }, 200);
+  };
+
+  // Auto-fill form from selected place suggestion
+  const handleSelectSuggestion = (sugg) => {
+    setName(sugg.name);
+    setAddress(sugg.formattedAddress || sugg.address || '');
+    const matchedLocality = sugg.area || matchKolkataArea(sugg.address || sugg.formattedAddress);
+    setArea(matchedLocality);
+
+    if (sugg.minHourlyWage && (!minHourlyWage || minHourlyWage === 100)) {
+      setMinHourlyWage(sugg.minHourlyWage);
+    }
+    if (sugg.description && !description.trim()) {
+      setDescription(sugg.description);
+    }
+    if (sugg.photoUrl && !photoUrl) {
+      setPhotoUrl(sugg.photoUrl);
+    }
+
+    setShowSuggestions(false);
+    setLocationSuccessNote(`Auto-filled: ${sugg.name} in ${matchedLocality}`);
+  };
+
+  // Auto-fetch GPS Current Location and reverse-geocode to Kolkata address
+  const handleFetchCurrentLocation = async () => {
+    setFetchingLocation(true);
+    setError('');
+    setLocationSuccessNote('');
+
+    try {
+      const loc = await fetchCurrentLocationAddress();
+      setAddress(loc.address);
+      setArea(loc.area);
+      setLocationSuccessNote(`Location detected: ${loc.area}, Kolkata (${loc.address.slice(0, 45)}...)`);
+      if (showToast) {
+        showToast(`Detected location: ${loc.area}, Kolkata`, 'success', '📍');
+      }
+    } catch (err) {
+      setError(err?.message || 'Could not fetch your current GPS location. Please allow browser location access.');
+    } finally {
+      setFetchingLocation(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -105,7 +227,7 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
   return (
     <div className="fixed inset-0 z-[70] bg-[#F8F9FA] flex flex-col w-screen h-screen overflow-y-auto animate-fade-in">
       
-      {/* 1. Full-Screen Sticky Header (Replaces regular navbar during edit) */}
+      {/* 1. Full-Screen Sticky Header */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-200 px-4 sm:px-8 py-3.5 shadow-2xs">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
           
@@ -180,7 +302,7 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
               {editCafe ? 'Cafe Storefront & Outlet Details' : 'Register New Kolkata Outlet'}
             </h2>
             <p className="text-xs text-stone-500 mt-1 max-w-xl">
-              Update cafe branding, neighborhood area, street address, and student fair wage floor. Changes update immediately for all students across Kolkata.
+              Type your cafe's name to auto-fill details from Google Place data, or click <strong>Fetch Current Location</strong> to auto-detect your outlet's GPS address and Kolkata neighborhood.
             </p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -194,6 +316,22 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
           <div className="p-3.5 rounded-[3px] bg-rose-50 border border-rose-300 text-[#FF0046] text-xs font-bold flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
+          </div>
+        )}
+
+        {locationSuccessNote && (
+          <div className="p-3 rounded-[3px] bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between gap-2 animate-pop">
+            <div className="flex items-center gap-2 min-w-0">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="truncate">{locationSuccessNote}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setLocationSuccessNote('')}
+              className="text-emerald-700 hover:text-emerald-900"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
           </div>
         )}
 
@@ -240,7 +378,7 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
               </div>
 
               <div className="flex-1 space-y-2 text-center sm:text-left">
-                <div className="flex items-center gap-2 justify-center sm:justify-start">
+                <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
                   <label className="cursor-pointer inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider bg-[#0A011C] hover:bg-[#FF0046] text-white rounded-[3px] transition-colors shadow-2xs">
                     <Upload className="w-3.5 h-3.5" />
                     <span>{photoUrl ? 'Change Cafe Photo' : 'Upload Storefront Image'}</span>
@@ -281,40 +419,129 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
                   </p>
                 ) : (
                   <p className="text-[11px] text-stone-400">
-                    PNG, JPG, or WebP. Recommended ratio 1:1 or 4:3.
+                    PNG, JPG, or WebP. Auto-populated if choosing a verified Google place.
                   </p>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Section 2: Basic Cafe Information */}
+          {/* Section 2: Basic Cafe Information with Smart Autocomplete & Location Fetch */}
           <div className="bg-white rounded-[3px] p-5 sm:p-6 border border-stone-200 shadow-2xs space-y-4">
-            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-3">
               <div>
                 <h3 className="font-headline font-bold text-xs uppercase tracking-wider text-[#0A011C]">
-                  2. Outlet Location & Name
+                  2. Outlet Location & Smart Name Match
                 </h3>
                 <p className="text-[11px] text-stone-400 mt-0.5">
-                  Core identity and location for matching students in the neighborhood.
+                  Type your cafe name for Google suggestions, or click <strong>Fetch Current Location</strong> to detect via GPS.
                 </p>
               </div>
+
+              {/* GPS Auto-Fetch Location Button */}
+              <button
+                type="button"
+                onClick={handleFetchCurrentLocation}
+                disabled={fetchingLocation}
+                className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[3px] bg-stone-100 hover:bg-[#FF0046] hover:text-white text-stone-800 text-xs font-headline font-bold uppercase tracking-wider border border-stone-200 transition-colors shadow-2xs disabled:opacity-60"
+                title="Detect current GPS coordinates and auto-fill address & neighborhood"
+              >
+                {fetchingLocation ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Detecting GPS Location...</span>
+                  </>
+                ) : (
+                  <>
+                    <Navigation className="w-3.5 h-3.5 text-[#FF0046]" />
+                    <span>📍 Fetch Current Location</span>
+                  </>
+                )}
+              </button>
             </div>
 
             <div className="space-y-4 text-xs">
-              {/* Cafe Name */}
-              <div>
-                <label className="font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                  Cafe Name <span className="text-[#FF0046]">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Salt Lake Nitro Brew Lab / Park Street Roasters"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] transition-colors font-bold"
-                />
+              
+              {/* Cafe Name with Smart Google Places Autocomplete */}
+              <div className="relative">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-bold uppercase tracking-wider text-stone-700 font-headline flex items-center gap-1.5">
+                    <span>Cafe Name</span>
+                    <span className="text-[#FF0046]">*</span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-[2px] bg-sky-50 text-sky-700 border border-sky-200 lowercase font-sans">
+                      smart google match
+                    </span>
+                  </label>
+                  {isSearchingPlaces && (
+                    <span className="text-[10px] text-stone-400 flex items-center gap-1 font-medium">
+                      <Loader2 className="w-3 h-3 animate-spin text-[#00DADC]" />
+                      <span>Matching Google Places...</span>
+                    </span>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <input
+                    ref={nameInputRef}
+                    type="text"
+                    required
+                    placeholder="Type cafe name (e.g. Roastery, Blue Tokai, 8th Day, Sienna, Flurys...)"
+                    value={name}
+                    onChange={e => handleNameChange(e.target.value)}
+                    onFocus={() => {
+                      if (suggestions.length > 0) setShowSuggestions(true);
+                    }}
+                    className="w-full pl-3.5 pr-8 py-2.5 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] transition-colors font-bold"
+                  />
+                  <Search className="w-4 h-4 text-stone-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+
+                {/* Google Places Autocomplete Dropdown */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <div
+                    ref={suggestionsBoxRef}
+                    className="absolute left-0 right-0 top-full mt-1.5 bg-white rounded-[3px] border border-stone-200 shadow-2xl z-40 max-h-72 overflow-y-auto animate-pop divide-y divide-stone-100"
+                  >
+                    <div className="bg-stone-100/90 px-3 py-1.5 flex items-center justify-between text-[10px] font-headline font-bold uppercase tracking-wider text-stone-600">
+                      <span>Matching Kolkata Place Data (Select to Auto-Fill)</span>
+                      <button
+                        type="button"
+                        onClick={() => setShowSuggestions(false)}
+                        className="hover:text-black"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    {suggestions.map((sugg, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleSelectSuggestion(sugg)}
+                        className="p-3 hover:bg-stone-50 cursor-pointer transition-colors flex items-start gap-3 text-left group"
+                      >
+                        <div className="w-8 h-8 rounded-[2px] bg-stone-100 group-hover:bg-[#FF0046] group-hover:text-white text-stone-500 flex items-center justify-center shrink-0 text-sm font-bold transition-colors">
+                          ☕
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-headline font-bold text-xs uppercase text-[#0A011C] group-hover:text-[#FF0046] transition-colors">
+                              {sugg.name}
+                            </span>
+                            <span className="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded-[2px] bg-[#00DADC]/20 text-[#006062]">
+                              {sugg.area || 'Kolkata'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-stone-500 truncate mt-0.5">
+                            {sugg.formattedAddress || sugg.address}
+                          </p>
+                        </div>
+                        <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-[2px] bg-stone-100 text-stone-500 shrink-0">
+                          {sugg.source || 'Place'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Neighborhood & Base Wage */}
@@ -360,10 +587,21 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
 
               {/* Full Street Address */}
               <div>
-                <label className="font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-[#FF0046]" />
-                  <span>Full Street Address <span className="text-[#FF0046]">*</span></span>
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-bold uppercase tracking-wider text-stone-700 font-headline flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-[#FF0046]" />
+                    <span>Full Street Address <span className="text-[#FF0046]">*</span></span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleFetchCurrentLocation}
+                    disabled={fetchingLocation}
+                    className="text-[10px] text-[#006062] hover:text-black font-headline font-bold uppercase tracking-wider hover:underline flex items-center gap-1"
+                  >
+                    <Navigation className="w-2.5 h-2.5 text-[#00DADC]" />
+                    <span>Use GPS Address</span>
+                  </button>
+                </div>
                 <input
                   type="text"
                   required
@@ -381,58 +619,60 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div>
                 <h3 className="font-headline font-bold text-xs uppercase tracking-wider text-[#0A011C]">
-                  3. Cafe Atmosphere & Perks
+                  3. About Your Cafe Outlet
                 </h3>
                 <p className="text-[11px] text-stone-400 mt-0.5">
-                  Helps students understand your cafe culture and rush hour needs.
+                  Give students an impression of your cafe culture and rush-hour vibes.
                 </p>
               </div>
             </div>
 
             <div>
               <label className="font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                Description / Atmosphere Notes
+                Short Description & Work Atmosphere
               </label>
               <textarea
                 rows={3}
-                placeholder="e.g. Specialty pour-overs, evening tech crowds from Sector 5, cozy ambient music, friendly supportive staff."
                 value={description}
                 onChange={e => setDescription(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] transition-colors"
+                placeholder="e.g. A bustling specialty espresso lab in Hindustan Park with a friendly barista team and generous student perks."
+                className="w-full px-3.5 py-2.5 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] transition-colors leading-relaxed"
               />
             </div>
           </div>
 
           {/* Bottom Action Footer */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-stone-200">
+          <div className="pt-4 pb-12 flex items-center justify-between gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="w-full sm:w-auto px-6 py-3 rounded-[3px] border border-stone-200 hover:border-stone-300 font-bold uppercase tracking-wider text-stone-600 hover:bg-stone-50 transition-colors text-xs text-center"
+              className="px-5 py-3 rounded-[3px] border border-stone-300 text-stone-700 hover:bg-stone-100 font-headline text-xs font-bold uppercase tracking-wider transition-colors"
             >
-              Cancel & Exit
+              Cancel
             </button>
-
+            
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full sm:w-auto px-8 py-3 rounded-[3px] bg-[#FF0046] hover:bg-[#E6003F] text-white font-bold uppercase tracking-wider shadow-sm transition-colors text-xs flex items-center justify-center gap-2 disabled:opacity-50"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-8 py-3 rounded-[3px] bg-[#FF0046] hover:bg-[#E0003E] active:bg-[#C00035] text-white font-headline text-sm font-bold uppercase tracking-wider transition-colors shadow-sm disabled:opacity-60"
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Saving Cafe Information...</span>
+                  <span>Saving Cafe Outlet...</span>
                 </>
               ) : (
                 <>
                   <Check className="w-4 h-4" />
-                  <span>{editCafe ? 'Save Changes' : 'Register Cafe Branch'}</span>
+                  <span>{editCafe ? 'Save Cafe Changes' : 'Register Cafe Outlet'}</span>
                 </>
               )}
             </button>
           </div>
+
         </form>
       </main>
+
     </div>
   );
 }
