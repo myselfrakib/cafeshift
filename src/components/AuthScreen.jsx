@@ -177,11 +177,6 @@ export default function AuthScreen() {
           </div>
 
           <div className="flex items-center gap-2.5">
-            <div className="flex items-center gap-1.5 text-[11px] text-stone-600 bg-stone-100 px-2.5 py-1 rounded-[3px] border border-stone-200">
-              <span className={`w-2 h-2 rounded-full ${firebaseConnected ? 'bg-emerald-500 ring-2 ring-emerald-200' : 'bg-[#FE9900]'}`}></span>
-              <span className="font-mono hidden sm:inline">Firebase Live</span>
-            </div>
-
             {mode !== 'login' && (
               <button
                 type="button"

@@ -1,17 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { CALCUTTA_AREAS } from '../data/seedData';
 import { Search, MapPin, Calendar, Clock, ArrowRight, X, Check } from 'lucide-react';
 import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
-
-const KOLKATA_AREAS_FILTERS = [
-  'All',
-  'Park Street',
-  'Salt Lake Sector 5',
-  'Southern Avenue',
-  'Hindustan Park',
-  'Ballygunge'
-];
 
 export default function StudentShiftFeed() {
   const { shifts, applyForShift, currentUser } = useApp();
@@ -68,36 +58,9 @@ export default function StudentShiftFeed() {
   return (
     <div className="space-y-4">
       {/* Search & Filter Bar Container */}
-      <div className="bg-white rounded-[3px] p-3.5 sm:p-4 border border-stone-200 shadow-xs space-y-3">
+      <div className="bg-white rounded-[3px] p-3 sm:p-3.5 border border-stone-200 shadow-xs">
         
-        {/* 1. Category Pills: Locality Filters on Top */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar">
-          {KOLKATA_AREAS_FILTERS.map(area => {
-            const count = area === 'All'
-              ? availableShifts.length
-              : availableShifts.filter(s => s.cafeArea === area).length;
-            return (
-              <button
-                key={area}
-                onClick={() => setSelectedArea(area)}
-                className={`px-3 py-1.5 rounded-[3px] font-bold uppercase tracking-wider whitespace-nowrap transition-colors flex items-center gap-1.5 shrink-0 ${
-                  selectedArea === area
-                    ? 'bg-[#FF0046] text-white shadow-2xs'
-                    : 'bg-stone-100 text-stone-700 hover:text-black border border-stone-200'
-                }`}
-              >
-                <span>{area}</span>
-                <span className={`text-[10px] px-1 rounded-[2px] ${
-                  selectedArea === area ? 'bg-black/20 text-white' : 'bg-stone-200 text-stone-600'
-                }`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* 2. Search Bar Below with integrated 3-line Filter Button */}
+        {/* Search Bar with integrated 3-line Filter Button */}
         <div className="relative" ref={filterRef}>
           <div className="relative flex items-center">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
