@@ -16,5 +16,11 @@ service cloud.firestore {
       allow update: if request.auth != null || request.resource.data.status in ['open', 'booked', 'completed'];
       allow delete: if request.auth != null || resource.data.status == 'open';
     }
+    match /jobs/{jobId} {
+      allow read: if true;
+      allow create: if request.auth != null || (request.resource.data.title is string && request.resource.data.salary is number);
+      allow update: if true;
+      allow delete: if true;
+    }
   }
 }

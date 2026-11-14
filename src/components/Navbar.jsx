@@ -8,11 +8,12 @@ export default function Navbar() {
     isOwner,
     handleLogout,
     isEditingCafe,
-    createShiftModalOpen
+    createShiftModalOpen,
+    createJobModalOpen
   } = useApp();
 
-  // Hide top bar during full-screen edit cafe or publish shift modes
-  if (isEditingCafe || createShiftModalOpen) return null;
+  // Hide top bar during full-screen edit cafe, publish shift, or publish job modes
+  if (isEditingCafe || createShiftModalOpen || createJobModalOpen) return null;
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-2xs">

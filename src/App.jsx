@@ -8,6 +8,7 @@ import StudentApplicationsView from './components/StudentApplicationsView';
 import StudentProfileView from './components/StudentProfileView';
 import MobileBottomNav from './components/MobileBottomNav';
 import CreateShiftModal from './components/CreateShiftModal';
+import CreateJobModal from './components/CreateJobModal';
 import CuteToast from './components/CuteToast';
 
 function AppContent() {
@@ -89,6 +90,7 @@ function AppContent() {
 
       {/* Global Modals & Toasts */}
       <CreateShiftModal />
+      <CreateJobModal />
       <CuteToast />
     </div>
   );

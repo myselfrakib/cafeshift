@@ -31,7 +31,10 @@ import {
   bookShiftInFirebase,
   cancelShiftInFirebase,
   saveUserToFirebase,
-  deleteShiftFromFirebase
+  deleteShiftFromFirebase,
+  publishJobToFirebase,
+  applyJobInFirebase,
+  deleteJobFromFirebase
 } from '../services/firebaseService';
 import confetti from 'canvas-confetti';
 import { formatDateDDMMYYYY, formatTime12Hour, calculateEndTime12Hour } from '../utils/dateTime';
@@ -42,6 +45,7 @@ const STORAGE_KEYS = {
   USERS: 'calcutta_cafe_prod_users',
   CAFES: 'calcutta_cafe_prod_cafes',
   SHIFTS: 'calcutta_cafe_prod_shifts',
+  JOBS: 'calcutta_cafe_prod_jobs',
   CURRENT_USER_ID: 'calcutta_cafe_prod_current_user',
 };
 
@@ -75,6 +79,24 @@ export const getShiftTimestamp = (s) => {
 export const sortShiftsDescending = (shiftList) => {
   if (!Array.isArray(shiftList)) return [];
   return [...shiftList].sort((a, b) => getShiftTimestamp(b) - getShiftTimestamp(a));
+};
+
+export const getJobTimestamp = (j) => {
+  if (!j) return 0;
+  if (j.createdAt) {
+    const t = new Date(j.createdAt).getTime();
+    if (!isNaN(t)) return t;
+  }
+  if (j.id && typeof j.id === 'string' && j.id.startsWith('job-')) {
+    const t = parseInt(j.id.replace('job-', ''));
+    if (!isNaN(t)) return t;
+  }
+  return 0;
+};
+
+export const sortJobsDescending = (jobList) => {
+  if (!Array.isArray(jobList)) return [];
+  return [...jobList].sort((a, b) => getJobTimestamp(b) - getJobTimestamp(a));
 };
 
 export const AppProvider = ({ children }) => {
@@ -112,6 +134,17 @@ export const AppProvider = ({ children }) => {
     }
   });
 
+  const [jobs, setJobs] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.JOBS);
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? sortJobsDescending(parsed.map(j => ({ ...j, cafePhotoUrl: sanitizePhotoUrl(j.cafePhotoUrl) }))) : [];
+    } catch {
+      return [];
+    }
+  });
+
   // WITHOUT AUTH: Defaults to null so user MUST log in or sign up first!
   const [currentUserId, setCurrentUserId] = useState(() => {
     try {
@@ -142,6 +175,7 @@ export const AppProvider = ({ children }) => {
   });
   const [selectedCafeId, setSelectedCafeId] = useState(null);
   const [createShiftModalOpen, setCreateShiftModalOpen] = useState(false);
+  const [createJobModalOpen, setCreateJobModalOpen] = useState(false);
   const [isEditingCafe, setIsEditingCafe] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -172,6 +206,14 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     try {
+      localStorage.setItem(STORAGE_KEYS.JOBS, JSON.stringify(jobs));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [jobs]);
+
+  useEffect(() => {
+    try {
       if (currentUserId) {
         localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, currentUserId);
       } else {
@@ -182,10 +224,11 @@ export const AppProvider = ({ children }) => {
     }
   }, [currentUserId]);
 
-  // REALTIME FIREBASE SUBSCRIPTION FOR SHIFTS & CAFES
+  // REALTIME FIREBASE SUBSCRIPTION FOR SHIFTS, JOBS & CAFES
   useEffect(() => {
     let unsubscribeFirestore = null;
     let unsubscribeCafes = null;
+    let unsubscribeJobs = null;
 
     try {
       const shiftsCol = collection(db, 'shifts');
@@ -259,6 +302,46 @@ export const AppProvider = ({ children }) => {
           unsubscribeCafes = null;
         }
       });
+
+      // Jobs subscription
+      const jobsCol = collection(db, 'jobs');
+      unsubscribeJobs = onSnapshot(jobsCol, (snapshot) => {
+        if (!snapshot.empty) {
+          const remoteJobs = [];
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            remoteJobs.push({
+              id: docSnap.id,
+              ...data,
+              cafePhotoUrl: sanitizePhotoUrl(data.cafePhotoUrl)
+            });
+          });
+          if (remoteJobs.length > 0) {
+            setJobs(prev => {
+              const map = new Map();
+              remoteJobs.forEach(j => map.set(j.id, j));
+              const now = Date.now();
+              prev.forEach(j => {
+                if (!map.has(j.id)) {
+                  const jobTime = parseInt(j.id.replace('job-', '')) || 0;
+                  if (now - jobTime < 10000) {
+                    map.set(j.id, j);
+                  }
+                }
+              });
+              return sortJobsDescending(Array.from(map.values()));
+            });
+          } else {
+            setJobs([]);
+          }
+        }
+      }, (error) => {
+        console.warn('Firestore jobs notice:', error.message);
+        if (unsubscribeJobs) {
+          unsubscribeJobs();
+          unsubscribeJobs = null;
+        }
+      });
     } catch (err) {
       console.warn('Firestore setup notice:', err);
       subscribeToRTDB();
@@ -293,6 +376,34 @@ export const AppProvider = ({ children }) => {
           }
         }, (err) => {
           console.warn('RTDB listener notice:', err.message);
+        });
+
+        const jobsRef = rtdbRef(rtdb, 'jobs');
+        rtdbOnValue(jobsRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            const remoteJobs = Object.keys(data).map(k => ({ id: k, ...data[k] }));
+            if (remoteJobs.length > 0) {
+              setJobs(prev => {
+                const map = new Map();
+                remoteJobs.forEach(j => map.set(j.id, j));
+                const now = Date.now();
+                prev.forEach(j => {
+                  if (!map.has(j.id)) {
+                    const jobTime = parseInt(j.id.replace('job-', '')) || 0;
+                    if (now - jobTime < 10000) {
+                      map.set(j.id, j);
+                    }
+                  }
+                });
+                return sortJobsDescending(Array.from(map.values()));
+              });
+            } else {
+              setJobs([]);
+            }
+          }
+        }, (err) => {
+          console.warn('RTDB jobs listener notice:', err.message);
         });
       } catch (e) {
         console.warn('RTDB setup notice:', e);
@@ -344,6 +455,7 @@ export const AppProvider = ({ children }) => {
     return () => {
       if (unsubscribeFirestore) unsubscribeFirestore();
       if (unsubscribeCafes) unsubscribeCafes();
+      if (unsubscribeJobs) unsubscribeJobs();
       if (unsubscribeAuth) unsubscribeAuth();
     };
   }, []);
@@ -784,7 +896,7 @@ export const AppProvider = ({ children }) => {
       return c;
     }));
 
-    // Cascade cafe branding / photo updates to active shifts of this cafe
+    // Cascade cafe branding / photo updates to active shifts and jobs of this cafe
     if (updatedFields.photoUrl !== undefined || updatedFields.name !== undefined || updatedFields.area !== undefined) {
       setShifts(prev => prev.map(s => {
         if (s.cafeId === cafeId) {
@@ -799,9 +911,143 @@ export const AppProvider = ({ children }) => {
         }
         return s;
       }));
+
+      setJobs(prev => prev.map(j => {
+        if (j.cafeId === cafeId) {
+          const updatedJob = {
+            ...j,
+            ...(updatedFields.photoUrl !== undefined ? { cafePhotoUrl: updatedFields.photoUrl } : {}),
+            ...(updatedFields.name !== undefined ? { cafeName: updatedFields.name } : {}),
+            ...(updatedFields.area !== undefined ? { cafeArea: updatedFields.area } : {})
+          };
+          publishJobToFirebase(updatedJob).catch(() => {});
+          return updatedJob;
+        }
+        return j;
+      }));
     }
 
     showToast('Cafe details updated successfully.', 'success', '✓');
+  };
+
+  // Job Opening actions
+  const createJob = async (jobData) => {
+    if (!currentUser || !isOwner) {
+      showToast('Please sign in as a cafe owner to publish job openings.', 'error', '☕');
+      return;
+    }
+
+    const targetCafe = cafes.find(c => c.id === (jobData.cafeId || activeCafe?.id)) || activeCafe;
+    if (!targetCafe) {
+      showToast('Please select or add a cafe outlet first.', 'error', '☕');
+      return;
+    }
+
+    const newJobId = 'job-' + Date.now();
+    const newJob = {
+      id: newJobId,
+      cafeId: targetCafe.id,
+      cafeName: targetCafe.name,
+      cafeArea: targetCafe.area,
+      cafeAddress: targetCafe.address || '',
+      cafePhotoUrl: sanitizePhotoUrl(targetCafe.photoUrl),
+      ownerId: currentUser.id,
+      positionTitle: (jobData.positionTitle || 'Cafe Attendant / Barista').trim(),
+      employmentType: jobData.employmentType || 'Full-Time',
+      salaryAmount: Math.max(1000, Number(jobData.salaryAmount) || 12000),
+      salaryPeriod: jobData.salaryPeriod || 'month',
+      startingDate: jobData.startingDate || 'Immediate',
+      workSchedule: jobData.workSchedule || '6 days / week',
+      workHours: jobData.workHours || 'Flexible shifts',
+      requirements: Array.isArray(jobData.requirements) ? jobData.requirements : [],
+      perks: Array.isArray(jobData.perks) ? jobData.perks : [],
+      description: (jobData.description || '').trim(),
+      status: 'open',
+      applicants: [],
+      applicantCount: 0,
+      createdAt: new Date().toISOString()
+    };
+
+    try {
+      await publishJobToFirebase(newJob);
+    } catch (e) {
+      console.warn('Firebase job publish notice:', e);
+    }
+
+    setJobs(prev => {
+      if (prev.some(j => j.id === newJob.id)) return sortJobsDescending(prev);
+      return sortJobsDescending([newJob, ...prev]);
+    });
+
+    setCreateJobModalOpen(false);
+    triggerConfetti();
+    showToast(`Job opening published for ${newJob.positionTitle}!`, 'success', '💼');
+  };
+
+  const applyForJob = async (jobId, applicationNote = '') => {
+    if (!currentUser || !isAttendant) {
+      showToast('Please sign in as a student attendant to apply!', 'info', '🎒');
+      return;
+    }
+
+    const applicantInfo = {
+      userId: currentUser.id,
+      name: currentUser.name,
+      phone: currentUser.phone,
+      email: currentUser.email,
+      college: currentUser.college || 'Kolkata Student',
+      age: currentUser.age || 19,
+      gender: currentUser.gender || 'Not specified',
+      address: currentUser.address || 'Kolkata',
+      photoUrl: currentUser.photoUrl || '',
+      note: applicationNote || '',
+      appliedAt: new Date().toISOString()
+    };
+
+    try {
+      await applyJobInFirebase(jobId, applicantInfo);
+    } catch (e) {
+      console.warn('Firebase applyJob notice:', e);
+    }
+
+    setJobs(prev => prev.map(job => {
+      if (job.id === jobId) {
+        const existingApplicants = job.applicants || [];
+        const filtered = existingApplicants.filter(a => a.userId !== applicantInfo.userId);
+        const updated = [applicantInfo, ...filtered];
+        return {
+          ...job,
+          applicants: updated,
+          applicantCount: updated.length
+        };
+      }
+      return job;
+    }));
+
+    triggerConfetti();
+    showToast(`Application submitted! The cafe owner can now view your profile and contact you on +91 ${applicantInfo.phone}.`, 'success', '🎉');
+  };
+
+  const deleteJob = async (jobId) => {
+    setJobs(prev => prev.filter(j => j.id !== jobId));
+    try {
+      await deleteJobFromFirebase(jobId);
+    } catch (e) {
+      console.warn('Firebase deleteJob notice:', e);
+    }
+    showToast('Job opening removed.', 'info', '🗑️');
+  };
+
+  const toggleJobStatus = async (jobId) => {
+    setJobs(prev => prev.map(job => {
+      if (job.id === jobId) {
+        const newStatus = job.status === 'closed' ? 'open' : 'closed';
+        const updated = { ...job, status: newStatus, updatedAt: new Date().toISOString() };
+        publishJobToFirebase(updated).catch(() => {});
+        return updated;
+      }
+      return job;
+    }));
   };
 
   // Update student / user profile details
@@ -825,6 +1071,7 @@ export const AppProvider = ({ children }) => {
         users,
         cafes,
         shifts,
+        jobs,
         currentUser,
         isOwner,
         isAttendant,
@@ -836,6 +1083,8 @@ export const AppProvider = ({ children }) => {
         ownerCafes,
         createShiftModalOpen,
         setCreateShiftModalOpen,
+        createJobModalOpen,
+        setCreateJobModalOpen,
         toast,
         showToast,
         triggerConfetti,
@@ -848,6 +1097,10 @@ export const AppProvider = ({ children }) => {
         applyForShift,
         cancelShiftApplication,
         deleteShift,
+        createJob,
+        applyForJob,
+        deleteJob,
+        toggleJobStatus,
         addOwnerCafe,
         updateOwnerCafe,
         updateUserProfile,

@@ -240,5 +240,71 @@ export async function deleteShiftFromFirebase(shiftId) {
   }
 }
 
+/**
+ * Publish job opportunity to Firestore & RTDB
+ */
+export async function publishJobToFirebase(jobData) {
+  try {
+    await setDoc(doc(db, 'jobs', jobData.id), jobData);
+  } catch (e) {
+    console.warn('Firestore job save failed, saving to RTDB:', e);
+    await rtdbSet(rtdbRef(rtdb, `jobs/${jobData.id}`), jobData);
+  }
+}
+
+/**
+ * Apply for a job in Firebase (appends applicant to applicants list)
+ */
+export async function applyJobInFirebase(jobId, applicantData) {
+  try {
+    const jobRef = doc(db, 'jobs', jobId);
+    const snap = await getDoc(jobRef);
+    if (snap.exists()) {
+      const existing = snap.data();
+      const applicants = existing.applicants || [];
+      const updatedApplicants = [applicantData, ...applicants.filter(a => a.userId !== applicantData.userId)];
+      await updateDoc(jobRef, {
+        applicants: updatedApplicants,
+        applicantCount: updatedApplicants.length,
+        updatedAt: new Date().toISOString()
+      });
+    }
+  } catch (e) {
+    console.warn('Firestore job application update failed, trying RTDB:', e);
+    try {
+      const snap = await rtdbGet(rtdbRef(rtdb, `jobs/${jobId}`));
+      if (snap.exists()) {
+        const existing = snap.val();
+        const applicants = existing.applicants || [];
+        const updatedApplicants = [applicantData, ...applicants.filter(a => a.userId !== applicantData.userId)];
+        await rtdbUpdate(rtdbRef(rtdb, `jobs/${jobId}`), {
+          applicants: updatedApplicants,
+          applicantCount: updatedApplicants.length,
+          updatedAt: new Date().toISOString()
+        });
+      }
+    } catch (rtdbErr) {
+      console.warn('RTDB job application notice:', rtdbErr);
+    }
+  }
+}
+
+/**
+ * Permanently delete a job opening from Firestore & RTDB
+ */
+export async function deleteJobFromFirebase(jobId) {
+  try {
+    await deleteDoc(doc(db, 'jobs', jobId));
+  } catch (e) {
+    console.warn('Firestore job delete failed, trying RTDB:', e);
+  }
+
+  try {
+    await rtdbRemove(rtdbRef(rtdb, `jobs/${jobId}`));
+  } catch (e) {
+    console.warn('RTDB job delete notice:', e);
+  }
+}
+
 
 
