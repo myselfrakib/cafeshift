@@ -37,7 +37,7 @@ function AppContent() {
   }
 
   return (
-    <div className={`min-h-screen flex flex-col bg-[#F8F9FA] text-[#0A011C] pt-16 sm:pt-20 ${isAttendant ? 'pb-24' : 'pb-16 md:pb-0'}`}>
+    <div className="min-h-screen flex flex-col bg-[#F8F9FA] text-[#0A011C] pt-16 sm:pt-20 pb-24">
       {/* Fixed Navbar */}
       <Navbar />
 

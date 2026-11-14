@@ -11,6 +11,7 @@ export default function MobileBottomNav() {
     activeCafe,
     shifts,
     currentUser,
+    createShiftModalOpen,
     setCreateShiftModalOpen,
     handleLogout,
     isEditingCafe
@@ -119,51 +120,71 @@ export default function MobileBottomNav() {
 
   // 2. OWNER BOTTOM NAVBAR (Home | Post Shift | Logout)
   if (isOwner) {
+    const isHomeActive = activeTab === 'my-cafe' && !createShiftModalOpen;
+    const isPostActive = Boolean(createShiftModalOpen);
+
     return (
       <nav 
         aria-label="Owner Bottom Navigation"
-        className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-stone-200 z-50 px-3 py-2 shadow-lg"
+        className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-stone-200 z-50 px-3 py-2 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]"
       >
-        <div className="flex items-center justify-around">
-          {/* Owner Home View */}
+        <div className="max-w-md mx-auto grid grid-cols-3 gap-2">
+          
+          {/* 1. Owner Home View */}
           <button
-            onClick={() => setActiveTab('my-cafe')}
-            className={`relative flex flex-col items-center justify-center py-1 px-3 rounded-[3px] transition-colors ${
-              activeTab === 'my-cafe'
-                ? 'text-[#FF0046] font-bold'
-                : 'text-stone-500 hover:text-[#0A011C] font-medium'
+            type="button"
+            onClick={() => {
+              setCreateShiftModalOpen(false);
+              setActiveTab('my-cafe');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`relative flex flex-col items-center justify-center py-1.5 px-3 rounded-[3px] transition-all group ${
+              isHomeActive
+                ? 'bg-[#0A011C] text-white shadow-xs font-bold'
+                : 'text-stone-500 hover:text-[#0A011C] hover:bg-stone-100 font-medium'
             }`}
           >
             <div className="relative">
-              <Home className="w-5 h-5" />
+              <Home className={`w-5 h-5 transition-transform group-hover:scale-105 ${isHomeActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
               {bookedShiftsCount > 0 && (
-                <span className="absolute -top-1 -right-2 bg-[#00DADC] text-black text-[9px] font-bold px-1 rounded-[2px] min-w-[14px] text-center font-headline shadow-xs">
+                <span className="absolute -top-1.5 -right-2.5 bg-[#00DADC] text-black text-[9px] font-bold px-1.5 py-0.2 rounded-[2px] min-w-[16px] text-center font-headline shadow-xs">
                   {bookedShiftsCount}
                 </span>
               )}
             </div>
-            <span className="text-[10px] mt-0.5 uppercase tracking-wider font-headline">
+            <span className="text-[10px] font-bold mt-1 uppercase tracking-wider font-headline">
               Home
             </span>
           </button>
 
-          {/* Post Shift Modal Button */}
+          {/* 2. Post Shift Modal Button */}
           <button
+            type="button"
             onClick={() => setCreateShiftModalOpen(true)}
-            className="flex flex-col items-center justify-center py-1 px-3 text-[#FF0046] font-bold"
+            className={`relative flex flex-col items-center justify-center py-1.5 px-3 rounded-[3px] transition-all group ${
+              isPostActive
+                ? 'bg-[#FF0046] text-white shadow-xs font-bold'
+                : 'text-stone-500 hover:text-[#0A011C] hover:bg-stone-100 font-medium'
+            }`}
           >
-            <PlusCircle className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5 uppercase tracking-wider font-headline">Post Shift</span>
+            <PlusCircle className={`w-5 h-5 transition-transform group-hover:scale-105 ${isPostActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
+            <span className="text-[10px] font-bold mt-1 uppercase tracking-wider font-headline">
+              Post Shift
+            </span>
           </button>
 
-          {/* Owner Logout */}
+          {/* 3. Owner Logout */}
           <button
+            type="button"
             onClick={handleLogout}
-            className="flex flex-col items-center justify-center py-1 px-3 rounded-[3px] text-stone-500 hover:text-[#FF0046] font-medium"
+            className="relative flex flex-col items-center justify-center py-1.5 px-3 rounded-[3px] transition-all text-stone-500 hover:text-[#FF0046] hover:bg-stone-100 font-medium group"
           >
-            <LogOut className="w-4 h-4" />
-            <span className="text-[10px] mt-0.5 uppercase tracking-wider font-headline">Logout</span>
+            <LogOut className="w-5 h-5 transition-transform group-hover:scale-105 stroke-2" />
+            <span className="text-[10px] font-bold mt-1 uppercase tracking-wider font-headline">
+              Logout
+            </span>
           </button>
+
         </div>
       </nav>
     );
