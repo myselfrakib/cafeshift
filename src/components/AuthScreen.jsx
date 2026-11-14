@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { CALCUTTA_AREAS } from '../data/seedData';
 import { uploadImageToStorage } from '../services/firebaseService';
@@ -20,9 +20,8 @@ import {
   Upload,
   CheckCircle2,
   Store,
-  UserCheck,
-  ShieldCheck,
-  HelpCircle
+  ArrowLeft,
+  UserCheck
 } from 'lucide-react';
 
 export default function AuthScreen() {
@@ -30,23 +29,36 @@ export default function AuthScreen() {
     loginUser,
     signupOwner,
     signupAttendant,
-    isSyncing,
-    firebaseConnected
+    isSyncing
   } = useApp();
 
-  // Mode: 'login' | 'signup-attendant' | 'signup-owner'
-  const [mode, setMode] = useState('login');
+  // Primary page navigation: 'login' | 'signup'
+  const [authPage, setAuthPage] = useState(() => {
+    if (typeof window !== 'undefined' && window.location.hash.startsWith('#signup')) {
+      return 'signup';
+    }
+    return 'login';
+  });
+
+  // Role inside signup page: 'attendant' | 'owner'
+  const [signupRole, setSignupRole] = useState(() => {
+    if (typeof window !== 'undefined' && window.location.hash === '#signup-owner') {
+      return 'owner';
+    }
+    return 'attendant';
+  });
+
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submittingRef = useRef(false);
 
-  // Login state
+  // Login form state
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
-  // Attendant (Student) state
+  // Attendant (Student) signup state
   const [attendantData, setAttendantData] = useState({
     name: '',
     email: '',
@@ -59,7 +71,7 @@ export default function AuthScreen() {
     photoUrl: ''
   });
 
-  // Owner state
+  // Owner signup state
   const [ownerData, setOwnerData] = useState({
     name: '',
     email: '',
@@ -72,8 +84,41 @@ export default function AuthScreen() {
     minHourlyWage: 100
   });
 
-  const switchMode = (newMode) => {
-    setMode(newMode);
+  // Sync with browser URL hash
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash === '#signup-owner') {
+        setAuthPage('signup');
+        setSignupRole('owner');
+        setError('');
+      } else if (hash === '#signup' || hash === '#signup-attendant') {
+        setAuthPage('signup');
+        setSignupRole('attendant');
+        setError('');
+      } else if (hash === '#login') {
+        setAuthPage('login');
+        setError('');
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const goToLogin = () => {
+    if (typeof window !== 'undefined') window.location.hash = '#login';
+    setAuthPage('login');
+    setError('');
+    setIsSubmitting(false);
+    submittingRef.current = false;
+  };
+
+  const goToSignup = (role = 'attendant') => {
+    if (typeof window !== 'undefined') {
+      window.location.hash = role === 'owner' ? '#signup-owner' : '#signup-attendant';
+    }
+    setAuthPage('signup');
+    setSignupRole(role);
     setError('');
     setIsSubmitting(false);
     submittingRef.current = false;
@@ -157,8 +202,13 @@ export default function AuthScreen() {
       {/* 1. TOP NAVBAR / BRAND HEADER */}
       <header className="border-b border-stone-200 bg-white/95 backdrop-blur-md px-4 sm:px-6 py-3.5 sticky top-0 z-30 shadow-2xs">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-[3px] bg-[#FF0046] text-white flex items-center justify-center font-bold text-sm tracking-tighter shadow-xs font-headline">
+          
+          {/* Logo & Brand */}
+          <div
+            onClick={goToLogin}
+            className="flex items-center gap-3 cursor-pointer select-none group"
+          >
+            <div className="w-9 h-9 rounded-[3px] bg-[#FF0046] text-white flex items-center justify-center font-bold text-sm tracking-tighter shadow-xs font-headline group-hover:scale-105 transition-transform">
               CCC
             </div>
             <div>
@@ -176,131 +226,69 @@ export default function AuthScreen() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5">
-            {mode !== 'login' && (
+          {/* Top-Right Page Navigation Switcher Button */}
+          <div className="flex items-center gap-2">
+            {authPage === 'login' ? (
               <button
                 type="button"
-                onClick={() => switchMode('login')}
-                className="text-xs font-bold uppercase tracking-wider text-[#FF0046] hover:bg-rose-50 px-3 py-1.5 rounded-[3px] border border-rose-200 transition-colors font-headline"
+                onClick={() => goToSignup('attendant')}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[3px] bg-[#FF0046] hover:bg-[#E6003F] text-white text-xs font-bold uppercase tracking-wider font-headline transition-colors shadow-2xs"
               >
-                Sign In
+                <span>Sign Up</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={goToLogin}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[3px] bg-stone-100 hover:bg-stone-200 text-[#0A011C] border border-stone-300 text-xs font-bold uppercase tracking-wider font-headline transition-colors shadow-2xs"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Sign In</span>
               </button>
             )}
           </div>
         </div>
       </header>
 
-      {/* 2. MAIN CONTENT AREA */}
+      {/* 2. MAIN BODY CONTENT */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12">
         
-        {/* HERO / WELCOME BANNER */}
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-[3px] bg-white border border-stone-200 text-[#0A011C] text-xs font-bold uppercase tracking-wider shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-[#FF0046]" />
-            <span>Kolkata's Student Cafe Staffing Platform</span>
-          </div>
-          <h1 className="text-2xl sm:text-4xl font-headline font-bold text-[#0A011C] tracking-tight uppercase leading-tight">
-            Fair Hourly Shifts for Students.<br className="hidden sm:block" />
-            <span className="text-[#FF0046]">Reliable Rush-Hour Staff for Cafes.</span>
-          </h1>
-          <p className="text-xs sm:text-sm text-stone-600 leading-relaxed max-w-xl mx-auto">
-            Calcutta Cafe Club connects verified college students with Kolkata's specialty cafes for flexible, fair-wage part-time shifts.
-          </p>
-        </div>
-
-        {/* AUTH CARD CONTAINER */}
-        <div className="max-w-xl mx-auto w-full">
-          <div className="bg-white rounded-[3px] p-5 sm:p-8 border border-stone-200 shadow-md">
+        {/* ======================================================== */}
+        {/* PAGE 1: DEDICATED LOGIN PAGE                             */}
+        {/* ======================================================== */}
+        {authPage === 'login' && (
+          <div className="space-y-8 animate-pop">
             
-            {/* TOP 3-OPTION SEGMENTED TABS */}
-            <div className="grid grid-cols-3 p-1 rounded-[3px] bg-stone-100 mb-6 text-xs font-bold uppercase tracking-wider text-stone-600 border border-stone-200">
-              <button
-                type="button"
-                onClick={() => switchMode('login')}
-                className={`py-2.5 rounded-[3px] transition-all text-center flex items-center justify-center gap-1.5 font-headline ${
-                  mode === 'login'
-                    ? 'bg-[#0A011C] text-white shadow-xs font-bold'
-                    : 'hover:text-[#0A011C] hover:bg-stone-200/50'
-                }`}
-              >
-                <span>Sign In</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => switchMode('signup-attendant')}
-                className={`py-2.5 rounded-[3px] transition-all text-center flex items-center justify-center gap-1.5 font-headline ${
-                  mode === 'signup-attendant'
-                    ? 'bg-[#FF0046] text-white shadow-xs font-bold'
-                    : 'hover:text-[#0A011C] hover:bg-stone-200/50'
-                }`}
-              >
-                <GraduationCap className="w-3.5 h-3.5 hidden sm:inline" />
-                <span>Student Signup</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => switchMode('signup-owner')}
-                className={`py-2.5 rounded-[3px] transition-all text-center flex items-center justify-center gap-1.5 font-headline ${
-                  mode === 'signup-owner'
-                    ? 'bg-[#FF0046] text-white shadow-xs font-bold'
-                    : 'hover:text-[#0A011C] hover:bg-stone-200/50'
-                }`}
-              >
-                <Coffee className="w-3.5 h-3.5 hidden sm:inline" />
-                <span>Owner Signup</span>
-              </button>
+            {/* Login Hero Banner */}
+            <div className="text-center max-w-2xl mx-auto space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-[3px] bg-white border border-stone-200 text-[#0A011C] text-xs font-bold uppercase tracking-wider shadow-2xs font-headline">
+                <Coffee className="w-3.5 h-3.5 text-[#FF0046]" />
+                <span>Welcome to Calcutta Cafe Club</span>
+              </div>
+              <h1 className="text-2xl sm:text-4xl font-headline font-bold text-[#0A011C] tracking-tight uppercase">
+                Sign In to Your Account
+              </h1>
+              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed max-w-md mx-auto">
+                Sign in to manage your cafe shift roster or browse flexible student shifts across Kolkata.
+              </p>
             </div>
 
-            {/* ERROR ALERT */}
-            {error && (
-              <div className="mb-5 p-3 rounded-[3px] bg-rose-50 border border-rose-200 text-[#FF0046] text-xs font-medium space-y-2">
-                <div className="flex items-start gap-2 font-bold">
-                  <span className="shrink-0 mt-0.5">⚠️</span>
-                  <span>
-                    {error.includes('securetoken') || error.includes('blocked')
-                      ? "Google Cloud API Restriction: 'securetoken.googleapis.com' is blocked by your API key in Google Cloud Console."
-                      : error}
-                  </span>
-                </div>
-                {(error.includes('securetoken') || error.includes('blocked')) && (
-                  <div className="text-[11px] text-stone-700 bg-white p-2.5 rounded-[2px] border border-stone-200 space-y-1.5 font-normal">
-                    <p>
-                      <strong>How to fix:</strong> In Google Cloud Console &gt; APIs &amp; Services &gt; Credentials, edit your key (<code className="bg-stone-100 px-1 py-0.5 font-mono text-[10px]">AIzaSyCT...</code>) and set API restrictions to <strong>"Don't restrict key"</strong> (or allow <em>Token Service API</em> &amp; <em>Identity Toolkit API</em>).
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (typeof window !== 'undefined' && window.indexedDB) {
-                          try { window.indexedDB.deleteDatabase('firebaseLocalStorageDb'); } catch {}
-                        }
-                        window.location.reload();
-                      }}
-                      className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-white bg-[#0A011C] hover:bg-[#FF0046] px-2.5 py-1 rounded-[2px] transition-colors"
-                    >
-                      Clear Stale Session Cache
-                    </button>
+            {/* Dedicated Sign In Card */}
+            <div className="max-w-md mx-auto w-full">
+              <div className="bg-white rounded-[3px] p-6 sm:p-8 border border-stone-200 shadow-md space-y-6">
+                
+                {/* Error Banner */}
+                {error && (
+                  <div className="p-3 rounded-[3px] bg-rose-50 border border-rose-200 text-[#FF0046] text-xs font-medium space-y-2">
+                    <div className="flex items-start gap-2 font-bold">
+                      <span className="shrink-0 mt-0.5">⚠️</span>
+                      <span>{error}</span>
+                    </div>
                   </div>
                 )}
-              </div>
-            )}
 
-            {/* ======================================================== */}
-            {/* VIEW A: SIGN IN FORM + PROMINENT SIGNUP OPTIONS          */}
-            {/* ======================================================== */}
-            {mode === 'login' && (
-              <div className="space-y-6">
-                
-                {/* Header within Card */}
-                <div className="text-center">
-                  <h2 className="text-xl sm:text-2xl font-bold font-headline text-[#0A011C] tracking-tight uppercase">
-                    Welcome to Calcutta Cafe Club
-                  </h2>
-                  <p className="text-xs text-stone-500 mt-1">
-                    Sign in with your email and password to access your dashboard.
-                  </p>
-                </div>
-
-                {/* Login Form */}
+                {/* Sign In Form */}
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div>
                     <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1.5 font-headline">
@@ -368,625 +356,642 @@ export default function AuthScreen() {
                   </button>
                 </form>
 
-                {/* DIVIDER: OR CREATE AN ACCOUNT */}
-                <div className="relative pt-2">
-                  <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                    <div className="w-full border-t border-stone-200" />
-                  </div>
-                  <div className="relative flex justify-center text-center">
-                    <span className="bg-white px-3 text-[11px] font-bold uppercase tracking-wider text-stone-400 font-headline">
-                      New to Calcutta Cafe Club? Create Account
-                    </span>
-                  </div>
-                </div>
-
-                {/* 2 PROMINENT SIGNUP CARDS (ATTENDANT vs OWNER) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  
-                  {/* OPTION 1: SIGN UP AS STUDENT ATTENDANT */}
-                  <div
-                    onClick={() => switchMode('signup-attendant')}
-                    className="group relative p-4 rounded-[3px] border border-stone-200 hover:border-[#FF0046] bg-stone-50/60 hover:bg-white transition-all cursor-pointer shadow-2xs flex flex-col justify-between"
+                {/* Switch to Signup Prompt */}
+                <div className="pt-4 border-t border-stone-200/80 text-center">
+                  <p className="text-xs text-stone-500 mb-2">
+                    Don't have an account on Calcutta Cafe Club yet?
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => goToSignup('attendant')}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FF0046] hover:underline font-headline"
                   >
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="w-9 h-9 rounded-[3px] bg-[#FF0046]/10 text-[#FF0046] flex items-center justify-center font-bold">
-                          <GraduationCap className="w-5 h-5" />
-                        </div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-rose-100 text-[#FF0046] font-mono">
-                          ₹100/hr Min
-                        </span>
-                      </div>
-                      <h3 className="font-bold font-headline text-sm text-[#0A011C] uppercase group-hover:text-[#FF0046] transition-colors">
-                        Sign Up as Attendant
-                      </h3>
-                      <p className="text-[11px] text-stone-500 mt-1 leading-snug">
-                        Flexible cafe shifts around college classes. Free meals, tip share & verified pay.
-                      </p>
-                    </div>
-
-                    <div className="mt-3 pt-2.5 border-t border-stone-200/60 flex items-center justify-between text-xs font-bold text-[#FF0046] font-headline uppercase tracking-wider">
-                      <span>Join as Student</span>
-                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
-
-                  {/* OPTION 2: SIGN UP AS CAFE OWNER */}
-                  <div
-                    onClick={() => switchMode('signup-owner')}
-                    className="group relative p-4 rounded-[3px] border border-stone-200 hover:border-[#00DADC] bg-stone-50/60 hover:bg-white transition-all cursor-pointer shadow-2xs flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="w-9 h-9 rounded-[3px] bg-[#00DADC]/15 text-[#006062] flex items-center justify-center font-bold">
-                          <Coffee className="w-5 h-5" />
-                        </div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-cyan-100 text-[#006062] font-mono">
-                          Rush Staffing
-                        </span>
-                      </div>
-                      <h3 className="font-bold font-headline text-sm text-[#0A011C] uppercase group-hover:text-[#008b8d] transition-colors">
-                        Sign Up as Owner
-                      </h3>
-                      <p className="text-[11px] text-stone-500 mt-1 leading-snug">
-                        Publish open shift offers in seconds and staff rush hours with energetic students.
-                      </p>
-                    </div>
-
-                    <div className="mt-3 pt-2.5 border-t border-stone-200/60 flex items-center justify-between text-xs font-bold text-[#006062] font-headline uppercase tracking-wider">
-                      <span>Register Cafe</span>
-                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
-
+                    <span>Create a New Account</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
 
               </div>
-            )}
+            </div>
 
-            {/* ======================================================== */}
-            {/* VIEW B: SIGN UP AS STUDENT ATTENDANT                     */}
-            {/* ======================================================== */}
-            {mode === 'signup-attendant' && (
-              <div className="space-y-5">
+            {/* TWO ROLE ACTION CARDS TO START SIGN UP DIRECTLY */}
+            <div className="max-w-xl mx-auto w-full pt-4">
+              <div className="text-center mb-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 font-headline">
+                  Or select your role to sign up:
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Role Option 1: Student Attendant */}
+                <div
+                  onClick={() => goToSignup('attendant')}
+                  className="group relative p-4 rounded-[3px] border border-stone-200 hover:border-[#FF0046] bg-white transition-all cursor-pointer shadow-xs flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-9 h-9 rounded-[3px] bg-[#FF0046]/10 text-[#FF0046] flex items-center justify-center font-bold">
+                        <GraduationCap className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-rose-100 text-[#FF0046] font-mono">
+                        ₹100/hr Min
+                      </span>
+                    </div>
+                    <h3 className="font-bold font-headline text-sm text-[#0A011C] uppercase group-hover:text-[#FF0046] transition-colors">
+                      Sign Up as Attendant
+                    </h3>
+                    <p className="text-[11px] text-stone-500 mt-1 leading-snug">
+                      Flexible cafe shifts around college lectures. Free meals, tip share & verified hourly pay.
+                    </p>
+                  </div>
+
+                  <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-[#FF0046] font-headline uppercase tracking-wider">
+                    <span>Join as Student</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+
+                {/* Role Option 2: Cafe Owner */}
+                <div
+                  onClick={() => goToSignup('owner')}
+                  className="group relative p-4 rounded-[3px] border border-stone-200 hover:border-[#00DADC] bg-white transition-all cursor-pointer shadow-xs flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-9 h-9 rounded-[3px] bg-[#00DADC]/15 text-[#006062] flex items-center justify-center font-bold">
+                        <Coffee className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-cyan-100 text-[#006062] font-mono">
+                        Rush Staffing
+                      </span>
+                    </div>
+                    <h3 className="font-bold font-headline text-sm text-[#0A011C] uppercase group-hover:text-[#008b8d] transition-colors">
+                      Sign Up as Owner
+                    </h3>
+                    <p className="text-[11px] text-stone-500 mt-1 leading-snug">
+                      Publish open shifts in seconds and staff rush hours with energetic Kolkata college students.
+                    </p>
+                  </div>
+
+                  <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-[#006062] font-headline uppercase tracking-wider">
+                    <span>Register Cafe</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* PAGE 2: DEDICATED SIGNUP PAGE                            */}
+        {/* ======================================================== */}
+        {authPage === 'signup' && (
+          <div className="space-y-8 animate-pop">
+            
+            {/* Signup Hero Banner */}
+            <div className="text-center max-w-2xl mx-auto space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-[3px] bg-white border border-stone-200 text-[#0A011C] text-xs font-bold uppercase tracking-wider shadow-2xs font-headline">
+                <Sparkles className="w-3.5 h-3.5 text-[#FF0046]" />
+                <span>New Member Registration</span>
+              </div>
+              <h1 className="text-2xl sm:text-4xl font-headline font-bold text-[#0A011C] tracking-tight uppercase">
+                Create Your Account
+              </h1>
+              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed max-w-md mx-auto">
+                Choose your role to get started with Calcutta Cafe Club.
+              </p>
+            </div>
+
+            {/* Dedicated Sign Up Card */}
+            <div className="max-w-xl mx-auto w-full">
+              <div className="bg-white rounded-[3px] p-5 sm:p-8 border border-stone-200 shadow-md space-y-6">
                 
-                {/* Header Banner */}
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-[#FF0046] text-white font-headline">
-                      Student Attendant
-                    </span>
-                    <span className="text-xs text-stone-400">·</span>
-                    <span className="text-xs font-bold text-stone-700">Fair Pocket Money</span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-bold font-headline text-[#0A011C] tracking-tight uppercase">
-                    Join as Student Attendant
-                  </h2>
-                  <p className="text-xs text-stone-500 mt-0.5">
-                    Pick your own hours, earn verified hourly wages, and build real hospitality experience in Kolkata.
-                  </p>
-                </div>
-
-                {/* Benefits Chips */}
-                <div className="grid grid-cols-3 gap-2 p-2.5 rounded-[3px] bg-stone-50 border border-stone-200 text-[10px] font-bold uppercase tracking-wider font-headline text-stone-700">
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#FF0046] shrink-0" />
-                    <span>Min ₹100/hr</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#FF0046] shrink-0" />
-                    <span>Free Meals</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#FF0046] shrink-0" />
-                    <span>Tip Share</span>
-                  </div>
-                </div>
-
-                {/* Form */}
-                <form onSubmit={handleStudentSignup} className="space-y-3.5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                        Full Name *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Ananya Mukherjee"
-                        value={attendantData.name}
-                        onChange={e => setAttendantData({ ...attendantData, name: e.target.value })}
-                        className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] font-medium"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                        Email Address *
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="ananya@stxaviers.edu.in"
-                        value={attendantData.email}
-                        onChange={e => setAttendantData({ ...attendantData, email: e.target.value })}
-                        className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] font-medium"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Password & Phone with +91 attached */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                        Password (Min 6 chars) *
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          required
-                          placeholder="Choose password"
-                          value={attendantData.password}
-                          onChange={e => setAttendantData({ ...attendantData, password: e.target.value })}
-                          className="w-full px-3 pr-8 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046]"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
-                        >
-                          {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                        Mobile Number (+91) *
-                      </label>
-                      <div className="flex items-center">
-                        <span className="px-2.5 py-2 text-xs font-bold bg-stone-200 text-stone-800 rounded-l-[3px] border border-r-0 border-stone-200">
-                          🇮🇳 +91
-                        </span>
-                        <input
-                          type="tel"
-                          required
-                          maxLength={10}
-                          placeholder="98312 99881"
-                          value={attendantData.phone}
-                          onChange={e => setAttendantData({ ...attendantData, phone: e.target.value.replace(/\D/g, '') })}
-                          className="w-full px-3 py-2 text-xs rounded-r-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] font-mono"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* College / School in Kolkata */}
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                      School or College Name (Kolkata) *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. St. Xavier's College / Presidency Univ / Jadavpur Univ"
-                      value={attendantData.college}
-                      onChange={e => setAttendantData({ ...attendantData, college: e.target.value })}
-                      className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046]"
-                    />
-                  </div>
-
-                  {/* Residence address in Kolkata */}
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                      Current Residence Address (Kolkata) *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Flat 3B, Ballygunge Circular Road, Kolkata - 700019"
-                      value={attendantData.address}
-                      onChange={e => setAttendantData({ ...attendantData, address: e.target.value })}
-                      className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046]"
-                    />
-                  </div>
-
-                  {/* Age & Gender */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">Age *</label>
-                      <input
-                        type="number"
-                        min={16}
-                        max={28}
-                        required
-                        value={attendantData.age}
-                        onChange={e => setAttendantData({ ...attendantData, age: e.target.value })}
-                        className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046] font-bold"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">Gender *</label>
-                      <select
-                        value={attendantData.gender}
-                        onChange={e => setAttendantData({ ...attendantData, gender: e.target.value })}
-                        className="w-full px-2 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046] font-medium"
-                      >
-                        <option value="Female">Female</option>
-                        <option value="Male">Male</option>
-                        <option value="Non-Binary">Non-Binary</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Profile Photo Upload */}
-                  <div className="p-3 bg-stone-50 rounded-[3px] border border-stone-200">
-                    <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1.5 font-headline">
-                      Student Profile Photo (Optional)
-                    </label>
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-[3px] bg-white border border-stone-200 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
-                        {attendantData.photoUrl ? (
-                          <img src={attendantData.photoUrl} alt="Preview" className="w-full h-full object-cover" />
-                        ) : (
-                          <Camera className="w-5 h-5 text-stone-400" />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider bg-white hover:bg-stone-100 text-stone-700 rounded-[3px] border border-stone-200 transition-colors shadow-2xs">
-                          {uploadingPhoto ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FF0046]" />
-                          ) : (
-                            <Upload className="w-3.5 h-3.5 text-[#FF0046]" />
-                          )}
-                          <span>{attendantData.photoUrl ? 'Change Photo' : 'Upload Photo'}</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            disabled={uploadingPhoto}
-                            className="hidden"
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                setUploadingPhoto(true);
-                                try {
-                                  const url = await uploadImageToStorage(file, 'students');
-                                  setAttendantData(prev => ({ ...prev, photoUrl: url }));
-                                } finally {
-                                  setUploadingPhoto(false);
-                                }
-                              }
-                            }}
-                          />
-                        </label>
-                        <p className="text-[10px] text-stone-400 mt-1">Shown to cafe owners when your shift is booked.</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Submit Button */}
+                {/* DEDICATED 2-ROLE SELECTOR TABS AT TOP OF SIGNUP */}
+                <div className="grid grid-cols-2 p-1 rounded-[3px] bg-stone-100 text-xs font-bold uppercase tracking-wider text-stone-600 border border-stone-200 font-headline">
                   <button
-                    type="submit"
-                    disabled={isSubmitting || isSyncing}
-                    className={`relative w-full py-3.5 px-4 rounded-[3px] font-bold text-xs uppercase tracking-wider font-headline transition-all overflow-hidden flex items-center justify-center gap-2 shadow-sm ${
-                      isSubmitting || isSyncing
-                        ? 'bg-[#0A011C] text-white cursor-wait opacity-95 ring-2 ring-[#00DADC]/40'
-                        : 'bg-[#FF0046] hover:bg-[#E6003F] text-white active:scale-[0.99] cursor-pointer'
+                    type="button"
+                    onClick={() => { setSignupRole('attendant'); setError(''); }}
+                    className={`py-2.5 rounded-[3px] transition-all flex items-center justify-center gap-2 ${
+                      signupRole === 'attendant'
+                        ? 'bg-[#FF0046] text-white shadow-xs'
+                        : 'hover:text-[#0A011C] hover:bg-stone-200/50'
                     }`}
                   >
-                    {isSubmitting || isSyncing ? (
-                      <>
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer pointer-events-none" />
-                        <Loader2 className="w-4 h-4 animate-spin text-[#00DADC]" />
-                        <span className="tracking-widest text-[#00DADC]">Creating Student Account...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Create Student Account</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
+                    <GraduationCap className="w-4 h-4" />
+                    <span>Student Attendant</span>
                   </button>
-                </form>
 
-                {/* Footer Switch Links */}
-                <div className="pt-3 border-t border-stone-200/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-stone-500">
                   <button
                     type="button"
-                    onClick={() => switchMode('login')}
-                    className="hover:text-[#FF0046] font-bold uppercase tracking-wider font-headline"
+                    onClick={() => { setSignupRole('owner'); setError(''); }}
+                    className={`py-2.5 rounded-[3px] transition-all flex items-center justify-center gap-2 ${
+                      signupRole === 'owner'
+                        ? 'bg-[#0A011C] text-white shadow-xs'
+                        : 'hover:text-[#0A011C] hover:bg-stone-200/50'
+                    }`}
                   >
-                    ← Already have an account? Sign In
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => switchMode('signup-owner')}
-                    className="hover:text-[#0A011C] font-semibold"
-                  >
-                    Are you a cafe owner? Register cafe →
+                    <Coffee className="w-4 h-4 text-[#00DADC]" />
+                    <span>Cafe Owner</span>
                   </button>
                 </div>
 
-              </div>
-            )}
-
-            {/* ======================================================== */}
-            {/* VIEW C: SIGN UP AS CAFE OWNER                            */}
-            {/* ======================================================== */}
-            {mode === 'signup-owner' && (
-              <div className="space-y-5">
-                
-                {/* Header Banner */}
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-[#0A011C] text-[#00DADC] font-headline">
-                      Cafe Owner
-                    </span>
-                    <span className="text-xs text-stone-400">·</span>
-                    <span className="text-xs font-bold text-stone-700">Rush Hour Staffing</span>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-bold font-headline text-[#0A011C] tracking-tight uppercase">
-                    Register Cafe as Owner
-                  </h2>
-                  <p className="text-xs text-stone-500 mt-0.5">
-                    Post shift offers and staff busy rush hours with polite, verified Kolkata students.
-                  </p>
-                </div>
-
-                {/* Benefits Chips */}
-                <div className="grid grid-cols-3 gap-2 p-2.5 rounded-[3px] bg-stone-50 border border-stone-200 text-[10px] font-bold uppercase tracking-wider font-headline text-stone-700">
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#008b8d] shrink-0" />
-                    <span>Instant Booking</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#008b8d] shrink-0" />
-                    <span>Verified Students</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#008b8d] shrink-0" />
-                    <span>Multi-Branch</span>
-                  </div>
-                </div>
-
-                {/* Form */}
-                <form onSubmit={handleOwnerSignup} className="space-y-3.5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                        Owner Name *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Rakib Hassan"
-                        value={ownerData.name}
-                        onChange={e => setOwnerData({ ...ownerData, name: e.target.value })}
-                        className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] font-medium"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                        Email Address *
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="rakib@cafe.in"
-                        value={ownerData.email}
-                        onChange={e => setOwnerData({ ...ownerData, email: e.target.value })}
-                        className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] font-medium"
-                      />
+                {/* Error Banner */}
+                {error && (
+                  <div className="p-3 rounded-[3px] bg-rose-50 border border-rose-200 text-[#FF0046] text-xs font-medium space-y-2">
+                    <div className="flex items-start gap-2 font-bold">
+                      <span className="shrink-0 mt-0.5">⚠️</span>
+                      <span>{error}</span>
                     </div>
                   </div>
+                )}
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                        Password (Min 6 chars) *
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          required
-                          placeholder="Choose password"
-                          value={ownerData.password}
-                          onChange={e => setOwnerData({ ...ownerData, password: e.target.value })}
-                          className="w-full px-3 pr-8 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046]"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
-                        >
-                          {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                        Mobile Number (+91) *
-                      </label>
-                      <div className="flex items-center">
-                        <span className="px-2.5 py-2 text-xs font-bold bg-stone-200 text-stone-800 rounded-l-[3px] border border-r-0 border-stone-200">
-                          🇮🇳 +91
+                {/* ---------------------------------------------------- */}
+                {/* SUB-FORM 1: STUDENT ATTENDANT SIGNUP                */}
+                {/* ---------------------------------------------------- */}
+                {signupRole === 'attendant' && (
+                  <div className="space-y-5">
+                    
+                    {/* Role Highlight Banner */}
+                    <div className="p-3 bg-stone-50 rounded-[3px] border border-stone-200">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-[#FF0046] text-white font-headline">
+                          Student Role
                         </span>
-                        <input
-                          type="tel"
-                          required
-                          maxLength={10}
-                          placeholder="98301 23456"
-                          value={ownerData.phone}
-                          onChange={e => setOwnerData({ ...ownerData, phone: e.target.value.replace(/\D/g, '') })}
-                          className="w-full px-3 py-2 text-xs rounded-r-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] font-mono"
-                        />
+                        <span className="text-xs text-stone-400">·</span>
+                        <span className="text-xs font-bold text-stone-700">Kolkata Fair Student Work</span>
                       </div>
+                      <p className="text-xs text-stone-500">
+                        Work shifts around college lectures, earn guaranteed ₹100/hr, and get free cafe snacks & coffee.
+                      </p>
                     </div>
-                  </div>
 
-                  {/* Cafe Details */}
-                  <div className="pt-2 border-t border-stone-200 space-y-3">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Registration Form */}
+                    <form onSubmit={handleStudentSignup} className="space-y-3.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
+                            Full Name *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. Ananya Mukherjee"
+                            value={attendantData.name}
+                            onChange={e => setAttendantData({ ...attendantData, name: e.target.value })}
+                            className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] font-medium"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
+                            Email Address *
+                          </label>
+                          <input
+                            type="email"
+                            required
+                            placeholder="ananya@stxaviers.edu.in"
+                            value={attendantData.email}
+                            onChange={e => setAttendantData({ ...attendantData, email: e.target.value })}
+                            className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] font-medium"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Password & Phone with +91 attached */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
+                            Password (Min 6 chars) *
+                          </label>
+                          <div className="relative">
+                            <input
+                              type={showPassword ? 'text' : 'password'}
+                              required
+                              placeholder="Choose password"
+                              value={attendantData.password}
+                              onChange={e => setAttendantData({ ...attendantData, password: e.target.value })}
+                              className="w-full px-3 pr-8 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046]"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
+                            >
+                              {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                            </button>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
+                            Mobile Number (+91) *
+                          </label>
+                          <div className="flex items-center">
+                            <span className="px-2.5 py-2 text-xs font-bold bg-stone-200 text-stone-800 rounded-l-[3px] border border-r-0 border-stone-200">
+                              🇮🇳 +91
+                            </span>
+                            <input
+                              type="tel"
+                              required
+                              maxLength={10}
+                              placeholder="98312 99881"
+                              value={attendantData.phone}
+                              onChange={e => setAttendantData({ ...attendantData, phone: e.target.value.replace(/\D/g, '') })}
+                              className="w-full px-3 py-2 text-xs rounded-r-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] font-mono"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* College / School in Kolkata */}
                       <div>
                         <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                          Cafe Name *
+                          School or College Name (Kolkata) *
                         </label>
                         <input
                           type="text"
                           required
-                          placeholder="e.g. Rio & Timmy / Cafe Mezzuna"
-                          value={ownerData.cafeName}
-                          onChange={e => setOwnerData({ ...ownerData, cafeName: e.target.value })}
-                          className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] font-bold"
+                          placeholder="e.g. St. Xavier's College / Presidency Univ / Jadavpur Univ"
+                          value={attendantData.college}
+                          onChange={e => setAttendantData({ ...attendantData, college: e.target.value })}
+                          className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046]"
                         />
                       </div>
 
+                      {/* Residence address in Kolkata */}
                       <div>
                         <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                          Kolkata Locality *
+                          Current Residence Address (Kolkata) *
                         </label>
-                        <select
-                          value={ownerData.cafeArea}
-                          onChange={e => setOwnerData({ ...ownerData, cafeArea: e.target.value })}
-                          className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046] font-medium"
-                        >
-                          {CALCUTTA_AREAS.map(area => (
-                            <option key={area} value={area}>{area}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                        Full Street Address *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. 42A Park Street, near Allen Park, Kolkata - 700016"
-                        value={ownerData.cafeAddress}
-                        onChange={e => setOwnerData({ ...ownerData, cafeAddress: e.target.value })}
-                        className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                        Starting Hourly Wage Baseline (Min ₹100/hr) *
-                      </label>
-                      <div className="flex items-center">
-                        <span className="px-3 py-2 text-xs font-bold bg-stone-200 text-stone-800 rounded-l-[3px] border border-r-0 border-stone-200 font-mono">
-                          ₹
-                        </span>
                         <input
-                          type="number"
-                          min={100}
-                          step={5}
+                          type="text"
                           required
-                          value={ownerData.minHourlyWage}
-                          onChange={e => setOwnerData({ ...ownerData, minHourlyWage: e.target.value })}
-                          className="w-full px-3 py-2 text-xs rounded-r-[3px] border border-stone-200 bg-stone-50 font-bold text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046] font-mono"
+                          placeholder="e.g. Flat 3B, Ballygunge Circular Road, Kolkata - 700019"
+                          value={attendantData.address}
+                          onChange={e => setAttendantData({ ...attendantData, address: e.target.value })}
+                          className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046]"
                         />
                       </div>
-                      <p className="text-[10px] text-stone-400 mt-1">Guarantees Kolkata student fair work standards.</p>
-                    </div>
 
-                    {/* Cafe Logo / Storefront Photo Upload */}
-                    <div className="p-3 bg-stone-50 rounded-[3px] border border-stone-200">
-                      <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1.5 font-headline">
-                        Cafe Logo or Storefront Photo (Optional)
-                      </label>
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-[3px] bg-white border border-stone-200 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
-                          {ownerData.photoUrl ? (
-                            <img src={ownerData.photoUrl} alt="Preview" className="w-full h-full object-cover" />
-                          ) : (
-                            <Store className="w-5 h-5 text-stone-400" />
-                          )}
+                      {/* Age & Gender */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">Age *</label>
+                          <input
+                            type="number"
+                            min={16}
+                            max={28}
+                            required
+                            value={attendantData.age}
+                            onChange={e => setAttendantData({ ...attendantData, age: e.target.value })}
+                            className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046] font-bold"
+                          />
                         </div>
-                        <div className="flex-1">
-                          <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider bg-white hover:bg-stone-100 text-stone-700 rounded-[3px] border border-stone-200 transition-colors shadow-2xs">
-                            {uploadingPhoto ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FF0046]" />
-                            ) : (
-                              <Upload className="w-3.5 h-3.5 text-[#FF0046]" />
-                            )}
-                            <span>{ownerData.photoUrl ? 'Change Logo' : 'Upload Cafe Logo'}</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              disabled={uploadingPhoto}
-                              className="hidden"
-                              onChange={async (e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  setUploadingPhoto(true);
-                                  try {
-                                    const url = await uploadImageToStorage(file, 'cafes');
-                                    setOwnerData(prev => ({ ...prev, photoUrl: url }));
-                                  } finally {
-                                    setUploadingPhoto(false);
-                                  }
-                                }
-                              }}
-                            />
-                          </label>
-                          <p className="text-[10px] text-stone-400 mt-1">Shown to students on your shift offer cards.</p>
+                        <div>
+                          <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">Gender *</label>
+                          <select
+                            value={attendantData.gender}
+                            onChange={e => setAttendantData({ ...attendantData, gender: e.target.value })}
+                            className="w-full px-2 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046] font-medium"
+                          >
+                            <option value="Female">Female</option>
+                            <option value="Male">Male</option>
+                            <option value="Non-Binary">Non-Binary</option>
+                            <option value="Other">Other</option>
+                          </select>
                         </div>
                       </div>
-                    </div>
+
+                      {/* Profile Photo Upload */}
+                      <div className="p-3 bg-stone-50 rounded-[3px] border border-stone-200">
+                        <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1.5 font-headline">
+                          Student Profile Photo (Optional)
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-[3px] bg-white border border-stone-200 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+                            {attendantData.photoUrl ? (
+                              <img src={attendantData.photoUrl} alt="Preview" className="w-full h-full object-cover" />
+                            ) : (
+                              <Camera className="w-5 h-5 text-stone-400" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider bg-white hover:bg-stone-100 text-stone-700 rounded-[3px] border border-stone-200 transition-colors shadow-2xs">
+                              {uploadingPhoto ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FF0046]" />
+                              ) : (
+                                <Upload className="w-3.5 h-3.5 text-[#FF0046]" />
+                              )}
+                              <span>{attendantData.photoUrl ? 'Change Photo' : 'Upload Photo'}</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                disabled={uploadingPhoto}
+                                className="hidden"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    setUploadingPhoto(true);
+                                    try {
+                                      const url = await uploadImageToStorage(file, 'students');
+                                      setAttendantData(prev => ({ ...prev, photoUrl: url }));
+                                    } finally {
+                                      setUploadingPhoto(false);
+                                    }
+                                  }
+                                }}
+                              />
+                            </label>
+                            <p className="text-[10px] text-stone-400 mt-1">Shown to cafe owners when your shift is booked.</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Submit Button */}
+                      <button
+                        type="submit"
+                        disabled={isSubmitting || isSyncing}
+                        className={`relative w-full py-3.5 px-4 rounded-[3px] font-bold text-xs uppercase tracking-wider font-headline transition-all overflow-hidden flex items-center justify-center gap-2 shadow-sm ${
+                          isSubmitting || isSyncing
+                            ? 'bg-[#0A011C] text-white cursor-wait opacity-95 ring-2 ring-[#00DADC]/40'
+                            : 'bg-[#FF0046] hover:bg-[#E6003F] text-white active:scale-[0.99] cursor-pointer'
+                        }`}
+                      >
+                        {isSubmitting || isSyncing ? (
+                          <>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer pointer-events-none" />
+                            <Loader2 className="w-4 h-4 animate-spin text-[#00DADC]" />
+                            <span className="tracking-widest text-[#00DADC]">Creating Student Account...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Create Student Account</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    </form>
                   </div>
+                )}
 
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || isSyncing}
-                    className={`relative w-full py-3.5 px-4 rounded-[3px] font-bold text-xs uppercase tracking-wider font-headline transition-all overflow-hidden flex items-center justify-center gap-2 shadow-sm ${
-                      isSubmitting || isSyncing
-                        ? 'bg-[#0A011C] text-white cursor-wait opacity-95 ring-2 ring-[#00DADC]/40'
-                        : 'bg-[#FF0046] hover:bg-[#E6003F] text-white active:scale-[0.99] cursor-pointer'
-                    }`}
-                  >
-                    {isSubmitting || isSyncing ? (
-                      <>
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer pointer-events-none" />
-                        <Loader2 className="w-4 h-4 animate-spin text-[#00DADC]" />
-                        <span className="tracking-widest text-[#00DADC]">Registering Cafe Outlet...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Register Cafe & Open Roster</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-                </form>
+                {/* ---------------------------------------------------- */}
+                {/* SUB-FORM 2: CAFE OWNER SIGNUP                       */}
+                {/* ---------------------------------------------------- */}
+                {signupRole === 'owner' && (
+                  <div className="space-y-5">
+                    
+                    {/* Role Highlight Banner */}
+                    <div className="p-3 bg-stone-50 rounded-[3px] border border-stone-200">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-[#0A011C] text-[#00DADC] font-headline">
+                          Cafe Owner Role
+                        </span>
+                        <span className="text-xs text-stone-400">·</span>
+                        <span className="text-xs font-bold text-stone-700">Kolkata Rush Staffing</span>
+                      </div>
+                      <p className="text-xs text-stone-500">
+                        Post shift offers, staff high-energy rush hours, and manage multiple cafe branches across Kolkata.
+                      </p>
+                    </div>
 
-                {/* Footer Switch Links */}
-                <div className="pt-3 border-t border-stone-200/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-stone-500">
+                    {/* Registration Form */}
+                    <form onSubmit={handleOwnerSignup} className="space-y-3.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
+                            Owner Full Name *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. Rakib Hassan"
+                            value={ownerData.name}
+                            onChange={e => setOwnerData({ ...ownerData, name: e.target.value })}
+                            className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] font-medium"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
+                            Email Address *
+                          </label>
+                          <input
+                            type="email"
+                            required
+                            placeholder="rakib@cafe.in"
+                            value={ownerData.email}
+                            onChange={e => setOwnerData({ ...ownerData, email: e.target.value })}
+                            className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] font-medium"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
+                            Password (Min 6 chars) *
+                          </label>
+                          <div className="relative">
+                            <input
+                              type={showPassword ? 'text' : 'password'}
+                              required
+                              placeholder="Choose password"
+                              value={ownerData.password}
+                              onChange={e => setOwnerData({ ...ownerData, password: e.target.value })}
+                              className="w-full px-3 pr-8 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046]"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
+                            >
+                              {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                            </button>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
+                            Mobile Number (+91) *
+                          </label>
+                          <div className="flex items-center">
+                            <span className="px-2.5 py-2 text-xs font-bold bg-stone-200 text-stone-800 rounded-l-[3px] border border-r-0 border-stone-200">
+                              🇮🇳 +91
+                            </span>
+                            <input
+                              type="tel"
+                              required
+                              maxLength={10}
+                              placeholder="98301 23456"
+                              value={ownerData.phone}
+                              onChange={e => setOwnerData({ ...ownerData, phone: e.target.value.replace(/\D/g, '') })}
+                              className="w-full px-3 py-2 text-xs rounded-r-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] font-mono"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Cafe Outlet Details */}
+                      <div className="pt-2 border-t border-stone-200 space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
+                              Cafe Outlet Name *
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              placeholder="e.g. Rio & Timmy / Cafe Mezzuna"
+                              value={ownerData.cafeName}
+                              onChange={e => setOwnerData({ ...ownerData, cafeName: e.target.value })}
+                              className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] font-bold"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
+                              Kolkata Locality *
+                            </label>
+                            <select
+                              value={ownerData.cafeArea}
+                              onChange={e => setOwnerData({ ...ownerData, cafeArea: e.target.value })}
+                              className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046] font-medium"
+                            >
+                              {CALCUTTA_AREAS.map(area => (
+                                <option key={area} value={area}>{area}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
+                            Full Street Address *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. 42A Park Street, near Allen Park, Kolkata - 700016"
+                            value={ownerData.cafeAddress}
+                            onChange={e => setOwnerData({ ...ownerData, cafeAddress: e.target.value })}
+                            className="w-full px-3 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
+                            Base Starting Hourly Wage (Min ₹100/hr) *
+                          </label>
+                          <div className="flex items-center">
+                            <span className="px-3 py-2 text-xs font-bold bg-stone-200 text-stone-800 rounded-l-[3px] border border-r-0 border-stone-200 font-mono">
+                              ₹
+                            </span>
+                            <input
+                              type="number"
+                              min={100}
+                              step={5}
+                              required
+                              value={ownerData.minHourlyWage}
+                              onChange={e => setOwnerData({ ...ownerData, minHourlyWage: e.target.value })}
+                              className="w-full px-3 py-2 text-xs rounded-r-[3px] border border-stone-200 bg-stone-50 font-bold text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046] font-mono"
+                            />
+                          </div>
+                          <p className="text-[10px] text-stone-400 mt-1">Guarantees Kolkata student fair work standards.</p>
+                        </div>
+
+                        {/* Cafe Logo / Storefront Photo Upload */}
+                        <div className="p-3 bg-stone-50 rounded-[3px] border border-stone-200">
+                          <label className="text-xs font-bold uppercase tracking-wider text-stone-700 block mb-1.5 font-headline">
+                            Cafe Logo or Storefront Photo (Optional)
+                          </label>
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-[3px] bg-white border border-stone-200 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+                              {ownerData.photoUrl ? (
+                                <img src={ownerData.photoUrl} alt="Preview" className="w-full h-full object-cover" />
+                              ) : (
+                                <Store className="w-5 h-5 text-stone-400" />
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wider bg-white hover:bg-stone-100 text-stone-700 rounded-[3px] border border-stone-200 transition-colors shadow-2xs">
+                                {uploadingPhoto ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FF0046]" />
+                                ) : (
+                                  <Upload className="w-3.5 h-3.5 text-[#FF0046]" />
+                                )}
+                                <span>{ownerData.photoUrl ? 'Change Logo' : 'Upload Cafe Logo'}</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  disabled={uploadingPhoto}
+                                  className="hidden"
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      setUploadingPhoto(true);
+                                      try {
+                                        const url = await uploadImageToStorage(file, 'cafes');
+                                        setOwnerData(prev => ({ ...prev, photoUrl: url }));
+                                      } finally {
+                                        setUploadingPhoto(false);
+                                      }
+                                    }
+                                  }}
+                                />
+                              </label>
+                              <p className="text-[10px] text-stone-400 mt-1">Shown to students on your shift offer cards.</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Submit Button */}
+                      <button
+                        type="submit"
+                        disabled={isSubmitting || isSyncing}
+                        className={`relative w-full py-3.5 px-4 rounded-[3px] font-bold text-xs uppercase tracking-wider font-headline transition-all overflow-hidden flex items-center justify-center gap-2 shadow-sm ${
+                          isSubmitting || isSyncing
+                            ? 'bg-[#0A011C] text-white cursor-wait opacity-95 ring-2 ring-[#00DADC]/40'
+                            : 'bg-[#FF0046] hover:bg-[#E6003F] text-white active:scale-[0.99] cursor-pointer'
+                        }`}
+                      >
+                        {isSubmitting || isSyncing ? (
+                          <>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer pointer-events-none" />
+                            <Loader2 className="w-4 h-4 animate-spin text-[#00DADC]" />
+                            <span className="tracking-widest text-[#00DADC]">Registering Cafe Outlet...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Register Cafe & Open Roster</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    </form>
+                  </div>
+                )}
+
+                {/* Back to Sign In Link */}
+                <div className="pt-4 border-t border-stone-200/80 text-center">
+                  <p className="text-xs text-stone-500 mb-1">
+                    Already have an account on Calcutta Cafe Club?
+                  </p>
                   <button
                     type="button"
-                    onClick={() => switchMode('login')}
-                    className="hover:text-[#FF0046] font-bold uppercase tracking-wider font-headline"
+                    onClick={goToLogin}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FF0046] hover:underline font-headline"
                   >
-                    ← Already have an account? Sign In
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => switchMode('signup-attendant')}
-                    className="hover:text-[#0A011C] font-semibold"
-                  >
-                    Are you a student? Apply as attendant →
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Sign In to Your Existing Account</span>
                   </button>
                 </div>
 
               </div>
-            )}
+            </div>
 
           </div>
-        </div>
+        )}
 
-        {/* 3. PLATFORM FEATURES & VALUE PILLARS */}
+        {/* 3. PLATFORM FEATURES & VALUE PILLARS (SHARED FOOTPRINT) */}
         <div className="border-t border-stone-200 pt-10 sm:pt-14 space-y-8">
           
           <div className="text-center max-w-2xl mx-auto space-y-2">
