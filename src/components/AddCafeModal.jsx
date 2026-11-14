@@ -42,7 +42,7 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Smart Google Places suggestions state
+  // Smart Google Places suggestions state for Cafe Name
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearchingPlaces, setIsSearchingPlaces] = useState(false);
@@ -52,6 +52,15 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
   const nameInputRef = useRef(null);
   const suggestionsBoxRef = useRef(null);
   const searchTimeoutRef = useRef(null);
+
+  // Smart Google Places suggestions state for Address
+  const [addressSuggestions, setAddressSuggestions] = useState([]);
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [isSearchingAddress, setIsSearchingAddress] = useState(false);
+
+  const addressInputRef = useRef(null);
+  const addressSuggestionsBoxRef = useRef(null);
+  const addressSearchTimeoutRef = useRef(null);
 
   // Sync state with active cafe and inform app context that full-screen editing is active
   useEffect(() => {
@@ -80,7 +89,7 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Close suggestions popover on click outside
+  // Close suggestions popovers on click outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -91,9 +100,25 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
       ) {
         setShowSuggestions(false);
       }
+      if (
+        addressSuggestionsBoxRef.current &&
+        !addressSuggestionsBoxRef.current.contains(e.target) &&
+        addressInputRef.current &&
+        !addressInputRef.current.contains(e.target)
+      ) {
+        setShowAddressSuggestions(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+      if (addressSearchTimeoutRef.current) clearTimeout(addressSearchTimeoutRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -119,6 +144,8 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
     setError('');
     setLocationSuccessNote('');
     setShowSuggestions(false);
+    setShowAddressSuggestions(false);
+    setAddressSuggestions([]);
   }, [editCafe, isOpen, currentUser]);
 
   if (!isOpen) return null;
@@ -172,6 +199,50 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
 
     setShowSuggestions(false);
     setLocationSuccessNote(`Auto-filled: ${sugg.name} in ${matchedLocality}`);
+  };
+
+  // Handle typing address to search nearby places & street addresses
+  const handleAddressChange = (val) => {
+    setAddress(val);
+    setError('');
+
+    if (addressSearchTimeoutRef.current) {
+      clearTimeout(addressSearchTimeoutRef.current);
+    }
+
+    if (!val || val.trim().length < 2) {
+      setAddressSuggestions([]);
+      setShowAddressSuggestions(false);
+      setIsSearchingAddress(false);
+      return;
+    }
+
+    setIsSearchingAddress(true);
+    addressSearchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const results = await searchPlacesAndCafes(val);
+        setAddressSuggestions(results);
+        setShowAddressSuggestions(results.length > 0);
+      } catch (err) {
+        console.warn('Address place search notice:', err);
+      } finally {
+        setIsSearchingAddress(false);
+      }
+    }, 200);
+  };
+
+  // Auto-fill address & locality from selected address suggestion
+  const handleSelectAddressSuggestion = (sugg) => {
+    setAddress(sugg.formattedAddress || sugg.address || '');
+    const matchedLocality = sugg.area || matchKolkataArea(sugg.address || sugg.formattedAddress);
+    setArea(matchedLocality);
+    setShowAddressSuggestions(false);
+    setLocationSuccessNote(`Address auto-filled: ${sugg.formattedAddress || sugg.address} (${matchedLocality})`);
+
+    // If cafe name is empty, auto-fill it from place suggestion name
+    if (!name.trim() && sugg.name) {
+      setName(sugg.name);
+    }
   };
 
   // Auto-fetch GPS Current Location and reverse-geocode to Kolkata address
@@ -350,12 +421,254 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           
-          {/* Section 1: Cafe Photo / Branding */}
+          {/* Section 1: Basic Cafe Information with Smart Autocomplete, Locality, Wage & Location */}
+          <div className="bg-white rounded-[3px] p-5 sm:p-6 border border-stone-200 shadow-2xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-3">
+              <div>
+                <h3 className="font-headline font-bold text-xs uppercase tracking-wider text-[#0A011C]">
+                  1. Outlet Details & Location
+                </h3>
+                <p className="text-[11px] text-stone-400 mt-0.5">
+                  Enter cafe name, locality, hourly wage guarantee, and street address with GPS or Places API matching.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              
+              {/* 1. Cafe Name with Smart Google Places Autocomplete */}
+              <div className="relative">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-bold uppercase tracking-wider text-stone-700 font-headline flex items-center gap-1.5">
+                    <span>Cafe Name</span>
+                    <span className="text-[#FF0046]">*</span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-[2px] bg-sky-50 text-sky-700 border border-sky-200 lowercase font-sans">
+                      smart google match
+                    </span>
+                  </label>
+                  {isSearchingPlaces && (
+                    <span className="text-[10px] text-stone-400 flex items-center gap-1 font-medium">
+                      <Loader2 className="w-3 h-3 animate-spin text-[#00DADC]" />
+                      <span>Matching Google Places...</span>
+                    </span>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <input
+                    ref={nameInputRef}
+                    type="text"
+                    required
+                    placeholder="Type cafe name (e.g. Roastery, Blue Tokai, 8th Day, Sienna, Flurys...)"
+                    value={name}
+                    onChange={e => handleNameChange(e.target.value)}
+                    onFocus={() => {
+                      if (suggestions.length > 0) setShowSuggestions(true);
+                    }}
+                    className="w-full pl-3.5 pr-8 py-2.5 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] transition-colors font-bold"
+                  />
+                  <Search className="w-4 h-4 text-stone-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+
+                {/* Google Places Autocomplete Dropdown */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <div
+                    ref={suggestionsBoxRef}
+                    className="absolute left-0 right-0 top-full mt-1.5 bg-white rounded-[3px] border border-stone-200 shadow-2xl z-40 max-h-72 overflow-y-auto animate-pop divide-y divide-stone-100"
+                  >
+                    <div className="bg-stone-100/90 px-3 py-1.5 flex items-center justify-between text-[10px] font-headline font-bold uppercase tracking-wider text-stone-600">
+                      <span>Matching Kolkata Place Data (Select to Auto-Fill)</span>
+                      <button
+                        type="button"
+                        onClick={() => setShowSuggestions(false)}
+                        className="hover:text-black font-bold"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    {suggestions.map((sugg, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleSelectSuggestion(sugg)}
+                        className="p-3 hover:bg-stone-50 cursor-pointer transition-colors flex items-start gap-3 text-left group"
+                      >
+                        <div className="w-8 h-8 rounded-[2px] bg-stone-100 group-hover:bg-[#FF0046] group-hover:text-white text-stone-500 flex items-center justify-center shrink-0 text-sm font-bold transition-colors">
+                          ☕
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-headline font-bold text-xs uppercase text-[#0A011C] group-hover:text-[#FF0046] transition-colors">
+                              {sugg.name}
+                            </span>
+                            <span className="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded-[2px] bg-[#00DADC]/20 text-[#006062]">
+                              {sugg.area || 'Kolkata'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-stone-500 truncate mt-0.5">
+                            {sugg.formattedAddress || sugg.address}
+                          </p>
+                        </div>
+                        <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-[2px] bg-stone-100 text-stone-500 shrink-0">
+                          {sugg.source || 'Place'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 2. Locality & 3. Base Wage */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
+                    Kolkata Locality <span className="text-[#FF0046]">*</span>
+                  </label>
+                  <select
+                    value={area}
+                    onChange={e => setArea(e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] font-medium focus:bg-white focus:outline-none focus:border-[#FF0046]"
+                  >
+                    {CALCUTTA_AREAS.map(a => (
+                      <option key={a} value={a}>{a}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
+                    Hourly Wage Floor (₹100/hr Min) <span className="text-[#FF0046]">*</span>
+                  </label>
+                  <div className="flex items-center">
+                    <span className="px-3 py-2.5 text-xs font-bold bg-stone-200 text-stone-800 rounded-l-[3px] border border-r-0 border-stone-200 font-headline">
+                      ₹
+                    </span>
+                    <input
+                      type="number"
+                      min={100}
+                      step={5}
+                      required
+                      value={minHourlyWage}
+                      onChange={e => setMinHourlyWage(Math.max(100, Number(e.target.value) || 100))}
+                      className="w-full px-3.5 py-2.5 text-xs rounded-r-[3px] border border-stone-200 bg-stone-50 font-bold text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046]"
+                    />
+                    <span className="px-2.5 text-[11px] text-stone-400 font-bold uppercase font-headline whitespace-nowrap">
+                      /hr
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. Full Street Address with GPS Fetch & Places API Autocomplete */}
+              <div className="relative">
+                <div className="flex items-center justify-between mb-1 gap-2 flex-wrap">
+                  <label className="font-bold uppercase tracking-wider text-stone-700 font-headline flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-[#FF0046]" />
+                    <span>Full Street Address</span>
+                    <span className="text-[#FF0046]">*</span>
+                    {isSearchingAddress && (
+                      <span className="text-[10px] text-stone-400 flex items-center gap-1 font-medium lowercase font-sans">
+                        <Loader2 className="w-3 h-3 animate-spin text-[#00DADC]" />
+                        <span>searching nearby places...</span>
+                      </span>
+                    )}
+                  </label>
+
+                  {/* GPS Auto-Fetch Location Button */}
+                  <button
+                    type="button"
+                    onClick={handleFetchCurrentLocation}
+                    disabled={fetchingLocation}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-[3px] bg-stone-100 hover:bg-[#FF0046] hover:text-white text-stone-800 text-[10px] font-headline font-bold uppercase tracking-wider border border-stone-200 transition-colors shadow-2xs disabled:opacity-60"
+                    title="Detect current GPS coordinates and auto-fill address & neighborhood"
+                  >
+                    {fetchingLocation ? (
+                      <>
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        <span>Detecting GPS Location...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Navigation className="w-3 h-3 text-[#FF0046]" />
+                        <span>📍 Fetch Current Location</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <input
+                    ref={addressInputRef}
+                    type="text"
+                    required
+                    placeholder="Type street address or landmark (nearby places suggested automatically)..."
+                    value={address}
+                    onChange={e => handleAddressChange(e.target.value)}
+                    onFocus={() => {
+                      if (addressSuggestions.length > 0) setShowAddressSuggestions(true);
+                    }}
+                    className="w-full pl-3.5 pr-8 py-2.5 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] transition-colors font-medium"
+                  />
+                  <MapPin className="w-4 h-4 text-stone-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+
+                {/* Google Places Address Autocomplete Dropdown */}
+                {showAddressSuggestions && addressSuggestions.length > 0 && (
+                  <div
+                    ref={addressSuggestionsBoxRef}
+                    className="absolute left-0 right-0 top-full mt-1.5 bg-white rounded-[3px] border border-stone-200 shadow-2xl z-40 max-h-72 overflow-y-auto animate-pop divide-y divide-stone-100"
+                  >
+                    <div className="bg-stone-100/90 px-3 py-1.5 flex items-center justify-between text-[10px] font-headline font-bold uppercase tracking-wider text-stone-600">
+                      <span>Nearby Places & Addresses (Select to Auto-Fill)</span>
+                      <button
+                        type="button"
+                        onClick={() => setShowAddressSuggestions(false)}
+                        className="hover:text-black font-bold"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    {addressSuggestions.map((sugg, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleSelectAddressSuggestion(sugg)}
+                        className="p-3 hover:bg-stone-50 cursor-pointer transition-colors flex items-start gap-3 text-left group"
+                      >
+                        <div className="w-8 h-8 rounded-[2px] bg-stone-100 group-hover:bg-[#FF0046] group-hover:text-white text-stone-500 flex items-center justify-center shrink-0 text-sm font-bold transition-colors">
+                          <MapPin className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-headline font-bold text-xs uppercase text-[#0A011C] group-hover:text-[#FF0046] transition-colors">
+                              {sugg.name}
+                            </span>
+                            <span className="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded-[2px] bg-[#00DADC]/20 text-[#006062]">
+                              {sugg.area || 'Kolkata'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-stone-500 truncate mt-0.5">
+                            {sugg.formattedAddress || sugg.address}
+                          </p>
+                        </div>
+                        <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-[2px] bg-stone-100 text-stone-500 shrink-0">
+                          {sugg.source || 'Place'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
+
+          {/* Section 2: Cafe Logo & Storefront Photo */}
           <div className="bg-white rounded-[3px] p-5 sm:p-6 border border-stone-200 shadow-2xs space-y-4">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div>
                 <h3 className="font-headline font-bold text-xs uppercase tracking-wider text-[#0A011C]">
-                  1. Cafe Logo & Storefront Photo
+                  2. Cafe Logo & Storefront Photo
                 </h3>
                 <p className="text-[11px] text-stone-400 mt-0.5">
                   Appears on student shift offer cards and your cafe roster.
@@ -435,194 +748,6 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
                     PNG, JPG, or WebP. Auto-populated if choosing a verified Google place.
                   </p>
                 )}
-              </div>
-            </div>
-          </div>
-
-          {/* Section 2: Basic Cafe Information with Smart Autocomplete & Location Fetch */}
-          <div className="bg-white rounded-[3px] p-5 sm:p-6 border border-stone-200 shadow-2xs space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-3">
-              <div>
-                <h3 className="font-headline font-bold text-xs uppercase tracking-wider text-[#0A011C]">
-                  2. Outlet Location & Smart Name Match
-                </h3>
-                <p className="text-[11px] text-stone-400 mt-0.5">
-                  Type your cafe name for Google suggestions, or click <strong>Fetch Current Location</strong> to detect via GPS.
-                </p>
-              </div>
-
-              {/* GPS Auto-Fetch Location Button */}
-              <button
-                type="button"
-                onClick={handleFetchCurrentLocation}
-                disabled={fetchingLocation}
-                className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[3px] bg-stone-100 hover:bg-[#FF0046] hover:text-white text-stone-800 text-xs font-headline font-bold uppercase tracking-wider border border-stone-200 transition-colors shadow-2xs disabled:opacity-60"
-                title="Detect current GPS coordinates and auto-fill address & neighborhood"
-              >
-                {fetchingLocation ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Detecting GPS Location...</span>
-                  </>
-                ) : (
-                  <>
-                    <Navigation className="w-3.5 h-3.5 text-[#FF0046]" />
-                    <span>📍 Fetch Current Location</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            <div className="space-y-4 text-xs">
-              
-              {/* Cafe Name with Smart Google Places Autocomplete */}
-              <div className="relative">
-                <div className="flex items-center justify-between mb-1">
-                  <label className="font-bold uppercase tracking-wider text-stone-700 font-headline flex items-center gap-1.5">
-                    <span>Cafe Name</span>
-                    <span className="text-[#FF0046]">*</span>
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-[2px] bg-sky-50 text-sky-700 border border-sky-200 lowercase font-sans">
-                      smart google match
-                    </span>
-                  </label>
-                  {isSearchingPlaces && (
-                    <span className="text-[10px] text-stone-400 flex items-center gap-1 font-medium">
-                      <Loader2 className="w-3 h-3 animate-spin text-[#00DADC]" />
-                      <span>Matching Google Places...</span>
-                    </span>
-                  )}
-                </div>
-
-                <div className="relative">
-                  <input
-                    ref={nameInputRef}
-                    type="text"
-                    required
-                    placeholder="Type cafe name (e.g. Roastery, Blue Tokai, 8th Day, Sienna, Flurys...)"
-                    value={name}
-                    onChange={e => handleNameChange(e.target.value)}
-                    onFocus={() => {
-                      if (suggestions.length > 0) setShowSuggestions(true);
-                    }}
-                    className="w-full pl-3.5 pr-8 py-2.5 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] transition-colors font-bold"
-                  />
-                  <Search className="w-4 h-4 text-stone-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-
-                {/* Google Places Autocomplete Dropdown */}
-                {showSuggestions && suggestions.length > 0 && (
-                  <div
-                    ref={suggestionsBoxRef}
-                    className="absolute left-0 right-0 top-full mt-1.5 bg-white rounded-[3px] border border-stone-200 shadow-2xl z-40 max-h-72 overflow-y-auto animate-pop divide-y divide-stone-100"
-                  >
-                    <div className="bg-stone-100/90 px-3 py-1.5 flex items-center justify-between text-[10px] font-headline font-bold uppercase tracking-wider text-stone-600">
-                      <span>Matching Kolkata Place Data (Select to Auto-Fill)</span>
-                      <button
-                        type="button"
-                        onClick={() => setShowSuggestions(false)}
-                        className="hover:text-black"
-                      >
-                        ✕
-                      </button>
-                    </div>
-
-                    {suggestions.map((sugg, idx) => (
-                      <div
-                        key={idx}
-                        onClick={() => handleSelectSuggestion(sugg)}
-                        className="p-3 hover:bg-stone-50 cursor-pointer transition-colors flex items-start gap-3 text-left group"
-                      >
-                        <div className="w-8 h-8 rounded-[2px] bg-stone-100 group-hover:bg-[#FF0046] group-hover:text-white text-stone-500 flex items-center justify-center shrink-0 text-sm font-bold transition-colors">
-                          ☕
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="font-headline font-bold text-xs uppercase text-[#0A011C] group-hover:text-[#FF0046] transition-colors">
-                              {sugg.name}
-                            </span>
-                            <span className="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded-[2px] bg-[#00DADC]/20 text-[#006062]">
-                              {sugg.area || 'Kolkata'}
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-stone-500 truncate mt-0.5">
-                            {sugg.formattedAddress || sugg.address}
-                          </p>
-                        </div>
-                        <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-[2px] bg-stone-100 text-stone-500 shrink-0">
-                          {sugg.source || 'Place'}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Neighborhood & Base Wage */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                    Kolkata Locality <span className="text-[#FF0046]">*</span>
-                  </label>
-                  <select
-                    value={area}
-                    onChange={e => setArea(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] font-medium focus:bg-white focus:outline-none focus:border-[#FF0046]"
-                  >
-                    {CALCUTTA_AREAS.map(a => (
-                      <option key={a} value={a}>{a}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline">
-                    Hourly Wage Floor (₹100/hr Min)
-                  </label>
-                  <div className="flex items-center">
-                    <span className="px-3 py-2.5 text-xs font-bold bg-stone-200 text-stone-800 rounded-l-[3px] border border-r-0 border-stone-200 font-headline">
-                      ₹
-                    </span>
-                    <input
-                      type="number"
-                      min={100}
-                      step={5}
-                      required
-                      value={minHourlyWage}
-                      onChange={e => setMinHourlyWage(Math.max(100, Number(e.target.value) || 100))}
-                      className="w-full px-3.5 py-2.5 text-xs rounded-r-[3px] border border-stone-200 bg-stone-50 font-bold text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046]"
-                    />
-                    <span className="px-2.5 text-[11px] text-stone-400 font-bold uppercase font-headline whitespace-nowrap">
-                      /hr
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Full Street Address */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="font-bold uppercase tracking-wider text-stone-700 font-headline flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-[#FF0046]" />
-                    <span>Full Street Address <span className="text-[#FF0046]">*</span></span>
-                  </label>
-                  <button
-                    type="button"
-                    onClick={handleFetchCurrentLocation}
-                    disabled={fetchingLocation}
-                    className="text-[10px] text-[#006062] hover:text-black font-headline font-bold uppercase tracking-wider hover:underline flex items-center gap-1"
-                  >
-                    <Navigation className="w-2.5 h-2.5 text-[#00DADC]" />
-                    <span>Use GPS Address</span>
-                  </button>
-                </div>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Godrej Waterside Tower, Block DP, Sector 5, Salt Lake, Kolkata - 700091"
-                  value={address}
-                  onChange={e => setAddress(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] transition-colors"
-                />
               </div>
             </div>
           </div>
