@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import { CALCUTTA_AREAS } from '../data/seedData';
 import { Search, MapPin, Calendar, Clock, ArrowRight, X, Check } from 'lucide-react';
 import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 
@@ -77,11 +78,11 @@ export default function StudentShiftFeed() {
                 type="button"
                 onClick={() => setFilterOpen(!filterOpen)}
                 className={`px-2.5 py-1.5 rounded-[3px] text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors border shadow-2xs ${
-                  minWageFilter > 0 || filterOpen
+                  minWageFilter > 0 || selectedArea !== 'All' || filterOpen
                     ? 'bg-[#FF0046] text-white border-[#FF0046]'
                     : 'bg-white text-stone-700 hover:text-black hover:bg-stone-100 border-stone-200'
                 }`}
-                title="Filter by Hourly Pay"
+                title="Filter by Wage & Locality"
               >
                 {/* 3-Line Filter Icon */}
                 <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -90,13 +91,19 @@ export default function StudentShiftFeed() {
                   <line x1="3" y1="18" x2="11" y2="18" />
                 </svg>
                 <span className="font-headline text-[11px]">
-                  {minWageFilter > 0 ? `₹${minWageFilter}+` : 'Filter'}
+                  {minWageFilter > 0 && selectedArea !== 'All'
+                    ? `₹${minWageFilter}+ · ${selectedArea.split(' ')[0]}`
+                    : minWageFilter > 0
+                    ? `₹${minWageFilter}+`
+                    : selectedArea !== 'All'
+                    ? selectedArea.split(' ')[0]
+                    : 'Filter'}
                 </span>
               </button>
             </div>
           </div>
 
-          {/* Filter Popover Dropdown (Contains Hourly Pay Filter) */}
+          {/* Filter Popover Dropdown (Contains Hourly Pay & Locality Filters) */}
           {filterOpen && (
             <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white rounded-[3px] shadow-2xl border border-stone-200 p-4 z-30 animate-pop">
               <div className="flex items-center justify-between pb-2.5 border-b border-stone-100">
@@ -107,15 +114,18 @@ export default function StudentShiftFeed() {
                     <line x1="3" y1="18" x2="11" y2="18" />
                   </svg>
                   <span className="font-headline font-bold text-xs uppercase tracking-wider text-[#0A011C]">
-                    Hourly Pay Filter
+                    Shift Filters
                   </span>
                 </div>
-                {minWageFilter > 0 && (
+                {(minWageFilter > 0 || selectedArea !== 'All') && (
                   <button
-                    onClick={() => setMinWageFilter(0)}
+                    onClick={() => {
+                      setMinWageFilter(0);
+                      setSelectedArea('All');
+                    }}
                     className="text-[10px] text-[#FF0046] font-bold uppercase tracking-wider hover:underline"
                   >
-                    Reset
+                    Reset All
                   </button>
                 )}
               </div>
@@ -150,10 +160,37 @@ export default function StudentShiftFeed() {
                 </div>
               </div>
 
+              {/* Locality Filter inside Popover */}
+              <div className="py-2.5 border-t border-stone-100 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-bold text-stone-400 block tracking-wider font-headline">
+                    Kolkata Locality
+                  </span>
+                  {selectedArea !== 'All' && (
+                    <button
+                      onClick={() => setSelectedArea('All')}
+                      className="text-[10px] text-[#FF0046] font-bold uppercase tracking-wider hover:underline"
+                    >
+                      Clear Area
+                    </button>
+                  )}
+                </div>
+                <select
+                  value={selectedArea}
+                  onChange={e => setSelectedArea(e.target.value)}
+                  className="w-full px-2.5 py-2 text-xs rounded-[3px] border border-stone-200 bg-stone-50 font-medium text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046]"
+                >
+                  <option value="All">All Kolkata Areas</option>
+                  {CALCUTTA_AREAS.map(a => (
+                    <option key={a} value={a}>{a}</option>
+                  ))}
+                </select>
+              </div>
+
               {/* Footer action */}
-              <div className="pt-2 border-t border-stone-100 flex items-center justify-between">
+              <div className="pt-2.5 border-t border-stone-100 flex items-center justify-between">
                 <span className="text-[10px] text-stone-500">
-                  {filteredShifts.length} shifts match
+                  {filteredShifts.length} {filteredShifts.length === 1 ? 'shift matches' : 'shifts match'}
                 </span>
                 <button
                   onClick={() => setFilterOpen(false)}
