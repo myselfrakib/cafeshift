@@ -33,7 +33,24 @@ export default function StudentShiftFeed() {
   // KEY REQUIREMENT: Only OPEN shifts are visible to users. Once applied, status becomes 'booked' and it is immediately removed from this feed!
   const availableShifts = shifts.filter(s => s.status === 'open');
 
-  const filteredShifts = availableShifts.filter(shift => {
+  // Helper to get numeric timestamp for sorting shifts
+  const getShiftTime = (s) => {
+    if (!s) return 0;
+    if (s.createdAt) {
+      const t = new Date(s.createdAt).getTime();
+      if (!isNaN(t)) return t;
+    }
+    if (s.id && typeof s.id === 'string' && s.id.startsWith('shift-')) {
+      const t = parseInt(s.id.replace('shift-', ''));
+      if (!isNaN(t)) return t;
+    }
+    return 0;
+  };
+
+  // Sort: Latest uploaded shift at the start, followed by the second latest, etc.
+  const sortedAvailableShifts = [...availableShifts].sort((a, b) => getShiftTime(b) - getShiftTime(a));
+
+  const filteredShifts = sortedAvailableShifts.filter(shift => {
     const matchesSearch =
       shift.roleName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       shift.cafeName.toLowerCase().includes(searchTerm.toLowerCase()) ||

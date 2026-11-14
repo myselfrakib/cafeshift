@@ -6,9 +6,22 @@ import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 export default function StudentApplicationsView() {
   const { shifts, currentUser, cancelShiftApplication, setActiveTab } = useApp();
 
-  const studentShifts = shifts.filter(
+  const getShiftTime = (s) => {
+    if (!s) return 0;
+    if (s.createdAt) {
+      const t = new Date(s.createdAt).getTime();
+      if (!isNaN(t)) return t;
+    }
+    if (s.id && typeof s.id === 'string' && s.id.startsWith('shift-')) {
+      const t = parseInt(s.id.replace('shift-', ''));
+      if (!isNaN(t)) return t;
+    }
+    return 0;
+  };
+
+  const studentShifts = [...shifts.filter(
     s => s.status === 'booked' && (s.applicant?.userId === currentUser?.id || s.applicant?.email === currentUser?.email)
-  );
+  )].sort((a, b) => getShiftTime(b) - getShiftTime(a));
 
   const totalEarningsBooked = studentShifts.reduce((acc, s) => acc + (s.totalEarnings || 0), 0);
   const totalHoursBooked = studentShifts.reduce((acc, s) => acc + (s.durationHours || 0), 0);

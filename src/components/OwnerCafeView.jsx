@@ -53,8 +53,22 @@ export default function OwnerCafeView() {
     );
   }
 
-  // Filter shifts belonging to this cafe
-  const cafeShifts = shifts.filter(s => s.cafeId === cafe.id);
+  // Helper to get numeric timestamp for sorting shifts
+  const getShiftTime = (s) => {
+    if (!s) return 0;
+    if (s.createdAt) {
+      const t = new Date(s.createdAt).getTime();
+      if (!isNaN(t)) return t;
+    }
+    if (s.id && typeof s.id === 'string' && s.id.startsWith('shift-')) {
+      const t = parseInt(s.id.replace('shift-', ''));
+      if (!isNaN(t)) return t;
+    }
+    return 0;
+  };
+
+  // Filter shifts belonging to this cafe, ordered latest first
+  const cafeShifts = [...shifts.filter(s => s.cafeId === cafe.id)].sort((a, b) => getShiftTime(b) - getShiftTime(a));
   const bookedShifts = cafeShifts.filter(s => s.status === 'booked');
   const openShifts = cafeShifts.filter(s => s.status === 'open');
 

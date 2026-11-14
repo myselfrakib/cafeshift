@@ -52,6 +52,24 @@ try {
   });
 } catch (e) {}
 
+export const getShiftTimestamp = (s) => {
+  if (!s) return 0;
+  if (s.createdAt) {
+    const t = new Date(s.createdAt).getTime();
+    if (!isNaN(t)) return t;
+  }
+  if (s.id && typeof s.id === 'string' && s.id.startsWith('shift-')) {
+    const t = parseInt(s.id.replace('shift-', ''));
+    if (!isNaN(t)) return t;
+  }
+  return 0;
+};
+
+export const sortShiftsDescending = (shiftList) => {
+  if (!Array.isArray(shiftList)) return [];
+  return [...shiftList].sort((a, b) => getShiftTimestamp(b) - getShiftTimestamp(a));
+};
+
 export const AppProvider = ({ children }) => {
   // Initialize data (Production: empty defaults)
   const [users, setUsers] = useState(() => {
@@ -75,7 +93,7 @@ export const AppProvider = ({ children }) => {
   const [shifts, setShifts] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SHIFTS);
-      return saved ? JSON.parse(saved) : [];
+      return saved ? sortShiftsDescending(JSON.parse(saved)) : [];
     } catch {
       return [];
     }
@@ -177,7 +195,7 @@ export const AppProvider = ({ children }) => {
                   }
                 }
               });
-              return Array.from(map.values());
+              return sortShiftsDescending(Array.from(map.values()));
             });
             setFirebaseConnected(true);
           } else {
@@ -242,7 +260,7 @@ export const AppProvider = ({ children }) => {
                     }
                   }
                 });
-                return Array.from(map.values());
+                return sortShiftsDescending(Array.from(map.values()));
               });
               setFirebaseConnected(true);
             } else {
@@ -611,8 +629,8 @@ export const AppProvider = ({ children }) => {
 
       setShifts(prev => {
         // Prevent duplicate insertion if onSnapshot already merged it
-        if (prev.some(s => s.id === newShift.id)) return prev;
-        return [newShift, ...prev];
+        if (prev.some(s => s.id === newShift.id)) return sortShiftsDescending(prev);
+        return sortShiftsDescending([newShift, ...prev]);
       });
 
       setCreateShiftModalOpen(false);
