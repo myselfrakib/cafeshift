@@ -296,7 +296,12 @@ export default function StudentShiftFeed() {
                   <div className="flex items-center gap-2.5">
                     <div className="w-10 h-10 rounded-[3px] bg-stone-100 border border-stone-200 flex items-center justify-center overflow-hidden shrink-0">
                       {shift.cafePhotoUrl ? (
-                        <img src={shift.cafePhotoUrl} alt={shift.cafeName} className="w-full h-full object-cover" />
+                        <img
+                          src={shift.cafePhotoUrl}
+                          alt={shift.cafeName}
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
                       ) : (
                         <span className="font-headline font-bold text-xs text-[#FF0046]">
                           {shift.cafeName ? shift.cafeName.slice(0, 2).toUpperCase() : '☕'}

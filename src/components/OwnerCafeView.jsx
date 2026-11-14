@@ -116,7 +116,12 @@ export default function OwnerCafeView() {
                   isActive ? 'bg-white/10 border-white/20' : 'bg-white border-stone-200'
                 }`}>
                   {c.photoUrl ? (
-                    <img src={c.photoUrl} alt={c.name} className="w-full h-full object-cover" />
+                    <img
+                      src={c.photoUrl}
+                      alt={c.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
                   ) : (
                     <span className={`font-headline font-bold text-xs ${isActive ? 'text-[#00DADC]' : 'text-[#FF0046]'}`}>
                       {c.name ? c.name.slice(0, 2).toUpperCase() : '☕'}
@@ -207,7 +212,12 @@ export default function OwnerCafeView() {
         <div className="flex items-start gap-4">
           <div className="w-16 h-16 rounded-[3px] bg-stone-50 border border-stone-200 flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
             {cafe.photoUrl ? (
-              <img src={cafe.photoUrl} alt={cafe.name} className="w-full h-full object-cover" />
+              <img
+                src={cafe.photoUrl}
+                alt={cafe.name}
+                className="w-full h-full object-cover"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
             ) : (
               <span className="font-headline font-bold text-xl text-[#FF0046]">
                 {cafe.name ? cafe.name.slice(0, 2).toUpperCase() : '☕'}

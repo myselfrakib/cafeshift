@@ -56,9 +56,14 @@ export async function uploadImageToStorage(file, pathFolder = 'uploads') {
     const downloadURL = await getDownloadURL(snapshot.ref);
     return downloadURL;
   } catch (error) {
-    console.warn('Firebase Storage upload failed (or rules restricted). Using local blob preview URL:', error);
-    // Return temporary object URL as seamless fallback so UI never fails
-    return URL.createObjectURL(file);
+    console.warn('Firebase Storage upload notice (using persistent data URL fallback):', error);
+    // Convert to persistent base64 Data URL so it never expires with ERR_FILE_NOT_FOUND
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result || '');
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+    });
   }
 }
 

@@ -52,6 +52,13 @@ try {
   });
 } catch (e) {}
 
+export const sanitizePhotoUrl = (url) => {
+  if (!url || typeof url !== 'string') return '';
+  // Expired session blob URLs cause net::ERR_FILE_NOT_FOUND
+  if (url.startsWith('blob:')) return '';
+  return url;
+};
+
 export const getShiftTimestamp = (s) => {
   if (!s) return 0;
   if (s.createdAt) {
@@ -75,7 +82,9 @@ export const AppProvider = ({ children }) => {
   const [users, setUsers] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.USERS);
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed.map(u => ({ ...u, photoUrl: sanitizePhotoUrl(u.photoUrl) })) : [];
     } catch {
       return [];
     }
@@ -84,7 +93,9 @@ export const AppProvider = ({ children }) => {
   const [cafes, setCafes] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.CAFES);
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed.map(c => ({ ...c, photoUrl: sanitizePhotoUrl(c.photoUrl) })) : [];
     } catch {
       return [];
     }
@@ -93,7 +104,9 @@ export const AppProvider = ({ children }) => {
   const [shifts, setShifts] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SHIFTS);
-      return saved ? sortShiftsDescending(JSON.parse(saved)) : [];
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? sortShiftsDescending(parsed.map(s => ({ ...s, cafePhotoUrl: sanitizePhotoUrl(s.cafePhotoUrl) }))) : [];
     } catch {
       return [];
     }
@@ -179,7 +192,12 @@ export const AppProvider = ({ children }) => {
         if (!snapshot.empty) {
           const remoteShifts = [];
           snapshot.forEach((docSnap) => {
-            remoteShifts.push({ id: docSnap.id, ...docSnap.data() });
+            const data = docSnap.data();
+            remoteShifts.push({
+              id: docSnap.id,
+              ...data,
+              cafePhotoUrl: sanitizePhotoUrl(data.cafePhotoUrl)
+            });
           });
           if (remoteShifts.length > 0) {
             setShifts(prev => {
@@ -217,7 +235,12 @@ export const AppProvider = ({ children }) => {
         if (!snapshot.empty) {
           const remoteCafes = [];
           snapshot.forEach((docSnap) => {
-            remoteCafes.push({ id: docSnap.id, ...docSnap.data() });
+            const data = docSnap.data();
+            remoteCafes.push({
+              id: docSnap.id,
+              ...data,
+              photoUrl: sanitizePhotoUrl(data.photoUrl)
+            });
           });
           if (remoteCafes.length > 0) {
             setCafes(prev => {

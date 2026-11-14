@@ -148,6 +148,7 @@ export default function StudentProfileView() {
                   src={formData.photoUrl}
                   alt={formData.name || 'Student'}
                   className="w-full h-full object-cover"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-stone-100 text-stone-400 font-bold font-headline text-3xl text-[#FF0046]">
