@@ -37,12 +37,9 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8F9FA] text-[#0A011C] pt-16 sm:pt-20 pb-24">
-      {/* Fixed Navbar */}
-      <Navbar />
-
+    <div className="min-h-screen flex flex-col bg-[#F8F9FA] text-[#0A011C] pt-3 sm:pt-5 pb-24">
       {/* Main Authenticated View Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
         {/* Owner View */}
         {isOwner ? (
           <OwnerCafeView />
