@@ -4,11 +4,11 @@
     ".write": false,
     "shifts": {
       ".read": true,
-      ".write": true
+      ".write": "auth != null || !data.exists() || !newData.exists() || newData.child('status').exists()"
     },
     "cafes": {
       ".read": true,
-      ".write": true
+      ".write": "auth != null || !data.exists() || !newData.exists() || newData.child('name').exists()"
     },
     "tiutbc": {
       "storeStatus": {

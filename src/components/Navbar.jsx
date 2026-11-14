@@ -10,8 +10,11 @@ export default function Navbar() {
     activeCafe,
     setCreateShiftModalOpen,
     setSelectedCafeId,
-    handleLogout
+    handleLogout,
+    isEditingCafe
   } = useApp();
+
+  if (isEditingCafe) return null;
 
   return (
     <header className="fixed top-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-2xs">

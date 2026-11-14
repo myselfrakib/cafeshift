@@ -142,6 +142,7 @@ export const AppProvider = ({ children }) => {
   });
   const [selectedCafeId, setSelectedCafeId] = useState(null);
   const [createShiftModalOpen, setCreateShiftModalOpen] = useState(false);
+  const [isEditingCafe, setIsEditingCafe] = useState(false);
   const [toast, setToast] = useState(null);
 
   // Sync to local storage
@@ -833,6 +834,8 @@ export const AppProvider = ({ children }) => {
         updateOwnerCafe,
         updateUserProfile,
         uploadImage: uploadImageToStorage,
+        isEditingCafe,
+        setIsEditingCafe,
         firebaseConnected,
         firebaseUser,
         isSyncing
