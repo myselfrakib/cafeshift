@@ -1,10 +1,24 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { MapPin, CalendarCheck, Briefcase, Clock, Check, ArrowRight, Store, Phone, Award } from 'lucide-react';
+import {
+  MapPin,
+  CalendarCheck,
+  Briefcase,
+  Clock,
+  Check,
+  ArrowRight,
+  Store,
+  Phone,
+  Award,
+  Navigation,
+  ExternalLink,
+  MessageCircle,
+  UserCheck
+} from 'lucide-react';
 import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 
 export default function StudentApplicationsView() {
-  const { shifts, jobs, currentUser, cancelShiftApplication, setActiveTab } = useApp();
+  const { shifts, jobs, cafes, users, currentUser, cancelShiftApplication, setActiveTab } = useApp();
   const [appType, setAppType] = useState('shifts'); // 'shifts' | 'jobs'
 
   const getShiftTime = (s) => {
@@ -100,7 +114,7 @@ export default function StudentApplicationsView() {
                 </span>
               </div>
               <p className="text-xs text-stone-500 mt-1">
-                Confirmed shifts locked exclusively for you. The cafe owner will contact you directly on +91 {currentUser?.phone}.
+                Confirmed shifts locked exclusively for you. Contact the cafe manager directly and navigate to the location.
               </p>
             </div>
 
@@ -137,61 +151,143 @@ export default function StudentApplicationsView() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {studentShifts.map(shift => (
-                <div
-                  key={shift.id}
-                  className="bg-stone-50 rounded-[3px] p-4 border border-stone-200 flex flex-col justify-between text-xs space-y-3 hover:border-stone-300 transition-colors"
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div>
-                        <h4 className="font-headline font-bold text-base text-[#0A011C] uppercase">
-                          {shift.cafeName}
-                        </h4>
-                        <div className="text-[11px] text-stone-500 flex items-center gap-1 mt-0.5">
-                          <MapPin className="w-3 h-3 text-[#FF0046]" />
-                          <span>{shift.cafeArea}, Kolkata</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+              {studentShifts.map(shift => {
+                const cafe = (cafes || []).find(c => c.id === shift.cafeId);
+                const owner = (users || []).find(u => u.id === (shift.ownerId || cafe?.ownerId));
+                const ownerName = owner?.name || cafe?.ownerName || 'Cafe Manager';
+                const rawPhone = owner?.phone || cafe?.phone || '';
+                const cleanPhone = rawPhone.replace(/\D/g, '');
+                const cafeAddress = cafe?.address || `${shift.cafeArea}, Kolkata`;
+                const mapsQuery = encodeURIComponent(`${shift.cafeName}, ${cafeAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
+
+                return (
+                  <div
+                    key={shift.id}
+                    className="bg-white rounded-[3px] p-5 border border-stone-200 flex flex-col justify-between text-xs space-y-4 hover:border-stone-300 transition-colors shadow-2xs"
+                  >
+                    <div className="space-y-3">
+                      {/* Top Cafe Branding */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-10 h-10 rounded-[3px] bg-stone-100 border border-stone-200 flex items-center justify-center overflow-hidden shrink-0">
+                            {shift.cafePhotoUrl || cafe?.photoUrl ? (
+                              <img
+                                src={shift.cafePhotoUrl || cafe?.photoUrl}
+                                alt={shift.cafeName}
+                                className="w-full h-full object-cover"
+                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                              />
+                            ) : (
+                              <span className="font-headline font-bold text-xs text-[#FF0046]">
+                                {shift.cafeName ? shift.cafeName.slice(0, 2).toUpperCase() : '☕'}
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="font-headline font-bold text-base text-[#0A011C] uppercase leading-tight tracking-tight">
+                              {shift.cafeName}
+                            </h4>
+                            <div className="text-[11px] text-stone-500 flex items-center gap-1 mt-0.5">
+                              <MapPin className="w-3 h-3 text-[#FF0046] shrink-0" />
+                              <span>{shift.cafeArea}, Kolkata</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <span className="text-[10px] font-bold uppercase tracking-wider bg-[#00DADC]/20 text-[#008b8d] border border-[#00DADC]/40 px-2 py-0.5 rounded-[3px] shrink-0">
+                          Booked
+                        </span>
+                      </div>
+
+                      {/* Role Title */}
+                      <h3 className="font-headline text-base font-bold text-[#0A011C] uppercase">
+                        {shift.roleName}
+                      </h3>
+
+                      {/* Shift Schedule Box */}
+                      <div className="bg-stone-50 rounded-[3px] p-3 border border-stone-200 space-y-1.5 text-xs">
+                        <div className="flex justify-between text-[#0A011C] font-semibold">
+                          <span>Date:</span>
+                          <span>{formatDateDDMMYYYY(shift.date)}</span>
+                        </div>
+                        <div className="flex justify-between text-stone-500">
+                          <span>Time:</span>
+                          <span>{formatTime12Hour(shift.startTime)} – {formatTime12Hour(shift.endTime)} ({shift.durationHours} hrs)</span>
+                        </div>
+                        <div className="flex justify-between text-stone-500">
+                          <span>Pay Rate:</span>
+                          <span>₹{shift.hourlyWage}/hr</span>
                         </div>
                       </div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider bg-[#00DADC]/20 text-[#008b8d] border border-[#00DADC]/40 px-2 py-0.5 rounded-[3px]">
-                        Booked
-                      </span>
+
+                      {/* Owner Name, Direct Phone Call & Maps Location Section */}
+                      <div className="bg-amber-50/70 rounded-[3px] p-3.5 border border-amber-200/90 space-y-2.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-[10px] uppercase font-bold text-amber-900 tracking-wider font-headline">
+                            Owner / Cafe Contact
+                          </span>
+                          <span className="font-bold text-[#0A011C] text-xs">
+                            {ownerName}
+                          </span>
+                        </div>
+
+                        {/* Direct Action Buttons: 1. Call Owner Hyperlink, 2. Open in Maps */}
+                        <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                          {cleanPhone ? (
+                            <a
+                              href={`tel:+91${cleanPhone}`}
+                              className="flex-1 min-w-[130px] py-2 px-3 rounded-[3px] bg-[#0A011C] hover:bg-stone-800 text-white font-headline text-xs font-bold uppercase tracking-wider text-center inline-flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                              title={`Call ${ownerName} at +91 ${cleanPhone}`}
+                            >
+                              <Phone className="w-3.5 h-3.5 text-[#00DADC]" />
+                              <span>Call +91 {cleanPhone}</span>
+                            </a>
+                          ) : (
+                            <span className="text-xs text-stone-500 italic">No phone on file</span>
+                          )}
+
+                          <a
+                            href={mapsUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex-1 min-w-[130px] py-2 px-3 rounded-[3px] bg-white hover:bg-stone-50 border border-stone-300 text-stone-800 font-headline text-xs font-bold uppercase tracking-wider text-center inline-flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                            title={`Navigate to ${shift.cafeName} in Google Maps`}
+                          >
+                            <Navigation className="w-3.5 h-3.5 text-[#FF0046]" />
+                            <span>Go to Location</span>
+                            <ExternalLink className="w-3 h-3 text-stone-400" />
+                          </a>
+                        </div>
+
+                        {/* Full Cafe Address snippet */}
+                        <div className="text-[11px] text-stone-600 truncate flex items-center gap-1 pt-0.5">
+                          <MapPin className="w-3 h-3 text-stone-400 shrink-0" />
+                          <span className="truncate">{cafeAddress}</span>
+                        </div>
+                      </div>
                     </div>
 
-                    <h3 className="font-headline text-base font-bold text-[#0A011C] mb-2 uppercase">
-                      {shift.roleName}
-                    </h3>
-
-                    <div className="bg-white rounded-[3px] p-2.5 border border-stone-200 space-y-1 text-xs">
-                      <div className="flex justify-between text-[#0A011C] font-semibold">
-                        <span>Date:</span>
-                        <span>{formatDateDDMMYYYY(shift.date)}</span>
+                    {/* Card Footer: Pay & Cancel Booking */}
+                    <div className="pt-2 border-t border-stone-200 flex items-center justify-between">
+                      <div className="font-headline text-sm font-bold text-[#FF0046]">
+                        ₹{shift.totalEarnings} Total Pay
                       </div>
-                      <div className="flex justify-between text-stone-500">
-                        <span>Time:</span>
-                        <span>{formatTime12Hour(shift.startTime)} – {formatTime12Hour(shift.endTime)} ({shift.durationHours} hrs)</span>
-                      </div>
-                      <div className="flex justify-between text-stone-500">
-                        <span>Rate:</span>
-                        <span>₹{shift.hourlyWage}/hr</span>
-                      </div>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Cancel your booking for "${shift.roleName}" at ${shift.cafeName}? The shift will be reopened on the feed for other students.`)) {
+                            cancelShiftApplication(shift.id);
+                          }
+                        }}
+                        className="text-stone-400 hover:text-[#FF0046] text-[11px] font-bold uppercase tracking-wider transition-colors"
+                      >
+                        Cancel Booking
+                      </button>
                     </div>
                   </div>
-
-                  <div className="pt-2 border-t border-stone-200 flex items-center justify-between">
-                    <div className="font-headline text-sm font-bold text-[#FF0046]">
-                      ₹{shift.totalEarnings} Total Pay
-                    </div>
-                    <button
-                      onClick={() => cancelShiftApplication(shift.id)}
-                      className="text-stone-400 hover:text-[#FF0046] text-[11px] font-bold uppercase tracking-wider transition-colors"
-                    >
-                      Cancel Booking
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -212,7 +308,7 @@ export default function StudentApplicationsView() {
                 </span>
               </div>
               <p className="text-xs text-stone-500 mt-1">
-                Your submitted job applications at Kolkata cafes. The owner reviews your profile and contacts you on +91 {currentUser?.phone}.
+                Your submitted job applications at Kolkata cafes. Contact the cafe manager directly and navigate to the location.
               </p>
             </div>
 
@@ -241,19 +337,27 @@ export default function StudentApplicationsView() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
               {appliedJobs.map(job => {
                 const myApp = (job.applicants || []).find(
                   a => a.userId === currentUser?.id || a.email === currentUser?.email
                 );
+                const cafe = (cafes || []).find(c => c.id === job.cafeId);
+                const owner = (users || []).find(u => u.id === (job.ownerId || cafe?.ownerId));
+                const ownerName = owner?.name || cafe?.ownerName || 'Cafe Manager';
+                const rawPhone = owner?.phone || cafe?.phone || '';
+                const cleanPhone = rawPhone.replace(/\D/g, '');
+                const cafeAddress = cafe?.address || `${job.cafeArea}, Kolkata`;
+                const mapsQuery = encodeURIComponent(`${job.cafeName}, ${cafeAddress}`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
 
                 return (
                   <div
                     key={job.id}
-                    className="bg-white rounded-[3px] p-5 border border-stone-200 hover:border-stone-300 shadow-2xs flex flex-col justify-between space-y-3"
+                    className="bg-white rounded-[3px] p-5 border border-stone-200 hover:border-stone-300 shadow-2xs flex flex-col justify-between space-y-4"
                   >
-                    <div>
-                      <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between gap-2">
                         <div>
                           <span className="text-[10px] font-bold uppercase tracking-wider bg-[#0A011C] text-white px-2 py-0.5 rounded-[2px]">
                             {job.employmentType}
@@ -288,10 +392,55 @@ export default function StudentApplicationsView() {
                       </div>
 
                       {myApp?.note && (
-                        <div className="mt-2 text-xs text-stone-500 bg-stone-50/70 p-2 rounded-[2px] border border-stone-100 italic">
+                        <div className="text-xs text-stone-500 bg-stone-50/70 p-2 rounded-[2px] border border-stone-100 italic">
                           Your note: "{myApp.note}"
                         </div>
                       )}
+
+                      {/* Owner Contact & Maps Location Section */}
+                      <div className="bg-amber-50/70 rounded-[3px] p-3.5 border border-amber-200/90 space-y-2.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-[10px] uppercase font-bold text-amber-900 tracking-wider font-headline">
+                            Owner / Cafe Contact
+                          </span>
+                          <span className="font-bold text-[#0A011C] text-xs">
+                            {ownerName}
+                          </span>
+                        </div>
+
+                        {/* Direct Action Buttons */}
+                        <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                          {cleanPhone ? (
+                            <a
+                              href={`tel:+91${cleanPhone}`}
+                              className="flex-1 min-w-[130px] py-2 px-3 rounded-[3px] bg-[#0A011C] hover:bg-stone-800 text-white font-headline text-xs font-bold uppercase tracking-wider text-center inline-flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                              title={`Call ${ownerName} at +91 ${cleanPhone}`}
+                            >
+                              <Phone className="w-3.5 h-3.5 text-[#00DADC]" />
+                              <span>Call +91 {cleanPhone}</span>
+                            </a>
+                          ) : (
+                            <span className="text-xs text-stone-500 italic">No phone on file</span>
+                          )}
+
+                          <a
+                            href={mapsUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex-1 min-w-[130px] py-2 px-3 rounded-[3px] bg-white hover:bg-stone-50 border border-stone-300 text-stone-800 font-headline text-xs font-bold uppercase tracking-wider text-center inline-flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                            title={`Navigate to ${job.cafeName} in Google Maps`}
+                          >
+                            <Navigation className="w-3.5 h-3.5 text-[#FF0046]" />
+                            <span>Go to Location</span>
+                            <ExternalLink className="w-3 h-3 text-stone-400" />
+                          </a>
+                        </div>
+
+                        <div className="text-[11px] text-stone-600 truncate flex items-center gap-1 pt-0.5">
+                          <MapPin className="w-3 h-3 text-stone-400 shrink-0" />
+                          <span className="truncate">{cafeAddress}</span>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
