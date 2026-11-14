@@ -21,7 +21,7 @@ import {
 import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 
 export default function StudentShiftFeed() {
-  const { shifts, jobs, applyForShift, applyForJob, currentUser, cafes } = useApp();
+  const { shifts, jobs, applyForShift, applyForJob, currentUser, cafes, setIsModalOpen } = useApp();
 
   const [feedMode, setFeedMode] = useState('shifts'); // 'shifts' | 'jobs'
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,6 +37,29 @@ export default function StudentShiftFeed() {
   const [isSubmittingJob, setIsSubmittingJob] = useState(false);
 
   const filterRef = useRef(null);
+
+  // Control global modal active flag, body scroll lock, and ESC key listener
+  useEffect(() => {
+    if (confirmShift || applyingJob) {
+      if (setIsModalOpen) setIsModalOpen(true);
+      document.body.style.overflow = 'hidden';
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape') {
+          setConfirmShift(null);
+          setApplyingJob(null);
+        }
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        if (setIsModalOpen) setIsModalOpen(false);
+        document.body.style.overflow = '';
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    } else {
+      if (setIsModalOpen) setIsModalOpen(false);
+      document.body.style.overflow = '';
+    }
+  }, [confirmShift, applyingJob, setIsModalOpen]);
 
   // Close filter popover on outside click
   useEffect(() => {
@@ -706,15 +729,34 @@ export default function StudentShiftFeed() {
 
       {/* Confirmation Modal for HOURLY SHIFT */}
       {confirmShift && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-xs">
-          <div className="bg-white rounded-t-[3px] sm:rounded-[3px] max-w-md w-full p-5 sm:p-6 border border-stone-200 space-y-4 animate-pop shadow-2xl">
-            <div>
-              <h3 className="text-xl font-bold font-headline text-[#0A011C] uppercase tracking-tight">
-                Confirm Shift Application
-              </h3>
-              <p className="text-xs text-stone-500 mt-0.5">
-                Apply to work at <strong className="text-[#0A011C]">{confirmShift.cafeName}</strong>
-              </p>
+        <div
+          onClick={() => setConfirmShift(null)}
+          className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="bg-white rounded-t-lg sm:rounded-[3px] max-w-md w-full p-5 sm:p-6 pb-8 sm:pb-6 border border-stone-200 space-y-4 animate-pop shadow-2xl max-h-[92vh] overflow-y-auto"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-[#00DADC]/20 text-[#006062] border border-[#00DADC]/40">
+                  Instant Shift Booking
+                </span>
+                <h3 className="text-xl font-bold font-headline text-[#0A011C] uppercase tracking-tight mt-1">
+                  Confirm Shift Application
+                </h3>
+                <p className="text-xs text-stone-500 mt-0.5">
+                  Apply to work at <strong className="text-[#0A011C]">{confirmShift.cafeName}</strong>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setConfirmShift(null)}
+                className="p-1 rounded-[2px] hover:bg-stone-100 text-stone-400 hover:text-stone-700"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             <div className="bg-stone-50 p-3.5 rounded-[3px] border border-stone-200 space-y-2 text-xs">
@@ -742,12 +784,14 @@ export default function StudentShiftFeed() {
 
             <div className="flex items-center gap-2 pt-2">
               <button
+                type="button"
                 onClick={() => setConfirmShift(null)}
                 className="flex-1 py-2.5 rounded-[3px] border border-stone-200 text-stone-600 font-bold uppercase text-xs hover:bg-stone-50"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={confirmShiftApplication}
                 className="flex-1 py-2.5 rounded-[3px] bg-[#FF0046] hover:bg-[#E6003F] text-white font-bold uppercase text-xs tracking-wider shadow-sm"
               >
@@ -760,8 +804,14 @@ export default function StudentShiftFeed() {
 
       {/* Application Modal for JOB OPPORTUNITY */}
       {applyingJob && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-xs">
-          <div className="bg-white rounded-t-[3px] sm:rounded-[3px] max-w-lg w-full p-5 sm:p-6 border border-stone-200 space-y-4 animate-pop shadow-2xl">
+        <div
+          onClick={() => setApplyingJob(null)}
+          className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="bg-white rounded-t-lg sm:rounded-[3px] max-w-lg w-full p-5 sm:p-6 pb-8 sm:pb-6 border border-stone-200 space-y-4 animate-pop shadow-2xl max-h-[92vh] overflow-y-auto"
+          >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[2px] bg-[#0A011C] text-white">
@@ -778,6 +828,7 @@ export default function StudentShiftFeed() {
                 type="button"
                 onClick={() => setApplyingJob(null)}
                 className="p-1 rounded-[2px] hover:bg-stone-100 text-stone-400 hover:text-stone-700"
+                title="Close"
               >
                 <X className="w-5 h-5" />
               </button>

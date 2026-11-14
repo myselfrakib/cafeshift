@@ -177,6 +177,7 @@ export const AppProvider = ({ children }) => {
   const [createShiftModalOpen, setCreateShiftModalOpen] = useState(false);
   const [createJobModalOpen, setCreateJobModalOpen] = useState(false);
   const [isEditingCafe, setIsEditingCafe] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
 
   // Sync to local storage
@@ -1107,6 +1108,8 @@ export const AppProvider = ({ children }) => {
         uploadImage: uploadImageToStorage,
         isEditingCafe,
         setIsEditingCafe,
+        isModalOpen,
+        setIsModalOpen,
         firebaseConnected,
         firebaseUser,
         isSyncing

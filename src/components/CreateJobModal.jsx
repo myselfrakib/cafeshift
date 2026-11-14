@@ -169,7 +169,7 @@ export default function CreateJobModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#F8F9FA] flex flex-col w-screen h-screen overflow-y-auto animate-fade-in">
+    <div className="fixed inset-0 z-[70] bg-[#F8F9FA] flex flex-col w-screen h-screen overflow-y-auto animate-fade-in">
       
       {/* 1. Full-Screen Sticky Header */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-200 px-4 sm:px-8 py-3.5 shadow-2xs">
@@ -677,3 +677,4 @@ export default function CreateJobModal() {
     </div>
   );
 }
+
