@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Home, CalendarCheck, User, PlusCircle, LogOut, Coffee } from 'lucide-react';
+import { Home, CalendarCheck, User, PlusCircle, LogOut } from 'lucide-react';
 
 export default function MobileBottomNav() {
   const {
@@ -15,20 +15,30 @@ export default function MobileBottomNav() {
     handleLogout
   } = useApp();
 
-  const openShiftsCount = shifts.filter(s => s.status === 'open').length;
+  const openShiftsCount = (shifts || []).filter(s => s.status === 'open').length;
   const bookedShiftsCount = isOwner
-    ? shifts.filter(s => s.cafeId === activeCafe?.id && s.status === 'booked').length
-    : shifts.filter(s => s.status === 'booked' && (s.applicant?.userId === currentUser?.id || s.applicant?.email === currentUser?.email)).length;
+    ? (shifts || []).filter(s => s.cafeId === activeCafe?.id && s.status === 'booked').length
+    : (shifts || []).filter(s => s.status === 'booked' && (s.applicant?.userId === currentUser?.id || s.applicant?.email === currentUser?.email)).length;
 
-  // 1. STUDENT BOTTOM NAVBAR: 3 Clear Tabs (Homepage | My Shifts | Profile)
+  const navigateTab = (tab) => {
+    setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // 1. ATTENDING SIDE BOTTOM NAVBAR: Fixed at bottom with 3 individual page tabs
+  // (Home / Available Shifts | My Shifts | Attendant Profile)
   if (isAttendant) {
     return (
-      <nav className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-stone-200 z-40 px-3 py-2 shadow-lg">
+      <nav 
+        aria-label="Attendant Bottom Navigation"
+        className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-stone-200 z-50 px-3 py-2 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]"
+      >
         <div className="max-w-md mx-auto grid grid-cols-3 gap-2">
           
           {/* 1. HOMEPAGE: Lists of shifts available for applying */}
           <button
-            onClick={() => setActiveTab('browse')}
+            type="button"
+            onClick={() => navigateTab('browse')}
             className={`relative flex flex-col items-center justify-center py-1.5 px-3 rounded-[3px] transition-all group ${
               activeTab === 'browse'
                 ? 'bg-[#0A011C] text-white shadow-xs'
@@ -38,9 +48,7 @@ export default function MobileBottomNav() {
             <div className="relative">
               <Home className={`w-5 h-5 transition-transform group-hover:scale-105 ${activeTab === 'browse' ? 'stroke-[2.5]' : 'stroke-2'}`} />
               {openShiftsCount > 0 && (
-                <span className={`absolute -top-1.5 -right-2.5 text-[9px] font-bold px-1.5 py-0.2 rounded-[2px] min-w-[16px] text-center font-headline shadow-xs ${
-                  activeTab === 'browse' ? 'bg-[#FF0046] text-white' : 'bg-[#FF0046] text-white'
-                }`}>
+                <span className="absolute -top-1.5 -right-2.5 text-[9px] font-bold px-1.5 py-0.2 rounded-[2px] min-w-[16px] text-center font-headline shadow-xs bg-[#FF0046] text-white">
                   {openShiftsCount}
                 </span>
               )}
@@ -50,9 +58,10 @@ export default function MobileBottomNav() {
             </span>
           </button>
 
-          {/* 2. MY SHIFTS: Middle Button (Applied / Booked Shifts) */}
+          {/* 2. MY SHIFTS: Applied / Booked Shifts */}
           <button
-            onClick={() => setActiveTab('my-applications')}
+            type="button"
+            onClick={() => navigateTab('my-applications')}
             className={`relative flex flex-col items-center justify-center py-1.5 px-3 rounded-[3px] transition-all group ${
               activeTab === 'my-applications'
                 ? 'bg-[#00DADC] text-black shadow-xs font-bold'
@@ -74,9 +83,10 @@ export default function MobileBottomNav() {
             </span>
           </button>
 
-          {/* 3. PROFILE: Student Profile Page */}
+          {/* 3. PROFILE: Attendant Profile Page */}
           <button
-            onClick={() => setActiveTab('profile')}
+            type="button"
+            onClick={() => navigateTab('profile')}
             className={`relative flex flex-col items-center justify-center py-1.5 px-3 rounded-[3px] transition-all group ${
               activeTab === 'profile'
                 ? 'bg-[#FF0046] text-white shadow-xs font-bold'
@@ -107,7 +117,10 @@ export default function MobileBottomNav() {
   // 2. OWNER BOTTOM NAVBAR (Home | Post Shift | Logout)
   if (isOwner) {
     return (
-      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-stone-200 z-40 px-3 py-2 shadow-lg">
+      <nav 
+        aria-label="Owner Bottom Navigation"
+        className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-stone-200 z-50 px-3 py-2 shadow-lg"
+      >
         <div className="flex items-center justify-around">
           {/* Owner Home View */}
           <button

@@ -309,7 +309,7 @@ export const AppProvider = ({ children }) => {
   // Current active user (strictly null if not authenticated)
   const currentUser = currentUserId ? users.find(u => u.id === currentUserId) || null : null;
   const isOwner = currentUser?.role === 'owner';
-  const isAttendant = currentUser?.role === 'attendant';
+  const isAttendant = Boolean(currentUser) && (currentUser.role === 'attendant' || currentUser.role === 'student' || !isOwner);
 
   const ownerCafes = isOwner ? cafes.filter(c => c.ownerId === currentUser?.id) : [];
   const activeCafe = ownerCafes.find(c => c.id === selectedCafeId) || ownerCafes[0] || null;
