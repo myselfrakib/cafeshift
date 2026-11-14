@@ -164,6 +164,182 @@ export const KOLKATA_CAFE_DIRECTORY = [
     description: "European-inspired cafe famous for Belgian waffles, crepes, gelato, and gourmet coffees.",
     photoUrl: "https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=600&q=80",
     minHourlyWage: 130
+  },
+  {
+    name: "Bunaphile Cafe - Hindustan Park",
+    area: "Hindustan Park",
+    address: "72, Hindustan Park, Gariahat, Kolkata, West Bengal 700029",
+    description: "Heritage courtyard cafe known for pour-over coffee, cheesecakes, and cozy vintage ambience.",
+    photoUrl: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 135
+  },
+  {
+    name: "Bunaphile - Southern Avenue",
+    area: "Southern Avenue",
+    address: "Lake View Rd, Lake Market, Kalighat, Kolkata, West Bengal 700029",
+    description: "Calm specialty cafe with artisanal coffees and breakfast plates near Rabindra Sarobar Lake.",
+    photoUrl: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 135
+  },
+  {
+    name: "Wise Owl The Coffee Shop - Hindustan Park",
+    area: "Hindustan Park",
+    address: "66/2, Purna Das Rd, Golpark, Hindustan Park, Gariahat, Kolkata, West Bengal 700029",
+    description: "Open-air garden coffee shop serving hearty breakfast platters, cold coffees, and shakes.",
+    photoUrl: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 125
+  },
+  {
+    name: "Terminal_11 - Salt Lake",
+    area: "Salt Lake Sector 1 & 2",
+    address: "BF 11, 1st Ave, BF Block, Sector 1, Bidhannagar, Kolkata, West Bengal 700064",
+    description: "Music & book lounge cafe offering pour-overs, pizzas, and a relaxed student co-working environment.",
+    photoUrl: "https://images.unsplash.com/photo-1497636577773-f1231844b336?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 130
+  },
+  {
+    name: "Karma Kettle Tea Room - Ballygunge",
+    area: "Ballygunge",
+    address: "4, Swinhoe St, Ekdalia, Ballygunge, Kolkata, West Bengal 700019",
+    description: "Boutique tea room pairing artisanal blends with gourmet scones and high-tea desserts.",
+    photoUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 135
+  },
+  {
+    name: "Cafe Mezzuna - Forum Mall Elgin",
+    area: "Ballygunge",
+    address: "Forum Mall, 10/3, Elgin Rd, Lala Lajpat Rai Sarani, Kolkata, West Bengal 700020",
+    description: "Contemporary Mediterranean cafe serving gourmet pizzas, pastas, and premium roasts.",
+    photoUrl: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 145
+  },
+  {
+    name: "Chaayos - Sector 5",
+    area: "Salt Lake Sector 5",
+    address: "Ground Floor, RDB Boulevard, Plot K-1, Sector V, Salt Lake, Kolkata, West Bengal 700091",
+    description: "High-energy chai & snack hub serving tech interns, university students, and corporate teams.",
+    photoUrl: "https://images.unsplash.com/photo-1559925393-8be0ec4767c8?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 130
+  },
+  {
+    name: "Cafe Coffee Day - Godrej Waterside",
+    area: "Salt Lake Sector 5",
+    address: "Godrej Waterside, Tower 1, Block DP, Sector V, Salt Lake, Kolkata, West Bengal 700091",
+    description: "Fast-paced tech park coffee shop with high footfall and flexible hourly student barista shifts.",
+    photoUrl: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 125
+  },
+  {
+    name: "Barista Coffee - Park Street",
+    area: "Park Street",
+    address: "18, Park Street, Park Street area, Kolkata, West Bengal 700071",
+    description: "Classic Italian roast espresso cafe in the heart of Park Street corridor.",
+    photoUrl: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 130
+  },
+  {
+    name: "Cafe Positive - Jodhpur Park",
+    area: "Jadavpur",
+    address: "11/1, Jodhpur Park Rd, Jodhpur Park, Kolkata, West Bengal 700068",
+    description: "Asia's first cafe run entirely by HIV-positive youths, serving specialty coffee and homemade bakes.",
+    photoUrl: "https://images.unsplash.com/photo-1498804103079-a6351b050096?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 130
+  },
+  {
+    name: "Mitra Cafe - Shyambazar",
+    area: "Shyambazar",
+    address: "47, Jatindra Mohan Ave, Raja Nabakrishna St, Sovabazar, Shyambazar, Kolkata, West Bengal 700005",
+    description: "Century-old heritage Calcutta dining and snack institution famous for cutlets and cabin tea.",
+    photoUrl: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 120
+  },
+  {
+    name: "Godrej Waterside Tower - IT Hub",
+    area: "Salt Lake Sector 5",
+    address: "Block DP, Sector V, Bidhannagar, Kolkata, West Bengal 700091",
+    description: "Premier IT tech hub in Sector 5 housing multinational offices, cafes, and food courts.",
+    photoUrl: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 130
+  },
+  {
+    name: "Godrej Genesis - Sector 5",
+    area: "Salt Lake Sector 5",
+    address: "EP Block, Sector V, Bidhannagar, Kolkata, West Bengal 700091",
+    description: "Major corporate and commercial building in Sector 5 with ground floor cafes and student workforce.",
+    photoUrl: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 140
+  },
+  {
+    name: "Infinity Benchmark - Sector 5",
+    area: "Salt Lake Sector 5",
+    address: "Plot G-1, Block EP & GP, Sector V, Salt Lake, Kolkata, West Bengal 700091",
+    description: "Prominent green commercial high-rise in Sector 5 with specialty cafes and dining.",
+    photoUrl: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 150
+  },
+  {
+    name: "Park Center - 24 Park Street",
+    area: "Park Street",
+    address: "24, Park Street, Mullick Bazar, Park Street area, Kolkata, West Bengal 700016",
+    description: "Iconic commercial landmark on Park Street housing premier cafes, bistros, and bookstores.",
+    photoUrl: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 145
+  },
+  {
+    name: "Camac Street Commercial Corridor",
+    area: "Park Street",
+    address: "Camac Street, Elgin, Kolkata, West Bengal 700016",
+    description: "Central Kolkata shopping and dining avenue filled with coffee roasters, banks, and cafes.",
+    photoUrl: "https://images.unsplash.com/photo-1507133750040-4a8f57021571?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 135
+  },
+  {
+    name: "City Centre 1 - Salt Lake",
+    area: "Salt Lake Sector 1 & 2",
+    address: "DC Block, Sector 1, Bidhannagar, Kolkata, West Bengal 700064",
+    description: "Beloved open-air mall designed by Charles Correa with food courts, cafes, and open plazas.",
+    photoUrl: "https://images.unsplash.com/photo-1497636577773-f1231844b336?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 130
+  },
+  {
+    name: "City Centre 2 - New Town",
+    area: "New Town",
+    address: "Major Arterial Road, Action Area II, New Town, Kolkata, West Bengal 700157",
+    description: "Flagship retail and cafe destination in New Town Rajarhat close to Kolkata Airport.",
+    photoUrl: "https://images.unsplash.com/photo-1464979681340-bdd28a61699e?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 135
+  },
+  {
+    name: "Eco Park - New Town",
+    area: "New Town",
+    address: "Major Arterial Road(South-East), Action Area II, New Town, Kolkata 700156",
+    description: "Sprawling 480-acre urban park with scenic lake cafes, promenade dining, and event hubs.",
+    photoUrl: "https://images.unsplash.com/photo-1464979681340-bdd28a61699e?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 130
+  },
+  {
+    name: "Deshapriya Park & Lake Market",
+    area: "Southern Avenue",
+    address: "Deshapriya Park, Kalighat, Kolkata, West Bengal 700029",
+    description: "South Kolkata's vibrant cultural neighborhood filled with artisanal cafes and boutiques.",
+    photoUrl: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 135
+  },
+  {
+    name: "Quest Mall - Ballygunge",
+    area: "Ballygunge",
+    address: "33, Syed Amir Ali Ave, Park Circus, Beck Bagan, Ballygunge, Kolkata, West Bengal 700017",
+    description: "Luxury shopping destination with premium cafes, bakeries, and gourmet coffee chains.",
+    photoUrl: "https://images.unsplash.com/photo-1525610553991-2bede1a236e2?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 150
+  },
+  {
+    name: "South City Mall - Prince Anwar Shah Rd",
+    area: "Jadavpur",
+    address: "375, Prince Anwar Shah Rd, South City Complex, Jodhpur Park, Kolkata, West Bengal 700068",
+    description: "South Kolkata's largest shopping and entertainment complex with numerous cafes.",
+    photoUrl: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80",
+    minHourlyWage: 140
   }
 ];
 
@@ -210,107 +386,52 @@ export function matchKolkataArea(text) {
   return CALCUTTA_AREAS[0];
 }
 
-// Google Maps script dynamic loader singleton
-let googleMapsPromise = null;
+// Check if Google Maps is already loaded in the environment
 export function loadGoogleMapsScript() {
-  if (typeof window === 'undefined') return Promise.reject(new Error('Window undefined'));
-  if (window.google?.maps?.places) return Promise.resolve(window.google.maps);
-
-  if (!googleMapsPromise) {
-    googleMapsPromise = new Promise((resolve, reject) => {
-      // Check if already injected
-      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
-      if (existingScript) {
-        existingScript.addEventListener('load', () => resolve(window.google.maps));
-        existingScript.addEventListener('error', (e) => reject(e));
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&language=en&region=IN`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => resolve(window.google.maps);
-      script.onerror = (err) => {
-        console.warn('Google Maps JS API load notice (using smart fallback):', err);
-        resolve(null);
-      };
-      document.head.appendChild(script);
-    });
+  if (typeof window !== 'undefined' && window.google?.maps?.places) {
+    return Promise.resolve(window.google.maps);
   }
-
-  return googleMapsPromise;
+  return Promise.resolve(null);
 }
 
 /**
- * Smart Search: Search Google Places API with fallback to Kolkata Cafe Directory & Nominatim
+ * Smart Search: Fast local match across Kolkata Cafe Directory & Landmarks,
+ * with live OpenStreetMap/Nominatim typeahead search without API key restrictions.
  */
 export async function searchPlacesAndCafes(query) {
   if (!query || query.trim().length < 2) return [];
   const q = query.trim().toLowerCase();
+  const queryTerms = q.split(/\s+/).filter(Boolean);
 
-  // 1. Instant match from Kolkata Cafe Directory
-  const localMatches = KOLKATA_CAFE_DIRECTORY.filter(cafe => 
-    cafe.name.toLowerCase().includes(q) ||
-    cafe.address.toLowerCase().includes(q) ||
-    cafe.area.toLowerCase().includes(q)
-  ).map(c => ({
+  // 1. Instant match from Kolkata Cafe Directory & Landmarks
+  const localMatches = KOLKATA_CAFE_DIRECTORY.filter(cafe => {
+    const nameLower = cafe.name.toLowerCase();
+    const addrLower = cafe.address.toLowerCase();
+    const areaLower = cafe.area.toLowerCase();
+    return queryTerms.every(term => 
+      nameLower.includes(term) || 
+      addrLower.includes(term) || 
+      areaLower.includes(term)
+    );
+  }).map(c => ({
     ...c,
-    source: 'Google Place Data',
+    source: 'Kolkata Directory',
     formattedAddress: c.address,
     locality: c.area
   }));
 
-  // 2. Try Google Maps Places Autocomplete if library loaded
+  // 2. Live OpenStreetMap Search for Kolkata places & streets
   try {
-    const maps = await loadGoogleMapsScript();
-    if (maps?.places?.AutocompleteService) {
-      const autocompleteService = new maps.places.AutocompleteService();
-      const googleResults = await new Promise((resolve) => {
-        autocompleteService.getPlacePredictions({
-          input: query,
-          componentRestrictions: { country: 'in' },
-          locationBias: new maps.LatLngBounds(
-            new maps.LatLng(22.45, 88.25), // South Kolkata
-            new maps.LatLng(22.65, 88.48)  // North / New Town Kolkata
-          )
-        }, (predictions, status) => {
-          if (status === maps.places.PlacesServiceStatus.OK && predictions?.length > 0) {
-            resolve(predictions);
-          } else {
-            resolve([]);
-          }
-        });
-      });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
 
-      if (googleResults && googleResults.length > 0) {
-        const mappedGoogle = googleResults.slice(0, 5).map(p => ({
-          name: p.structured_formatting?.main_text || p.description.split(',')[0],
-          area: matchKolkataArea(p.description),
-          address: p.description,
-          formattedAddress: p.description,
-          description: `Cafe & Dining at ${p.description.split(',')[0]} in Kolkata.`,
-          source: 'Google Place'
-        }));
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ' Kolkata')}&addressdetails=1&countrycodes=in&limit=6`;
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { 'Accept-Language': 'en' }
+    });
+    clearTimeout(timeoutId);
 
-        // Merge without duplicate names
-        const merged = [...localMatches];
-        mappedGoogle.forEach(g => {
-          if (!merged.some(m => m.name.toLowerCase() === g.name.toLowerCase())) {
-            merged.push(g);
-          }
-        });
-        return merged.slice(0, 8);
-      }
-    }
-  } catch (err) {
-    console.warn('Google Places live lookup notice:', err);
-  }
-
-  // 3. Fallback: Live OpenStreetMap Search for Kolkata places
-  try {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ' Kolkata')}&addressdetails=1&countrycodes=in&limit=4`;
-    const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
     if (res.ok) {
       const osmResults = await res.json();
       const mappedOsm = (osmResults || []).map(r => ({
@@ -319,22 +440,22 @@ export async function searchPlacesAndCafes(query) {
         address: r.display_name,
         formattedAddress: r.display_name,
         description: `Located in ${matchKolkataArea(r.display_name)}, Kolkata.`,
-        source: 'Live GPS Data'
+        source: 'Kolkata Place Data'
       }));
 
       const merged = [...localMatches];
       mappedOsm.forEach(o => {
-        if (!merged.some(m => m.name.toLowerCase() === o.name.toLowerCase())) {
+        if (!merged.some(m => m.name.toLowerCase() === o.name.toLowerCase() || m.address.toLowerCase() === o.address.toLowerCase())) {
           merged.push(o);
         }
       });
-      return merged.slice(0, 8);
+      return merged.slice(0, 10);
     }
   } catch (osmErr) {
-    // Return local matches
+    // If network fails or times out, localMatches handles it instantly
   }
 
-  return localMatches.slice(0, 8);
+  return localMatches.slice(0, 10);
 }
 
 /**
@@ -350,43 +471,17 @@ export async function fetchCurrentLocationAddress() {
       async (position) => {
         const { latitude, longitude } = position.coords;
 
-        // Try 1: Google Geocoder if loaded
+        // OpenStreetMap Reverse Geocode (free, accurate, zero API key errors)
         try {
-          const maps = await loadGoogleMapsScript();
-          if (maps?.Geocoder) {
-            const geocoder = new maps.Geocoder();
-            const geoRes = await new Promise((resGeo) => {
-              geocoder.geocode({ location: { lat: latitude, lng: longitude } }, (results, status) => {
-                if (status === 'OK' && results && results.length > 0) {
-                  resGeo(results[0]);
-                } else {
-                  resGeo(null);
-                }
-              });
-            });
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3500);
 
-            if (geoRes) {
-              const fullAddress = geoRes.formatted_address || '';
-              const matchedArea = matchKolkataArea(fullAddress);
-              return resolve({
-                latitude,
-                longitude,
-                address: fullAddress,
-                area: matchedArea,
-                displayName: fullAddress
-              });
-            }
-          }
-        } catch (geoErr) {
-          console.warn('Google Geocoder notice, trying Nominatim reverse geocode:', geoErr);
-        }
-
-        // Try 2: OpenStreetMap Reverse Geocode
-        try {
           const res = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
-            { headers: { 'Accept-Language': 'en' } }
+            { signal: controller.signal, headers: { 'Accept-Language': 'en' } }
           );
+          clearTimeout(timeoutId);
+
           if (res.ok) {
             const data = await res.json();
             const fullAddress = data.display_name || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}, Kolkata`;
@@ -400,14 +495,14 @@ export async function fetchCurrentLocationAddress() {
             });
           }
         } catch (osmErr) {
-          console.warn('Nominatim reverse notice:', osmErr);
+          console.warn('Reverse geocode notice:', osmErr);
         }
 
-        // Try 3: Coordinate fallback
+        // Coordinate fallback if reverse geocoding request is offline
         resolve({
           latitude,
           longitude,
-          address: `Kolkata (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`,
+          address: `Kolkata Location (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`,
           area: matchKolkataArea('Park Street'),
           displayName: `Kolkata Location (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`
         });
