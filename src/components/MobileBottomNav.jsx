@@ -17,7 +17,7 @@ export default function MobileBottomNav() {
     isEditingCafe
   } = useApp();
 
-  if (isEditingCafe) return null;
+  if (isEditingCafe || createShiftModalOpen) return null;
 
   const openShiftsCount = (shifts || []).filter(s => s.status === 'open').length;
   const bookedShiftsCount = isOwner
