@@ -37,8 +37,8 @@ function AppContent() {
   }
 
   return (
-    <div className={`min-h-screen flex flex-col bg-[#F8F9FA] text-[#0A011C] ${isAttendant ? 'pb-20' : 'pb-16 md:pb-0'}`}>
-      {/* Navbar */}
+    <div className={`min-h-screen flex flex-col bg-[#F8F9FA] text-[#0A011C] pt-16 sm:pt-20 ${isAttendant ? 'pb-24' : 'pb-16 md:pb-0'}`}>
+      {/* Fixed Navbar */}
       <Navbar />
 
       {/* Main Authenticated View Area */}

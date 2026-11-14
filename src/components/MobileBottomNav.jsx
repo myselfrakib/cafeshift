@@ -46,7 +46,7 @@ export default function MobileBottomNav() {
               )}
             </div>
             <span className="text-[10px] font-bold mt-1 uppercase tracking-wider font-headline">
-              Homepage
+              Home
             </span>
           </button>
 

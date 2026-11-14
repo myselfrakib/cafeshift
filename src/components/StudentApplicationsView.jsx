@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { MapPin } from 'lucide-react';
+import { MapPin, CalendarCheck } from 'lucide-react';
 import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 
 export default function StudentApplicationsView() {
@@ -19,10 +19,16 @@ export default function StudentApplicationsView() {
       <div className="bg-white rounded-[3px] p-5 sm:p-6 border border-stone-200 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-200 pb-3">
           <div>
-            <h2 className="text-xl sm:text-2xl font-headline font-bold text-[#0A011C] uppercase tracking-tight">
-              Your Booked Shifts
-            </h2>
-            <p className="text-xs text-stone-500 mt-0.5">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-headline font-bold text-[#0A011C] uppercase tracking-tight flex items-center gap-2">
+                <CalendarCheck className="w-5 h-5 text-[#00DADC]" />
+                <span>My Shifts · Booked Shifts</span>
+              </h2>
+              <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-[2px] bg-cyan-50 text-[#006062] border border-cyan-200">
+                Confirmed
+              </span>
+            </div>
+            <p className="text-xs text-stone-500 mt-1">
               Confirmed shifts locked exclusively for you. The cafe owner will contact you directly.
             </p>
           </div>

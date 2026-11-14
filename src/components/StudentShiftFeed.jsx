@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { CALCUTTA_AREAS } from '../data/seedData';
-import { Search, MapPin, Calendar, Clock, ArrowRight, X, Check } from 'lucide-react';
+import { Home, Search, MapPin, Calendar, Clock, ArrowRight, X, Check } from 'lucide-react';
 import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 
 export default function StudentShiftFeed() {
@@ -58,6 +58,30 @@ export default function StudentShiftFeed() {
 
   return (
     <div className="space-y-4">
+      {/* 1. Home Page Individual Header */}
+      <div className="bg-white rounded-[3px] p-4 sm:p-5 border border-stone-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold font-headline text-[#0A011C] uppercase tracking-tight flex items-center gap-2">
+              <Home className="w-5 h-5 text-[#FF0046]" />
+              <span>Home · Available Shifts</span>
+            </h1>
+            <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-[2px] bg-rose-50 text-[#FF0046] border border-rose-200">
+              Live Feed
+            </span>
+          </div>
+          <p className="text-xs text-stone-500 mt-1">
+            Browse verified part-time cafe shifts across Kolkata and book in 1 click.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <span className="text-xs font-mono font-bold px-3 py-1.5 rounded-[3px] bg-stone-100 border border-stone-200 text-stone-700">
+            {availableShifts.length} {availableShifts.length === 1 ? 'Open Shift' : 'Open Shifts'}
+          </span>
+        </div>
+      </div>
+
       {/* Search & Filter Bar Container */}
       <div className="bg-white rounded-[3px] p-3 sm:p-3.5 border border-stone-200 shadow-xs">
         

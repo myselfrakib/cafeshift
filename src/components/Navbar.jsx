@@ -24,80 +24,82 @@ export default function Navbar() {
     : (shifts ? shifts.filter(s => s.status === 'booked' && (s.applicant?.userId === currentUser?.id || s.applicant?.email === currentUser?.email)).length : 0);
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <header className="fixed top-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-2xs">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 gap-2">
           
           {/* Logo & Brand */}
           <div
             onClick={() => setActiveTab(isOwner ? 'my-cafe' : 'browse')}
-            className="flex items-center gap-3 cursor-pointer select-none group"
+            className="flex items-center gap-2 sm:gap-3 cursor-pointer select-none group shrink-0"
           >
-            <div className="w-9 h-9 rounded-[3px] bg-[#FF0046] text-white flex items-center justify-center font-bold text-sm tracking-tighter shadow-sm group-hover:scale-105 transition-transform font-headline">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-[3px] bg-[#FF0046] text-white flex items-center justify-center font-bold text-xs sm:text-sm tracking-tighter shadow-sm group-hover:scale-105 transition-transform font-headline">
               CCC
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-headline text-lg sm:text-xl font-bold tracking-tight text-[#0A011C] uppercase">
+            <div className="hidden xs:block">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="font-headline text-base sm:text-xl font-bold tracking-tight text-[#0A011C] uppercase truncate">
                   Calcutta Cafe Club
                 </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[3px] bg-[#00DADC] text-black">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-1.5 sm:px-2 py-0.5 rounded-[3px] bg-[#00DADC] text-black hidden sm:inline">
                   Kolkata
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Center Navigation Tabs */}
-          <nav className="hidden md:flex items-center gap-1.5 bg-stone-100 p-1 rounded-[3px] border border-stone-200 text-xs font-bold uppercase tracking-wider">
-            {/* STUDENT TABS: HOMEPAGE, MY SHIFTS, PROFILE */}
+          {/* Center Navigation Tabs: Fixed & Visible for Students */}
+          <nav className="flex items-center gap-1 sm:gap-1.5 bg-stone-100 p-0.5 sm:p-1 rounded-[3px] border border-stone-200 text-[10px] sm:text-xs font-bold uppercase tracking-wider font-headline">
+            {/* STUDENT TABS: HOME, MY SHIFTS, PROFILE */}
             {isAttendant && (
               <>
                 <button
                   onClick={() => setActiveTab('browse')}
-                  className={`px-4 py-2 rounded-[3px] transition-all flex items-center gap-1.5 ${
+                  className={`px-2 sm:px-4 py-1.5 sm:py-2 rounded-[3px] transition-all flex items-center gap-1 sm:gap-1.5 ${
                     activeTab === 'browse'
                       ? 'bg-[#0A011C] text-white shadow-xs'
                       : 'text-stone-600 hover:text-[#0A011C]'
                   }`}
                 >
-                  <Home className="w-3.5 h-3.5" />
-                  <span>Homepage</span>
+                  <Home className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <span>Home</span>
                   {openShiftsCount > 0 && (
-                    <span className={`ml-1 text-[9px] font-bold px-1.5 py-0.2 rounded-[2px] ${
+                    <span className={`ml-0.5 sm:ml-1 text-[9px] font-bold px-1 sm:px-1.5 py-0.2 rounded-[2px] ${
                       activeTab === 'browse' ? 'bg-[#FF0046] text-white' : 'bg-[#FF0046] text-white'
                     }`}>
                       {openShiftsCount}
                     </span>
                   )}
                 </button>
+
                 <button
                   onClick={() => setActiveTab('my-applications')}
-                  className={`px-4 py-2 rounded-[3px] transition-all flex items-center gap-1.5 ${
+                  className={`px-2 sm:px-4 py-1.5 sm:py-2 rounded-[3px] transition-all flex items-center gap-1 sm:gap-1.5 ${
                     activeTab === 'my-applications'
                       ? 'bg-[#00DADC] text-black shadow-xs font-bold'
                       : 'text-stone-600 hover:text-[#0A011C]'
                   }`}
                 >
-                  <CalendarCheck className="w-3.5 h-3.5" />
+                  <CalendarCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   <span>My Shifts</span>
                   {bookedShiftsCount > 0 && (
-                    <span className={`ml-1 text-[9px] font-bold px-1.5 py-0.2 rounded-[2px] ${
+                    <span className={`ml-0.5 sm:ml-1 text-[9px] font-bold px-1 sm:px-1.5 py-0.2 rounded-[2px] ${
                       activeTab === 'my-applications' ? 'bg-[#0A011C] text-white' : 'bg-[#00DADC] text-black'
                     }`}>
                       {bookedShiftsCount}
                     </span>
                   )}
                 </button>
+
                 <button
                   onClick={() => setActiveTab('profile')}
-                  className={`px-4 py-2 rounded-[3px] transition-all flex items-center gap-1.5 ${
+                  className={`px-2 sm:px-4 py-1.5 sm:py-2 rounded-[3px] transition-all flex items-center gap-1 sm:gap-1.5 ${
                     activeTab === 'profile'
                       ? 'bg-[#FF0046] text-white shadow-xs font-bold'
                       : 'text-stone-600 hover:text-[#0A011C]'
                   }`}
                 >
-                  <User className="w-3.5 h-3.5" />
+                  <User className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   <span>Profile</span>
                 </button>
               </>
@@ -110,7 +112,7 @@ export default function Navbar() {
                   if (activeCafe) setSelectedCafeId(activeCafe.id);
                   setActiveTab('my-cafe');
                 }}
-                className="px-4 py-2 rounded-[3px] transition-all flex items-center gap-1.5 bg-[#FF0046] text-white font-bold shadow-2xs"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-[3px] transition-all flex items-center gap-1.5 bg-[#FF0046] text-white font-bold shadow-2xs"
               >
                 <Home className="w-3.5 h-3.5" />
                 <span>Home ({activeCafe ? activeCafe.name : "My Cafe"})</span>
