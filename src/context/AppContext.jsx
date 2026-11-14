@@ -742,6 +742,8 @@ export const AppProvider = ({ children }) => {
         cafeName: cafe.name,
         cafeArea: cafe.area,
         cafePhotoUrl: cafe.photoUrl || '',
+        managerName: cafe.managerName || currentUser?.name || 'Cafe Manager',
+        managerPhone: cafe.managerPhone || currentUser?.phone || '',
         roleName: roleName || 'Cafe Floor & Table Attendant',
         date: finalDate,
         startTime: finalStartTime,
@@ -856,8 +858,9 @@ export const AppProvider = ({ children }) => {
   };
 
   // Add owner cafe
-  const addOwnerCafe = async ({ name, area, address, description, minHourlyWage, photoUrl }) => {
+  const addOwnerCafe = async ({ name, area, address, description, minHourlyWage, photoUrl, managerName, managerPhone }) => {
     const newCafeId = 'cafe-' + Date.now();
+    const cleanPhone = managerPhone ? managerPhone.replace(/\D/g, '').slice(-10) : (currentUser?.phone ? currentUser.phone.replace(/\D/g, '').slice(-10) : '');
     const newCafe = {
       id: newCafeId,
       ownerId: currentUser.id,
@@ -865,6 +868,8 @@ export const AppProvider = ({ children }) => {
       tagline: 'Specialty Sips in Calcutta ☕',
       area,
       address,
+      managerName: managerName || currentUser?.name || 'Cafe Manager',
+      managerPhone: cleanPhone,
       photoUrl: photoUrl || '',
       coverGradient: 'from-stone-900 to-amber-950',
       minHourlyWage: Math.max(100, Number(minHourlyWage) || 100),
@@ -897,15 +902,23 @@ export const AppProvider = ({ children }) => {
       return c;
     }));
 
-    // Cascade cafe branding / photo updates to active shifts and jobs of this cafe
-    if (updatedFields.photoUrl !== undefined || updatedFields.name !== undefined || updatedFields.area !== undefined) {
+    // Cascade cafe branding / manager / photo updates to active shifts and jobs of this cafe
+    if (
+      updatedFields.photoUrl !== undefined ||
+      updatedFields.name !== undefined ||
+      updatedFields.area !== undefined ||
+      updatedFields.managerName !== undefined ||
+      updatedFields.managerPhone !== undefined
+    ) {
       setShifts(prev => prev.map(s => {
         if (s.cafeId === cafeId) {
           const updatedShift = {
             ...s,
             ...(updatedFields.photoUrl !== undefined ? { cafePhotoUrl: updatedFields.photoUrl } : {}),
             ...(updatedFields.name !== undefined ? { cafeName: updatedFields.name } : {}),
-            ...(updatedFields.area !== undefined ? { cafeArea: updatedFields.area } : {})
+            ...(updatedFields.area !== undefined ? { cafeArea: updatedFields.area } : {}),
+            ...(updatedFields.managerName !== undefined ? { managerName: updatedFields.managerName } : {}),
+            ...(updatedFields.managerPhone !== undefined ? { managerPhone: updatedFields.managerPhone } : {})
           };
           publishShiftToFirebase(updatedShift).catch(() => {});
           return updatedShift;
@@ -919,7 +932,9 @@ export const AppProvider = ({ children }) => {
             ...j,
             ...(updatedFields.photoUrl !== undefined ? { cafePhotoUrl: updatedFields.photoUrl } : {}),
             ...(updatedFields.name !== undefined ? { cafeName: updatedFields.name } : {}),
-            ...(updatedFields.area !== undefined ? { cafeArea: updatedFields.area } : {})
+            ...(updatedFields.area !== undefined ? { cafeArea: updatedFields.area } : {}),
+            ...(updatedFields.managerName !== undefined ? { managerName: updatedFields.managerName } : {}),
+            ...(updatedFields.managerPhone !== undefined ? { managerPhone: updatedFields.managerPhone } : {})
           };
           publishJobToFirebase(updatedJob).catch(() => {});
           return updatedJob;
@@ -953,6 +968,8 @@ export const AppProvider = ({ children }) => {
       cafeAddress: targetCafe.address || '',
       cafePhotoUrl: sanitizePhotoUrl(targetCafe.photoUrl),
       ownerId: currentUser.id,
+      managerName: targetCafe.managerName || currentUser?.name || 'Cafe Manager',
+      managerPhone: targetCafe.managerPhone || currentUser?.phone || '',
       positionTitle: (jobData.positionTitle || 'Cafe Attendant / Barista').trim(),
       title: (jobData.positionTitle || 'Cafe Attendant / Barista').trim(),
       employmentType: jobData.employmentType || 'Full-Time',

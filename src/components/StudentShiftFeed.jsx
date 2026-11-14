@@ -778,9 +778,23 @@ export default function StudentShiftFeed() {
               </div>
             </div>
 
-            <div className="p-3 bg-amber-50 rounded-[3px] border border-amber-200 text-xs text-amber-900 leading-relaxed">
-              ⚠️ <strong>Instant Lock:</strong> Once you tap confirm, this shift locks exclusively for you and is removed from other students. The cafe owner will call you on <strong>+91 {currentUser?.phone}</strong>.
-            </div>
+            {(() => {
+              const cafe = (cafes || []).find(c => c.id === confirmShift.cafeId);
+              const mgrName = confirmShift.managerName || cafe?.managerName || 'Cafe Manager';
+              const rawPhone = confirmShift.managerPhone || cafe?.managerPhone;
+              const cleanPhone = rawPhone ? rawPhone.replace(/\D/g, '').replace(/^91/, '') : '';
+
+              return (
+                <div className="p-3 bg-amber-50 rounded-[3px] border border-amber-200 text-xs text-amber-900 leading-relaxed space-y-1.5">
+                  <div className="font-bold">
+                    ⚠️ Instant Lock Notice:
+                  </div>
+                  <div>
+                    Once you confirm, this shift is locked exclusively for you. You can contact outlet manager <strong>{mgrName}</strong>{cleanPhone ? ` at +91 ${cleanPhone}` : ''} directly from your My Shifts tab, or they will reach out to you on +91 {currentUser?.phone}.
+                  </div>
+                </div>
+              );
+            })()}
 
             <div className="flex items-center gap-2 pt-2">
               <button

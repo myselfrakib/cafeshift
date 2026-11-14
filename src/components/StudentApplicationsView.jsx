@@ -129,9 +129,9 @@ export default function StudentApplicationsView() {
               {studentShifts.map(shift => {
                 const cafe = (cafes || []).find(c => c.id === shift.cafeId);
                 const owner = (users || []).find(u => u.id === (shift.ownerId || cafe?.ownerId));
-                const ownerName = owner?.name || cafe?.ownerName || 'Cafe Manager';
-                const rawPhone = owner?.phone || cafe?.phone || '';
-                const cleanPhone = rawPhone.replace(/\D/g, '');
+                const managerName = shift.managerName || cafe?.managerName || cafe?.contactPerson || owner?.name || 'Cafe Manager';
+                const rawPhone = shift.managerPhone || cafe?.managerPhone || cafe?.phone || owner?.phone || '';
+                const cleanPhone = rawPhone.replace(/\D/g, '').replace(/^91/, '');
                 const cafeAddress = cafe?.address || `${shift.cafeArea}, Kolkata`;
                 const mapsQuery = encodeURIComponent(`${shift.cafeName}, ${cafeAddress}`);
                 const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
@@ -196,24 +196,24 @@ export default function StudentApplicationsView() {
                         </div>
                       </div>
 
-                      {/* Owner Name, Direct Phone Call & Maps Location Section */}
+                      {/* Manager Name, Direct Phone Call & Maps Location Section */}
                       <div className="bg-amber-50/70 rounded-[3px] p-3.5 border border-amber-200/90 space-y-2.5">
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-[10px] uppercase font-bold text-amber-900 tracking-wider font-headline">
-                            Owner / Cafe Contact
+                            Manager / Shift Contact
                           </span>
                           <span className="font-bold text-[#0A011C] text-xs">
-                            {ownerName}
+                            {managerName}
                           </span>
                         </div>
 
-                        {/* Direct Action Buttons: 1. Call Owner Hyperlink, 2. Open in Maps */}
+                        {/* Direct Action Buttons: 1. Call Manager Hyperlink, 2. Open in Maps */}
                         <div className="flex flex-wrap items-center gap-2 pt-0.5">
                           {cleanPhone ? (
                             <a
                               href={`tel:+91${cleanPhone}`}
                               className="flex-1 min-w-[130px] py-2 px-3 rounded-[3px] bg-[#0A011C] hover:bg-stone-800 text-white font-headline text-xs font-bold uppercase tracking-wider text-center inline-flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
-                              title={`Call ${ownerName} at +91 ${cleanPhone}`}
+                              title={`Call Manager ${managerName} at +91 ${cleanPhone}`}
                             >
                               <Phone className="w-3.5 h-3.5 text-[#00DADC]" />
                               <span>Call +91 {cleanPhone}</span>
@@ -306,9 +306,9 @@ export default function StudentApplicationsView() {
                 );
                 const cafe = (cafes || []).find(c => c.id === job.cafeId);
                 const owner = (users || []).find(u => u.id === (job.ownerId || cafe?.ownerId));
-                const ownerName = owner?.name || cafe?.ownerName || 'Cafe Manager';
-                const rawPhone = owner?.phone || cafe?.phone || '';
-                const cleanPhone = rawPhone.replace(/\D/g, '');
+                const managerName = job.managerName || cafe?.managerName || cafe?.contactPerson || owner?.name || 'Cafe Manager';
+                const rawPhone = job.managerPhone || cafe?.managerPhone || cafe?.phone || owner?.phone || '';
+                const cleanPhone = rawPhone.replace(/\D/g, '').replace(/^91/, '');
                 const cafeAddress = cafe?.address || `${job.cafeArea}, Kolkata`;
                 const mapsQuery = encodeURIComponent(`${job.cafeName}, ${cafeAddress}`);
                 const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
@@ -359,14 +359,14 @@ export default function StudentApplicationsView() {
                         </div>
                       )}
 
-                      {/* Owner Contact & Maps Location Section */}
+                      {/* Manager Contact & Maps Location Section */}
                       <div className="bg-amber-50/70 rounded-[3px] p-3.5 border border-amber-200/90 space-y-2.5">
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-[10px] uppercase font-bold text-amber-900 tracking-wider font-headline">
-                            Owner / Cafe Contact
+                            Manager / Outlet Contact
                           </span>
                           <span className="font-bold text-[#0A011C] text-xs">
-                            {ownerName}
+                            {managerName}
                           </span>
                         </div>
 
@@ -376,7 +376,7 @@ export default function StudentApplicationsView() {
                             <a
                               href={`tel:+91${cleanPhone}`}
                               className="flex-1 min-w-[130px] py-2 px-3 rounded-[3px] bg-[#0A011C] hover:bg-stone-800 text-white font-headline text-xs font-bold uppercase tracking-wider text-center inline-flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
-                              title={`Call ${ownerName} at +91 ${cleanPhone}`}
+                              title={`Call Manager ${managerName} at +91 ${cleanPhone}`}
                             >
                               <Phone className="w-3.5 h-3.5 text-[#00DADC]" />
                               <span>Call +91 {cleanPhone}</span>

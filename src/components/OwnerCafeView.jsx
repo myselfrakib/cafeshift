@@ -22,7 +22,8 @@ import {
   ChevronUp,
   UserCheck,
   AlertCircle,
-  Sparkles
+  Sparkles,
+  User
 } from 'lucide-react';
 import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 
@@ -278,6 +279,19 @@ export default function OwnerCafeView() {
               <MapPin className="w-3.5 h-3.5 text-[#FF0046]" />
               <span>{cafe.address}</span>
             </div>
+            {(cafe.managerName || cafe.managerPhone) && (
+              <div className="flex items-center gap-2 mt-1.5 text-xs text-stone-600">
+                <User className="w-3.5 h-3.5 text-[#008b8d]" />
+                <span>
+                  Manager Contact: <strong className="text-stone-800">{cafe.managerName || 'Floor Manager'}</strong>
+                  {cafe.managerPhone && (
+                    <span className="font-mono text-stone-700 ml-1">
+                      (+91 {cafe.managerPhone.replace(/\D/g, '').slice(-10)})
+                    </span>
+                  )}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

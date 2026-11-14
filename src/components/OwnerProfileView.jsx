@@ -411,6 +411,11 @@ export default function OwnerProfileView() {
                       <MapPin className="w-3 h-3 text-[#FF0046] shrink-0" />
                       <span>{cafe.area}, Kolkata</span>
                     </p>
+                    {cafe.managerName && (
+                      <p className="text-[10px] text-stone-600 truncate mt-0.5">
+                        Manager: <strong className="text-stone-700">{cafe.managerName}</strong> {cafe.managerPhone && `(+91 ${cafe.managerPhone.replace(/\D/g, '').slice(-10)})`}
+                      </p>
+                    )}
                     <div className="flex items-center gap-2 mt-2 text-[10px] font-bold">
                       <span className="px-1.5 py-0.2 rounded-[2px] bg-stone-200 text-stone-700">
                         {cafeShifts.length} Shifts
@@ -478,3 +483,4 @@ export default function OwnerProfileView() {
     </div>
   );
 }
+

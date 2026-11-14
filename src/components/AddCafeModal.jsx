@@ -22,15 +22,19 @@ import {
   Search,
   ExternalLink,
   Compass,
-  CheckCircle2
+  CheckCircle2,
+  User,
+  Phone
 } from 'lucide-react';
 
 export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
-  const { addOwnerCafe, updateOwnerCafe, setIsEditingCafe, showToast } = useApp();
+  const { addOwnerCafe, updateOwnerCafe, setIsEditingCafe, showToast, currentUser } = useApp();
 
   const [name, setName] = useState('');
   const [area, setArea] = useState('Park Street');
   const [address, setAddress] = useState('');
+  const [managerName, setManagerName] = useState('');
+  const [managerPhone, setManagerPhone] = useState('');
   const [minHourlyWage, setMinHourlyWage] = useState(100);
   const [description, setDescription] = useState('');
   const [photoUrl, setPhotoUrl] = useState('');
@@ -97,6 +101,8 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
       setName(editCafe.name || '');
       setArea(editCafe.area || 'Park Street');
       setAddress(editCafe.address || '');
+      setManagerName(editCafe.managerName || editCafe.contactPerson || '');
+      setManagerPhone(editCafe.managerPhone ? editCafe.managerPhone.replace(/\D/g, '').slice(-10) : (editCafe.phone ? editCafe.phone.replace(/\D/g, '').slice(-10) : ''));
       setMinHourlyWage(editCafe.minHourlyWage || 100);
       setDescription(editCafe.description || '');
       setPhotoUrl(editCafe.photoUrl || '');
@@ -104,6 +110,8 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
       setName('');
       setArea('Park Street');
       setAddress('');
+      setManagerName(currentUser?.name || '');
+      setManagerPhone(currentUser?.phone ? currentUser.phone.replace(/\D/g, '').slice(-10) : '');
       setMinHourlyWage(100);
       setDescription('');
       setPhotoUrl('');
@@ -111,7 +119,7 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
     setError('');
     setLocationSuccessNote('');
     setShowSuggestions(false);
-  }, [editCafe, isOpen]);
+  }, [editCafe, isOpen, currentUser]);
 
   if (!isOpen) return null;
 
@@ -195,6 +203,14 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
     if (!address.trim()) return setError('Please enter the street address');
     if (Number(minHourlyWage) < 100) return setError('Minimum hourly wage must be at least ₹100/hr (Kolkata student fair wage standard)');
 
+    const cleanPhone = managerPhone.replace(/\D/g, '');
+    if (cleanPhone && cleanPhone.length !== 10) {
+      return setError('Please enter a valid 10-digit mobile number for the manager (e.g. 9876543210)');
+    }
+
+    const finalManagerName = managerName.trim() || currentUser?.name || 'Cafe Manager';
+    const finalManagerPhone = cleanPhone ? cleanPhone.slice(-10) : (currentUser?.phone ? currentUser.phone.replace(/\D/g, '').slice(-10) : '');
+
     setIsSubmitting(true);
     try {
       if (editCafe) {
@@ -202,6 +218,8 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
           name: name.trim(),
           area,
           address: address.trim(),
+          managerName: finalManagerName,
+          managerPhone: finalManagerPhone,
           minHourlyWage: Number(minHourlyWage),
           description: description.trim(),
           photoUrl
@@ -211,6 +229,8 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
           name: name.trim(),
           area,
           address: address.trim(),
+          managerName: finalManagerName,
+          managerPhone: finalManagerPhone,
           minHourlyWage: Number(minHourlyWage),
           description: description.trim() || 'A vibrant Kolkata cafe offering flexible student shifts.',
           photoUrl
@@ -614,12 +634,92 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
             </div>
           </div>
 
-          {/* Section 3: Atmosphere & About */}
+          {/* Section 3: Manager & Shift Contact Details */}
+          <div className="bg-white rounded-[3px] p-5 sm:p-6 border border-stone-200 shadow-2xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-3">
+              <div>
+                <h3 className="font-headline font-bold text-xs uppercase tracking-wider text-[#0A011C] flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-[#FF0046]" />
+                  <span>3. Floor Manager & Shift Contact Details</span>
+                </h3>
+                <p className="text-[11px] text-stone-400 mt-0.5">
+                  Students who book shifts at this outlet will receive this manager name and direct phone number (+91) to coordinate shift reporting and check-in.
+                </p>
+              </div>
+
+              {currentUser && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setManagerName(currentUser.name || '');
+                    setManagerPhone(currentUser.phone ? currentUser.phone.replace(/\D/g, '').slice(-10) : '');
+                  }}
+                  className="self-start sm:self-auto text-[10px] font-headline font-bold uppercase tracking-wider text-[#006062] hover:text-[#0A011C] bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-[2px] transition-colors flex items-center gap-1 shrink-0"
+                  title="Auto-fill with your owner account name & phone"
+                >
+                  <User className="w-3 h-3 text-[#00DADC]" />
+                  <span>Use My Contact Info</span>
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              {/* Manager Name */}
+              <div>
+                <label className="font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline flex items-center gap-1">
+                  <span>Manager / Contact Person Name</span>
+                  <span className="text-[#FF0046]">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Rahul Sen (Floor Manager)"
+                    value={managerName}
+                    onChange={e => setManagerName(e.target.value)}
+                    className="w-full pl-3.5 pr-8 py-2.5 text-xs rounded-[3px] border border-stone-200 bg-stone-50 text-[#0A011C] placeholder-stone-400 focus:bg-white focus:outline-none focus:border-[#FF0046] transition-colors font-medium"
+                  />
+                  <User className="w-4 h-4 text-stone-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+                <span className="text-[10px] text-stone-400 block mt-1">
+                  Name of manager on shift duty (defaults to owner name).
+                </span>
+              </div>
+
+              {/* Manager Phone Number with +91 Prefix */}
+              <div>
+                <label className="font-bold uppercase tracking-wider text-stone-700 block mb-1 font-headline flex items-center gap-1">
+                  <Phone className="w-3 h-3 text-[#FF0046]" />
+                  <span>Manager Phone Number (+91)</span>
+                  <span className="text-[#FF0046]">*</span>
+                </label>
+                <div className="flex items-center">
+                  <span className="px-3 py-2.5 text-xs font-bold bg-stone-200 text-stone-800 rounded-l-[3px] border border-r-0 border-stone-200 font-headline">
+                    +91
+                  </span>
+                  <input
+                    type="tel"
+                    required
+                    maxLength={10}
+                    placeholder="9876543210"
+                    value={managerPhone}
+                    onChange={e => setManagerPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    className="w-full px-3.5 py-2.5 text-xs rounded-r-[3px] border border-stone-200 bg-stone-50 font-bold text-[#0A011C] focus:bg-white focus:outline-none focus:border-[#FF0046] tracking-wider"
+                  />
+                </div>
+                <span className="text-[10px] text-stone-400 block mt-1">
+                  Direct 10-digit mobile number for calls & WhatsApp from booked students.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Atmosphere & About */}
           <div className="bg-white rounded-[3px] p-5 sm:p-6 border border-stone-200 shadow-2xs space-y-4">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div>
                 <h3 className="font-headline font-bold text-xs uppercase tracking-wider text-[#0A011C]">
-                  3. About Your Cafe Outlet
+                  4. About Your Cafe Outlet
                 </h3>
                 <p className="text-[11px] text-stone-400 mt-0.5">
                   Give students an impression of your cafe culture and rush-hour vibes.
