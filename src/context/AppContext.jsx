@@ -783,6 +783,24 @@ export const AppProvider = ({ children }) => {
       }
       return c;
     }));
+
+    // Cascade cafe branding / photo updates to active shifts of this cafe
+    if (updatedFields.photoUrl !== undefined || updatedFields.name !== undefined || updatedFields.area !== undefined) {
+      setShifts(prev => prev.map(s => {
+        if (s.cafeId === cafeId) {
+          const updatedShift = {
+            ...s,
+            ...(updatedFields.photoUrl !== undefined ? { cafePhotoUrl: updatedFields.photoUrl } : {}),
+            ...(updatedFields.name !== undefined ? { cafeName: updatedFields.name } : {}),
+            ...(updatedFields.area !== undefined ? { cafeArea: updatedFields.area } : {})
+          };
+          publishShiftToFirebase(updatedShift).catch(() => {});
+          return updatedShift;
+        }
+        return s;
+      }));
+    }
+
     showToast('Cafe details updated successfully.', 'success', '✓');
   };
 

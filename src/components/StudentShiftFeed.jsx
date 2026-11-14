@@ -5,7 +5,7 @@ import { Search, MapPin, Calendar, Clock, ArrowRight, X, Check } from 'lucide-re
 import { formatDateDDMMYYYY, formatTime12Hour } from '../utils/dateTime';
 
 export default function StudentShiftFeed() {
-  const { shifts, applyForShift, currentUser } = useApp();
+  const { shifts, applyForShift, currentUser, cafes } = useApp();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedArea, setSelectedArea] = useState('All');
@@ -295,9 +295,9 @@ export default function StudentShiftFeed() {
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-center gap-2.5">
                     <div className="w-10 h-10 rounded-[3px] bg-stone-100 border border-stone-200 flex items-center justify-center overflow-hidden shrink-0">
-                      {shift.cafePhotoUrl ? (
+                      {shift.cafePhotoUrl || cafes?.find(c => c.id === shift.cafeId)?.photoUrl ? (
                         <img
-                          src={shift.cafePhotoUrl}
+                          src={shift.cafePhotoUrl || cafes?.find(c => c.id === shift.cafeId)?.photoUrl}
                           alt={shift.cafeName}
                           className="w-full h-full object-cover"
                           onError={(e) => { e.currentTarget.style.display = 'none'; }}
