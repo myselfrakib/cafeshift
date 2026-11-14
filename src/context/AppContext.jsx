@@ -636,7 +636,7 @@ export const AppProvider = ({ children }) => {
         durationHours: finalDuration,
         hourlyWage: finalWage,
         totalEarnings: finalWage * finalDuration,
-        perks: perks.length > 0 ? perks : ['Free Cafe Drink', 'Warm Snack', 'Student Tip Share'],
+        perks: Array.isArray(perks) ? perks : [],
         dressCode,
         notes: notes || 'Punctual and friendly during rush hours.',
         status: 'open',

@@ -50,10 +50,7 @@ export default function CreateShiftModal() {
   const [startPeriod, setStartPeriod] = useState('PM');
   const [durationHours, setDurationHours] = useState(3); // Minimum 3 hours required!
   const [hourlyWage, setHourlyWage] = useState(activeCafe?.minHourlyWage || 100); // Minimum 100 required!
-  const [selectedPerks, setSelectedPerks] = useState([
-    'Free Specialty Coffee ☕',
-    'Warm Meal / Snack 🥪'
-  ]);
+  const [selectedPerks, setSelectedPerks] = useState([]); // Default: no perks pre-selected
   const [dressCode, setDressCode] = useState('Comfortable casuals + sneakers (Cafe apron provided)');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
@@ -123,6 +120,7 @@ export default function CreateShiftModal() {
       });
       // Reset form fields
       setRoleName('');
+      setSelectedPerks([]);
       setNotes('');
     } catch (err) {
       setError(err?.message || 'Failed to publish shift. Please try again.');

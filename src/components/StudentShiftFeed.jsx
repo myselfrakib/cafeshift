@@ -346,17 +346,19 @@ export default function StudentShiftFeed() {
                   </div>
                 </div>
 
-                {/* Perks */}
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {shift.perks?.slice(0, 3).map((perk, idx) => (
-                    <span
-                      key={idx}
-                      className="text-[10px] bg-stone-100 text-stone-700 px-2 py-0.5 rounded-[2px] border border-stone-200 font-medium"
-                    >
-                      {perk}
-                    </span>
-                  ))}
-                </div>
+                {/* Perks (rendered only if selected) */}
+                {shift.perks && shift.perks.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {shift.perks.slice(0, 3).map((perk, idx) => (
+                      <span
+                        key={idx}
+                        className="text-[10px] bg-stone-100 text-stone-700 px-2 py-0.5 rounded-[2px] border border-stone-200 font-medium"
+                      >
+                        {perk}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Bottom Pay & Apply Action */}
