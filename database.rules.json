@@ -12,7 +12,7 @@
     },
     "jobs": {
       ".read": true,
-      ".write": "auth != null || !data.exists() || !newData.exists() || newData.child('title').exists()"
+      ".write": "auth != null || !data.exists() || !newData.exists() || newData.child('positionTitle').exists() || newData.child('title').exists() || newData.child('applicants').exists()"
     },
     "tiutbc": {
       "storeStatus": {
