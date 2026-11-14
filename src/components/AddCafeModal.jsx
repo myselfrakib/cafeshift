@@ -386,16 +386,6 @@ export default function AddCafeModal({ isOpen, onClose, editCafe = null }) {
       {/* 2. Main Full-Screen Form Container */}
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-8 py-6 sm:py-10 space-y-6">
         
-        {/* Banner Info */}
-        <div className="bg-white rounded-[3px] p-5 sm:p-6 border border-stone-200 shadow-2xs">
-          <h2 className="text-lg sm:text-xl font-bold font-headline text-[#0A011C] uppercase tracking-tight">
-            {editCafe ? 'Cafe Storefront & Outlet Details' : 'Register New Kolkata Outlet'}
-          </h2>
-          <p className="text-xs text-stone-500 mt-1 max-w-2xl leading-relaxed">
-            Type your cafe's name to auto-fill details from Google Place data, or click <strong>Fetch Current Location</strong> to auto-detect your outlet's GPS address and Kolkata neighborhood.
-          </p>
-        </div>
-
         {error && (
           <div className="p-3.5 rounded-[3px] bg-rose-50 border border-rose-300 text-[#FF0046] text-xs font-bold flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
